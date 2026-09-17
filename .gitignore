@@ -17,3 +17,7 @@ venv/
 !.vscode/settings.json
 !.vscode/extensions.json
 .DS_Store
+
+# MCP build & dependencies
+mcp/node_modules/
+mcp/dist/
