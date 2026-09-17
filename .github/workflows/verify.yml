@@ -1,0 +1,48 @@
+name: Lean 4 Proof Verification & Axiom Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify-kernel:
+    name: Lean 4 Kernel & Axiom Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Elan (Lean toolchain manager)
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch Pre-compiled Mathlib Cache
+        run: |
+          $HOME/.elan/bin/lake exe cache get || true
+
+      - name: Lake Build (Compile Lean proofs)
+        run: |
+          $HOME/.elan/bin/lake build
+
+      - name: Audit Axioms (Reject Custom Axiom Cheats)
+        run: |
+          $HOME/.elan/bin/lake env lean --run scripts/audit_axioms.lean
+
+      - name: Export Blueprint Graph Artifact
+        run: |
+          python3 scripts/export_blueprint.py blueprint/blueprint.json
+
+      - name: Upload Blueprint Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blueprint-data
+          path: blueprint/blueprint.json
+          retention-days: 14

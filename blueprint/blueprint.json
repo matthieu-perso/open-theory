@@ -1,0 +1,89 @@
+{
+  "generatedAt": "2026-09-17T14:54:35.295240+00:00",
+  "toolchain": "leanprover/lean4:v4.11.0",
+  "nodesCount": 8,
+  "nodes": [
+    {
+      "id": "def:two_layer_net",
+      "kind": "definition",
+      "title": "TwoLayerNet Architecture",
+      "leanName": "OpenTheory.Architectures.TwoLayerNet.forward",
+      "isVerified": true,
+      "dependencies": []
+    },
+    {
+      "id": "def:mup_scaling",
+      "kind": "definition",
+      "title": "Maximal Update Parametrization ($\\mu$P)",
+      "leanName": "OpenTheory.Architectures.MuPScaling",
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net"
+      ]
+    },
+    {
+      "id": "lem:lipschitz_gelu",
+      "kind": "lemma",
+      "title": "Activation Lipschitz Bound",
+      "leanName": "OpenTheory.Spectral.activation_lipschitz_bound",
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net"
+      ]
+    },
+    {
+      "id": "lem:rademacher_bound",
+      "kind": "lemma",
+      "title": "Rademacher Complexity Symmetrization",
+      "leanName": "OpenTheory.Generalization.rademacher_symmetrization",
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net"
+      ]
+    },
+    {
+      "id": "lem:gaussian_operator_norm",
+      "kind": "lemma",
+      "title": "Spectral Norm of Gaussian Projections",
+      "leanName": "OpenTheory.Spectral.random_matrix_operator_norm_bound",
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net"
+      ]
+    },
+    {
+      "id": "lem:spectral_bias_mup",
+      "kind": "lemma",
+      "title": "Spectral Bias in $\\mu$P Scaling",
+      "leanName": "OpenTheory.Dynamics.spectral_bias_mup_alignment",
+      "isVerified": false,
+      "dependencies": [
+        "def:mup_scaling",
+        "lem:gaussian_operator_norm",
+        "lem:lipschitz_gelu"
+      ]
+    },
+    {
+      "id": "lem:representation_contraction",
+      "kind": "lemma",
+      "title": "Representation Contraction in Residual Blocks",
+      "leanName": "OpenTheory.Dynamics.resnet_representation_contraction",
+      "isVerified": false,
+      "dependencies": [
+        "lem:lipschitz_gelu"
+      ]
+    },
+    {
+      "id": "conj:grand_feature_learning",
+      "kind": "conjecture",
+      "title": "Global Feature Learning Alignment",
+      "leanName": "OpenTheory.GrandConjectures.feature_learning_resnet_alignment",
+      "isVerified": false,
+      "dependencies": [
+        "lem:spectral_bias_mup",
+        "lem:representation_contraction",
+        "lem:gaussian_operator_norm"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+
+% Lean Blueprint macros
+\providecommand{\lean}[1]{}
+\providecommand{\leanok}{}
+\providecommand{\uses}[1]{}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\title{OpenTheory: Machine-Checked Foundations of Deep Learning}
+\author{OpenTheory Consortium}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+Modern deep learning theory relies on high-dimensional asymptotic analysis and delicate non-linear differential equations. 
+OpenTheory establishes a machine-checked formalization of deep learning theory in Lean 4 with Mathlib.
+
+\section{Architecture Foundations}
+
+\begin{definition}[TwoLayerNet Architecture]\label{def:two_layer_net}
+\lean{OpenTheory.Architectures.TwoLayerNet.forward}
+\leanok
+For input dimension $d$ and hidden width $m$, a two-layer network $f_\theta : \mathbb{R}^d \to \mathbb{R}$ evaluates:
+\[
+f_\theta(x) = \sum_{k=1}^m W_{2,k} \, \sigma\left(\sum_{j=1}^d W_{1,kj} \, x_j\right)
+\]
+where $\sigma : \mathbb{R} \to \mathbb{R}$ is a differentiable activation function.
+\end{definition}
+
+\begin{definition}[Maximal Update Parametrization ($\mu$P)]\label{def:mup_scaling}
+\lean{OpenTheory.Architectures.MuPScaling}
+\leanok
+\uses{def:two_layer_net}
+Under $\mu$P, weight matrices are initialized as $W_1 \sim \mathcal{N}(0, 1/d)$ and $W_2 \sim \mathcal{N}(0, 1/m)$, 
+with learning rates $\eta_{W_1} = \Theta(1)$ and $\eta_{W_2} = \Theta(1/m)$.
+\end{definition}
+
+\section{Spectral Geometry and Generalization}
+
+\begin{lemma}[Activation Lipschitz Bound]\label{lem:lipschitz_gelu}
+\lean{OpenTheory.Spectral.activation_lipschitz_bound}
+\leanok
+\uses{def:two_layer_net}
+Let $\sigma$ have bounded derivative $\|\sigma'\|_\infty \le 1.13$. Then $\sigma$ is $1.13$-Lipschitz on $\mathbb{R}$.
+\end{lemma}
+
+\begin{lemma}[Rademacher Complexity Symmetrization]\label{lem:rademacher_bound}
+\lean{OpenTheory.Generalization.rademacher_symmetrization}
+\leanok
+\uses{def:two_layer_net}
+Let $\mathcal{F}$ be a bounded function class. Then the empirical Rademacher complexity satisfies:
+\[
+\mathcal{R}_n(\mathcal{F}) \le 2 \, \mathbb{E}_{\varepsilon, X} \left[ \sup_{f \in \mathcal{F}} \frac{1}{n} \sum_{i=1}^n \varepsilon_i f(X_i) \right]
+\]
+\end{lemma}
+
+\begin{lemma}[Spectral Norm of Gaussian Projections]\label{lem:gaussian_operator_norm}
+\lean{OpenTheory.Spectral.random_matrix_operator_norm_bound}
+\leanok
+\uses{def:two_layer_net}
+For random rectangular Gaussian matrices $W \in \mathbb{R}^{m \times d}$, the operator norm concentrates as:
+\[
+\mathbb{P}\left(\|W\|_{\mathrm{op}} \le \sqrt{m} + \sqrt{d} + t\right) \ge 1 - 2 e^{-t^2/2}
+\]
+\end{lemma}
+
+\section{Representation Dynamics and Bounty Targets}
+
+\begin{lemma}[Spectral Bias in $\mu$P Scaling]\label{lem:spectral_bias_mup}
+\lean{OpenTheory.Dynamics.spectral_bias_mup_alignment}
+\uses{def:mup_scaling, lem:gaussian_operator_norm, lem:lipschitz_gelu}
+Under continuous gradient flow with $\mu$P scaling, representations align with the principal eigenspaces of the data covariance operator at an exponential rate proportional to $\lambda_k$.
+\end{lemma}
+\begin{proof}
+Open target (Bounty \$2,500). Formalize in Lean 4 without \texttt{sorry}.
+\end{proof}
+
+\begin{lemma}[Representation Contraction in Residual Blocks]\label{lem:representation_contraction}
+\lean{OpenTheory.Dynamics.resnet_representation_contraction}
+\uses{lem:lipschitz_gelu}
+For depth $L$ residual architectures with branch normalization $1/\sqrt{L}$:
+\[
+\|h_{l+1}(x) - h_{l+1}(y)\|_2 \le \left(1 + \frac{c}{\sqrt{L}}\right) \|h_l(x) - h_l(y)\|_2
+\]
+\end{lemma}
+
+\begin{conjecture}[Global Feature Learning Alignment]\label{conj:grand_feature_learning}
+\lean{OpenTheory.GrandConjectures.feature_learning_resnet_alignment}
+\uses{lem:spectral_bias_mup, lem:representation_contraction, lem:gaussian_operator_norm}
+Deep residual networks trained under $\mu$P converge with probability 1 to representations that align with the top-$k$ data eigenspaces, strictly outperforming the Neural Tangent Kernel limit.
+\end{conjecture}
+
+\bibliographystyle{alpha}
+\bibliography{references}
+
+\end{document}
