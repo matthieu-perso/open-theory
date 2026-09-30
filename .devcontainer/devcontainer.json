@@ -19,5 +19,5 @@
       }
     }
   },
-  "postCreateCommand": "curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none && echo 'export PATH=\"$HOME/.elan/bin:$PATH\"' >> ~/.bashrc && export PATH=\"$HOME/.elan/bin:$PATH\" && lake exe cache get && pip install leanblueprint"
+  "postCreateCommand": "curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none && echo 'export PATH=\"$HOME/.elan/bin:$PATH\"' >> ~/.bashrc && export PATH=\"$HOME/.elan/bin:$PATH\" && lake exe cache get && sudo apt-get update && sudo apt-get install -y graphviz libgraphviz-dev && pip install leanblueprint"
 }

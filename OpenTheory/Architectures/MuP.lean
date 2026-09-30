@@ -15,4 +15,10 @@ structure MuPScaling (d m : ℕ) where
   h_d_pos : (d : ℝ) > 0
   h_m_pos : (m : ℝ) > 0
 
+lemma MuPScaling.input_dim_pos {d m : ℕ} (s : MuPScaling d m) : (0 : ℝ) < d :=
+  s.h_d_pos
+
+lemma MuPScaling.width_pos {d m : ℕ} (s : MuPScaling d m) : (0 : ℝ) < m :=
+  s.h_m_pos
+
 end OpenTheory

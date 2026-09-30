@@ -1,0 +1,23 @@
+% HTML blueprint (plasTeX + leanblueprint).
+
+\documentclass{report}
+
+\usepackage{amssymb, amsthm, amsmath}
+\usepackage{hyperref}
+\usepackage[capitalize]{cleveref}
+\usepackage[showmore, dep_graph, thms=definition+lemma+proposition+theorem+corollary+conjecture]{blueprint}
+
+\input{macros/common}
+\input{macros/web}
+
+\home{https://matthieu-perso.github.io/open-theory}
+\github{https://github.com/matthieu-perso/open-theory}
+\dochome{https://matthieu-perso.github.io/open-theory/docs}
+
+\title{OpenTheory}
+\author{OpenTheory Consortium}
+
+\begin{document}
+\maketitle
+\input{content}
+\end{document}

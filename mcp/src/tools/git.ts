@@ -44,38 +44,35 @@ export interface CommitProofResult {
 }
 
 /**
- * Adds \leanok tag to the target lemma in blueprint/src/content.tex
+ * Massot convention: a completed proof is `\leanok` *inside* the proof
+ * environment. Definitions without a proof keep `\leanok` on the statement.
  */
 export function markLemmaVerifiedInTex(lemmaId: string): boolean {
   if (!fs.existsSync(BLUEPRINT_TEX_PATH)) return false;
 
   const content = fs.readFileSync(BLUEPRINT_TEX_PATH, 'utf-8');
-  const cleanId = lemmaId.replace(/^lem:|^def:|^thm:|^conj:/, '');
-
-  // Regex to find environment with \label{lemmaId}
-  const labelPattern = new RegExp(
-    `(\\\\begin\\{(?:theorem|lemma|definition|conjecture)\\}(?:\\[.*?\\])?\\\\label\\{(?:lem:|def:|thm:|conj:)?${cleanId}\\}[\\s\\S]*?)(\\\\end\\{(?:theorem|lemma|definition|conjecture)\\})`,
-    'm'
+  const escaped = lemmaId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const envRe = new RegExp(
+    `\\\\begin\\{(theorem|lemma|definition|conjecture)\\}(?:\\[.*?\\])?\\s*\\\\label\\{${escaped}\\}[\\s\\S]*?\\\\end\\{\\1\\}`
   );
-
-  const match = labelPattern.exec(content);
+  const match = envRe.exec(content);
   if (!match) return false;
 
-  const body = match[1];
-  if (/\\leanok\b/.test(body)) {
-    return true; // Already marked verified
+  const after = content.slice(match.index + match[0].length);
+  const proofMatch = /^(\s*\\begin\{proof\})([\s\S]*?)(\\end\{proof\})/.exec(after);
+  if (proofMatch) {
+    if (/\\leanok\b/.test(proofMatch[2])) return true;
+    const updated =
+      content.slice(0, match.index + match[0].length) +
+      `${proofMatch[1]}\n\\leanok${proofMatch[2]}${proofMatch[3]}` +
+      after.slice(proofMatch[0].length);
+    fs.writeFileSync(BLUEPRINT_TEX_PATH, updated, 'utf-8');
+    return true;
   }
 
-  // Insert \leanok after \lean{...} if present, or after \label{...}
-  let updatedBody: string;
-  if (/\\lean\{.*?\}/.test(body)) {
-    updatedBody = body.replace(/(\\lean\{.*?\})/, '$1\n\\leanok');
-  } else {
-    updatedBody = body.replace(/(\\label\{.*?\})/, '$1\n\\leanok');
-  }
-
-  const newContent = content.replace(labelPattern, `${updatedBody}$2`);
-  fs.writeFileSync(BLUEPRINT_TEX_PATH, newContent, 'utf-8');
+  if (/\\leanok\b/.test(match[0])) return true;
+  const withOk = match[0].replace(/(\\lean\{.*?\})/, '$1\n\\leanok');
+  fs.writeFileSync(BLUEPRINT_TEX_PATH, content.replace(match[0], withOk), 'utf-8');
   return true;
 }
 

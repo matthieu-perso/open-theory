@@ -74,8 +74,8 @@ export function parseContentTex(): Map<string, ParsedTexEnv> {
 
   const text = fs.readFileSync(BLUEPRINT_TEX_PATH, 'utf-8');
 
-  // Match: \begin{lemma|theorem|definition|conjecture}[Title]\label{id} ... \end{...}
-  const envRegex = /\\begin\{(theorem|lemma|definition|conjecture)\}(?:\[(.*?)\])?\\label\{(.*?)\}([\s\S]*?)\\end\{\1\}/g;
+  const envRegex =
+    /\\begin\{(theorem|lemma|definition|conjecture|proposition|corollary)\}(?:\[(.*?)\])?\s*\\label\{(.*?)\}([\s\S]*?)\\end\{\1\}/g;
   let match: RegExpExecArray | null;
 
   while ((match = envRegex.exec(text)) !== null) {
@@ -84,39 +84,36 @@ export function parseContentTex(): Map<string, ParsedTexEnv> {
     const id = match[3].trim();
     const rawBody = match[4];
 
-    // Extract \lean{...}
     const leanMatch = /\\lean\{(.*?)\}/.exec(rawBody);
-    const leanName = leanMatch ? leanMatch[1].trim() : undefined;
+    const leanName = leanMatch ? leanMatch[1].split(',')[0].trim() : undefined;
 
-    // Extract \leanok
-    const isLeanok = /\\leanok/.test(rawBody);
-
-    // Extract \uses{...}
     const usesMatch = /\\uses\{(.*?)\}/.exec(rawBody);
     const dependencies = usesMatch
       ? usesMatch[1].split(',').map((u) => u.trim()).filter(Boolean)
       : [];
 
-    // Clean statement (strip \lean, \leanok, \uses macros)
     const statement = rawBody
       .replace(/\\lean\{.*?\}/g, '')
       .replace(/\\leanok/g, '')
       .replace(/\\uses\{.*?\}/g, '')
       .trim();
 
-    // Look ahead for subsequent \begin{proof} ... \end{proof}
     const afterEnv = text.slice(match.index + match[0].length);
     const proofMatch = /^\s*\\begin\{proof\}([\s\S]*?)\\end\{proof\}/.exec(afterEnv);
     let proofSketch: string | undefined;
     let bountyUsd: number | undefined;
+    let proofOk = false;
 
     if (proofMatch) {
-      proofSketch = proofMatch[1].trim();
-      const bountyMatch = /Bounty\s+\$?([0-9,]+)/i.exec(proofSketch);
+      proofOk = /\\leanok\b/.test(proofMatch[1]);
+      proofSketch = proofMatch[1].replace(/\\leanok/g, '').trim();
+      const bountyMatch = /Bounty\s+\\?\$?([0-9,]+)/i.exec(proofSketch);
       if (bountyMatch) {
         bountyUsd = parseInt(bountyMatch[1].replace(/,/g, ''), 10);
       }
     }
+
+    const isLeanok = kind === 'definition' ? /\\leanok\b/.test(rawBody) : proofOk;
 
     // Fallback to known bounties if not explicitly parsed in LaTeX
     if (!bountyUsd && KNOWN_BOUNTIES[id]) {

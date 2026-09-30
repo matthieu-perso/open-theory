@@ -21,3 +21,22 @@ venv/
 # MCP build & dependencies
 mcp/node_modules/
 mcp/dist/
+
+# leanblueprint / plasTeX / latexmk outputs
+blueprint/web/
+blueprint/print.pdf
+blueprint/print.aux
+blueprint/print.log
+blueprint/print.out
+blueprint/print.toc
+blueprint/print.fls
+blueprint/print.fdb_latexmk
+blueprint/print.xdv
+blueprint/print.synctex.gz
+blueprint/print.bbl
+blueprint/print.blg
+*.aux
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.xdv

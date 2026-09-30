@@ -1,5 +1,7 @@
 import OpenTheory.Architectures.Basic
 import OpenTheory.Architectures.MuP
+import OpenTheory.Dynamics.Contraction
 import OpenTheory.Dynamics.FeatureAlignment
 import OpenTheory.Dynamics.SpectralBias
+import OpenTheory.Generalization.OperatorNorm
 import OpenTheory.Generalization.Rademacher

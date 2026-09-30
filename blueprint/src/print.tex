@@ -1,0 +1,22 @@
+% Printable blueprint (XeLaTeX / latexmk).
+
+\documentclass[a4paper]{report}
+
+\usepackage{geometry}
+\usepackage{expl3}
+\usepackage{amssymb, amsthm, mathtools}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=magenta,citecolor=blue]{hyperref}
+\usepackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
+\usepackage[capitalize]{cleveref}
+
+\input{macros/common}
+\input{macros/print}
+
+\title{OpenTheory: Machine-Checked Foundations of Deep Learning}
+\author{OpenTheory Consortium}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\input{content}
+\end{document}

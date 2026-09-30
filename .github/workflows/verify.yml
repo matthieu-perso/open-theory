@@ -1,4 +1,4 @@
-name: Lean 4 Proof Verification & Axiom Audit
+name: Lean 4 Proof Verification & Blueprint Graph
 
 on:
   push:
@@ -8,39 +8,60 @@ on:
 
 jobs:
   verify-kernel:
-    name: Lean 4 Kernel & Axiom Security Audit
+    name: Lean kernel, axioms, and blueprint names
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Elan (Lean toolchain manager)
+      - name: Install Elan
         run: |
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
-          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Fetch Pre-compiled Mathlib Cache
+      - name: Fetch Mathlib cache
+        run: lake exe cache get || true
+
+      - name: Lake build
+        run: lake build
+
+      - name: Axiom audit
+        run: lake env lean --run scripts/audit_axioms.lean
+
+      - name: Check blueprint Lean names
+        run: python3 scripts/check_lean_decls.py
+
+      - name: Export blueprint.json
+        run: python3 scripts/export_blueprint.py blueprint/blueprint.json
+
+      - name: Fail if committed graph is stale
         run: |
-          $HOME/.elan/bin/lake exe cache get || true
+          python3 scripts/export_blueprint.py /tmp/blueprint.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
 
-      - name: Lake Build (Compile Lean proofs)
-        run: |
-          $HOME/.elan/bin/lake build
+          def load(path):
+              data = json.loads(Path(path).read_text())
+              data.pop("generatedAt", None)
+              return data
 
-      - name: Audit Axioms (Reject Custom Axiom Cheats)
-        run: |
-          $HOME/.elan/bin/lake env lean --run scripts/audit_axioms.lean
+          committed = load("blueprint/blueprint.json")
+          generated = load("/tmp/blueprint.json")
+          if committed != generated:
+              raise SystemExit(
+                  "blueprint/blueprint.json is stale. Run:\n"
+                  "  python3 scripts/export_blueprint.py blueprint/blueprint.json"
+              )
+          print("[OK] blueprint.json matches content.tex")
+          PY
 
-      - name: Export Blueprint Graph Artifact
-        run: |
-          python3 scripts/export_blueprint.py blueprint/blueprint.json
-
-      - name: Upload Blueprint Artifact
+      - name: Upload blueprint graph
         uses: actions/upload-artifact@v4
         with:
           name: blueprint-data

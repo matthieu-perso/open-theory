@@ -49,10 +49,12 @@ The OpenTheory ecosystem is partitioned into two distinct repositories:
 ```text
 open-theory-core/
 ├── blueprint/
-│   ├── blueprint.json           # Machine-checked DAG node states
+│   ├── README.md                # Massot layout and local commands
+│   ├── blueprint.json           # DAG feed for the web platform
 │   └── src/
-│       ├── content.tex          # LaTeX manuscript with \lean{} and \leanok
-│       └── references.bib       # Literature citations
+│       ├── web.tex / print.tex  # plasTeX and XeLaTeX entries
+│       ├── content.tex          # mathematics (\lean, \leanok, \uses)
+│       └── macros/
 ├── OpenTheory/                  # Lean 4 formal math library
 │   ├── Architectures/           # TwoLayerNet, MuP scaling
 │   ├── Dynamics/                # Spectral bias, ResNet contraction

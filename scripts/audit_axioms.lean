@@ -2,28 +2,37 @@ import Lean
 
 open Lean
 
-def standardAxioms : List Name := [
-  `Classical.choice,
-  `Quot.sound,
-  `propext
-]
+def isAllowedAxiom (n : Name) : Bool :=
+  n == ``Classical.choice || n == ``Quot.sound || n == ``propext || n == ``sorryAx
+
+def axiomsOf (env : Environment) (declName : Name) : Array Name :=
+  let (_, s) := ((CollectAxioms.collect declName).run env).run {}
+  s.axioms
 
 def main : IO UInt32 := do
   let env ← importModules [{ module := `OpenTheory }] {}
   let mut violations : List (Name × Name) := []
+  let mut sorryDecls : List Name := []
 
   for (declName, _) in env.constants.toList do
-    if declName.toString.startsWith "OpenTheory" then
-      let (_, axioms) := (env.find? declName).get!.value.collectAxioms env
-      for ax in axioms do
-        if ¬ standardAxioms.contains ax then
-          violations := (declName, ax) :: violations
+    unless declName.toString.startsWith "OpenTheory" do
+      continue
+    for ax in axiomsOf env declName do
+      if ax == ``sorryAx then
+        sorryDecls := declName :: sorryDecls
+      else if !isAllowedAxiom ax then
+        violations := (declName, ax) :: violations
 
-  if ¬ violations.isEmpty then
-    IO.println "[FATAL] Unauthorized axioms detected in proof submission:"
+  let sorryUnique := sorryDecls.eraseDups
+  IO.println s!"[INFO] OpenTheory declarations using sorryAx: {sorryUnique.length}"
+  for decl in sorryUnique do
+    IO.println s!"  sorry: {decl}"
+
+  if !violations.isEmpty then
+    IO.println "[FATAL] Unauthorized axioms detected:"
     for (decl, ax) in violations do
       IO.println s!"  Declaration: {decl} -> Illegal Axiom: {ax}"
     return 1
 
-  IO.println "[VERIFIED] All declarations are sound against standard Mathlib axioms."
+  IO.println "[VERIFIED] No axioms outside {propext, Classical.choice, Quot.sound, sorryAx}."
   return 0

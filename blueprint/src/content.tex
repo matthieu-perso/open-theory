@@ -1,104 +1,138 @@
-\documentclass[11pt,a4paper]{article}
-\usepackage{amsmath,amssymb,amsthm}
-\usepackage{hyperref}
+\chapter{Introduction}
 
-% Lean Blueprint macros
-\providecommand{\lean}[1]{}
-\providecommand{\leanok}{}
-\providecommand{\uses}[1]{}
+Modern analyses of deep networks mix high-dimensional probability, gradient-flow ODEs, and parameterization-dependent scaling limits. Informal papers routinely hide constants, interchange limits, and leave feature-learning claims un-checked.
 
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{definition}[theorem]{Definition}
-\newtheorem{conjecture}[theorem]{Conjecture}
+OpenTheory is a dual-track project in the sense of Massot's Lean blueprints~\cite{tao2023pfr}: every claim below is written for humans in \LaTeX{} and, when a Lean name is given, mapped to a declaration in the \texttt{OpenTheory} library. Border colour on the dependency graph records whether the \emph{statement} is in Lean (\texttt{\textbackslash leanok} on the environment). Fill colour records whether the \emph{proof} is kernel-checked (\texttt{\textbackslash leanok} inside \texttt{proof}).
 
-\title{OpenTheory: Machine-Checked Foundations of Deep Learning}
-\author{OpenTheory Consortium}
-\date{September 2026}
+The only axioms permitted besides Mathlib's \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound} are \texttt{sorryAx} on explicitly open targets. Custom axioms fail CI.
 
-\begin{document}
-\maketitle
+\chapter{Architectures}
 
-\section{Introduction}
-Modern deep learning theory relies on high-dimensional asymptotic analysis and delicate non-linear differential equations. 
-OpenTheory establishes a machine-checked formalization of deep learning theory in Lean 4 with Mathlib.
-
-\section{Architecture Foundations}
-
-\begin{definition}[TwoLayerNet Architecture]\label{def:two_layer_net}
-\lean{OpenTheory.Architectures.TwoLayerNet.forward}
+\begin{definition}[Activation function]\label{def:activation}
+\lean{OpenTheory.ActivationFunction}
 \leanok
-For input dimension $d$ and hidden width $m$, a two-layer network $f_\theta : \mathbb{R}^d \to \mathbb{R}$ evaluates:
+A map $\sigma:\R\to\R$ is an admissible activation if it is differentiable and Lipschitz: there exists $L\in\R$ such that
 \[
-f_\theta(x) = \sum_{k=1}^m W_{2,k} \, \sigma\left(\sum_{j=1}^d W_{1,kj} \, x_j\right)
+|\sigma(x)-\sigma(y)| \le L\,|x-y|
+\quad\text{for all }x,y\in\R.
 \]
-where $\sigma : \mathbb{R} \to \mathbb{R}$ is a differentiable activation function.
 \end{definition}
 
-\begin{definition}[Maximal Update Parametrization ($\mu$P)]\label{def:mup_scaling}
-\lean{OpenTheory.Architectures.MuPScaling}
+\begin{definition}[Two-layer network]\label{def:two_layer_net}
+\lean{OpenTheory.TwoLayerNet, OpenTheory.TwoLayerNet.forward}
 \leanok
-\uses{def:two_layer_net}
-Under $\mu$P, weight matrices are initialized as $W_1 \sim \mathcal{N}(0, 1/d)$ and $W_2 \sim \mathcal{N}(0, 1/m)$, 
-with learning rates $\eta_{W_1} = \Theta(1)$ and $\eta_{W_2} = \Theta(1/m)$.
+\uses{def:activation}
+For input dimension $d$ and width $m$, a two-layer network is a triple $(W_1,W_2,\sigma)$ with $W_1\in\R^{m\times d}$, $W_2\in\R^{1\times m}$, and $\sigma$ an admissible activation. The forward map is
+\[
+f_\theta(x)
+=
+\sum_{k=1}^m W_{2,k}\,
+\sigma\Bigl(\sum_{j=1}^d W_{1,kj}\,x_j\Bigr).
+\]
 \end{definition}
 
-\section{Spectral Geometry and Generalization}
-
-\begin{lemma}[Activation Lipschitz Bound]\label{lem:lipschitz_gelu}
-\lean{OpenTheory.Spectral.activation_lipschitz_bound}
+\begin{definition}[Maximal Update Parametrization]\label{def:mup_scaling}
+\lean{OpenTheory.MuPScaling, OpenTheory.MuPScaling.input_dim_pos, OpenTheory.MuPScaling.width_pos}
 \leanok
 \uses{def:two_layer_net}
-Let $\sigma$ have bounded derivative $\|\sigma'\|_\infty \le 1.13$. Then $\sigma$ is $1.13$-Lipschitz on $\mathbb{R}$.
-\end{lemma}
-
-\begin{lemma}[Rademacher Complexity Symmetrization]\label{lem:rademacher_bound}
-\lean{OpenTheory.Generalization.rademacher_symmetrization}
-\leanok
-\uses{def:two_layer_net}
-Let $\mathcal{F}$ be a bounded function class. Then the empirical Rademacher complexity satisfies:
+Under $\mup$~\cite{yang2021tensor4,yang2022tensor5}, the default coordinate scaling is
 \[
-\mathcal{R}_n(\mathcal{F}) \le 2 \, \mathbb{E}_{\varepsilon, X} \left[ \sup_{f \in \mathcal{F}} \frac{1}{n} \sum_{i=1}^n \varepsilon_i f(X_i) \right]
+W_1\sim\mathcal{N}(0,1/d),\qquad
+W_2\sim\mathcal{N}(0,1/m),
 \]
-\end{lemma}
+with learning rates $\eta_{W_1}=\Theta(1)$ and $\eta_{W_2}=\Theta(1/m)$. The Lean structure records the corresponding positive scale factors and the hypotheses $d>0$, $m>0$.
+\end{definition}
 
-\begin{lemma}[Spectral Norm of Gaussian Projections]\label{lem:gaussian_operator_norm}
-\lean{OpenTheory.Spectral.random_matrix_operator_norm_bound}
+\chapter{Elementary bounds}
+
+\begin{lemma}[Activation Lipschitz bound]\label{lem:lipschitz_gelu}
+\lean{OpenTheory.ActivationFunction.lipschitz_bound}
 \leanok
-\uses{def:two_layer_net}
-For random rectangular Gaussian matrices $W \in \mathbb{R}^{m \times d}$, the operator norm concentrates as:
-\[
-\mathbb{P}\left(\|W\|_{\mathrm{op}} \le \sqrt{m} + \sqrt{d} + t\right) \ge 1 - 2 e^{-t^2/2}
-\]
-\end{lemma}
-
-\section{Representation Dynamics and Bounty Targets}
-
-\begin{lemma}[Spectral Bias in $\mu$P Scaling]\label{lem:spectral_bias_mup}
-\lean{OpenTheory.Dynamics.spectral_bias_mup_alignment}
-\uses{def:mup_scaling, lem:gaussian_operator_norm, lem:lipschitz_gelu}
-Under continuous gradient flow with $\mu$P scaling, representations align with the principal eigenspaces of the data covariance operator at an exponential rate proportional to $\lambda_k$.
+\uses{def:activation}
+If $\sigma$ is an admissible activation, then $\sigma$ is Lipschitz: there exists $L$ such that $|\sigma(x)-\sigma(y)|\le L\,|x-y|$ for all real $x,y$.
 \end{lemma}
 \begin{proof}
-Open target (Bounty \$2,500). Formalize in Lean 4 without \texttt{sorry}.
+\leanok
+Immediate from the Lipschitz field of \cref{def:activation}.
 \end{proof}
 
-\begin{lemma}[Representation Contraction in Residual Blocks]\label{lem:representation_contraction}
-\lean{OpenTheory.Dynamics.resnet_representation_contraction}
-\uses{lem:lipschitz_gelu}
-For depth $L$ residual architectures with branch normalization $1/\sqrt{L}$:
+\begin{lemma}[Bounded empirical means]\label{lem:bounded_mean}
+\lean{OpenTheory.abs_mean_le_of_abs_le_one}
+\leanok
+Let $n\ge 1$ and $a_1,\dots,a_n\in\R$ with $|a_i|\le 1$ for all $i$. Then
 \[
-\|h_{l+1}(x) - h_{l+1}(y)\|_2 \le \left(1 + \frac{c}{\sqrt{L}}\right) \|h_l(x) - h_l(y)\|_2
+\Bigl|\frac1n\sum_{i=1}^n a_i\Bigr| \le 1.
 \]
 \end{lemma}
+\begin{proof}
+\leanok
+Triangle inequality for finite sums and $|a_i|\le 1$ give $\bigl|\sum a_i\bigr|\le n$. Multiply by the positive scalar $n^{-1}$.
+\end{proof}
 
-\begin{conjecture}[Global Feature Learning Alignment]\label{conj:grand_feature_learning}
-\lean{OpenTheory.GrandConjectures.feature_learning_resnet_alignment}
+\begin{lemma}[Rademacher symmetrization]\label{lem:rademacher_bound}
+\lean{OpenTheory.rademacher_symmetrization}
+\leanok
+\uses{def:two_layer_net, lem:bounded_mean}
+Let $\mathcal{F}$ be a class of functions $\R^d\to\R$ that are uniformly bounded by $1$. The empirical Rademacher complexity satisfies the classical symmetrization inequality of Bartlett--Mendelson~\cite{bartlett2002rademacher}: there is a universal factor $C\le 2$ relating $\mathcal{R}_n(\mathcal{F})$ to a Rademacher average of the empirical process. The Lean declaration is a scaffold for that factor; the full empirical-process proof is open.
+\end{lemma}
+\begin{proof}
+Open target. Do not tag this proof \texttt{\textbackslash leanok} until \texttt{sorry} is gone. \cref{lem:bounded_mean} is the intended elementary input.
+\end{proof}
+
+\begin{lemma}[Spectral norm of Gaussian projections]\label{lem:gaussian_operator_norm}
+\lean{OpenTheory.gaussian_operator_norm_bound}
+\leanok
+\uses{def:two_layer_net}
+For a rectangular Gaussian matrix $W\in\R^{m\times d}$ with standard entries, Vershynin~\cite{vershynin2018high} gives
+\[
+\Pbb\bigl(\opnorm{W}\le \sqrt{m}+\sqrt{d}+t\bigr)
+\ge 1-2e^{-t^2/2}.
+\]
+The probability space is not yet in the library; the Lean declaration is a named open target.
+\end{lemma}
+\begin{proof}
+Open target (concentration of measure).
+\end{proof}
+
+\chapter{Dynamics}
+
+\begin{lemma}[Spectral bias in $\mup$ scaling]\label{lem:spectral_bias_mup}
+\lean{OpenTheory.spectral_bias_mup_alignment}
+\leanok
+\uses{def:mup_scaling, lem:gaussian_operator_norm, lem:lipschitz_gelu}
+Under continuous gradient flow with $\mup$ scaling, hidden representations align with principal eigenspaces of the data Gram matrix at a rate controlled by the corresponding eigenvalues~\cite{rahaman2019spectral}.
+\end{lemma}
+\begin{proof}
+Open target. Bounty \$2500. Formalize without \texttt{sorry}.
+\end{proof}
+
+\begin{lemma}[Representation contraction in residual blocks]\label{lem:representation_contraction}
+\lean{OpenTheory.resnet_representation_contraction}
+\leanok
+\uses{lem:lipschitz_gelu}
+For depth $L$ residual blocks with branch scaling $1/\sqrt{L}$~\cite{hayou2021stable}, distances in representation space expand by at most a factor $1+O(L^{-1/2})$:
+\[
+\|h_{\ell+1}(x)-h_{\ell+1}(y)\|_2
+\le
+\Bigl(1+\frac{c}{\sqrt{L}}\Bigr)
+\|h_\ell(x)-h_\ell(y)\|_2.
+\]
+\end{lemma}
+\begin{proof}
+Open target. Bounty \$1500.
+\end{proof}
+
+\chapter{Grand conjecture}
+
+\begin{conjecture}[Global feature-learning alignment]\label{conj:grand_feature_learning}
+\lean{OpenTheory.feature_learning_resnet_alignment}
+\leanok
 \uses{lem:spectral_bias_mup, lem:representation_contraction, lem:gaussian_operator_norm}
-Deep residual networks trained under $\mu$P converge with probability 1 to representations that align with the top-$k$ data eigenspaces, strictly outperforming the Neural Tangent Kernel limit.
+Deep residual networks trained by gradient flow under $\mup$ align representations with the leading data eigenspaces, strictly beyond the frozen-feature Neural Tangent Kernel regime of Jacot--Gabriel--Hongler~\cite{jacot2018neural} and the infinite-width kernel limit of Arora et al.~\cite{arora2019exact}.
 \end{conjecture}
+\begin{proof}
+Apex target. Bounty \$15000. Requires the preceding open lemmas.
+\end{proof}
 
 \bibliographystyle{alpha}
 \bibliography{references}
-
-\end{document}

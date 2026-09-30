@@ -1,89 +1,182 @@
 {
-  "generatedAt": "2026-09-17T14:54:35.295240+00:00",
+  "generatedAt": "2026-09-30T16:23:39.100137+00:00",
   "toolchain": "leanprover/lean4:v4.11.0",
-  "nodesCount": 8,
+  "convention": "massot-leanblueprint",
+  "nodesCount": 10,
   "nodes": [
+    {
+      "id": "def:activation",
+      "kind": "definition",
+      "title": "Activation function",
+      "leanName": "OpenTheory.ActivationFunction",
+      "leanNames": [
+        "OpenTheory.ActivationFunction"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
     {
       "id": "def:two_layer_net",
       "kind": "definition",
-      "title": "TwoLayerNet Architecture",
-      "leanName": "OpenTheory.Architectures.TwoLayerNet.forward",
+      "title": "Two-layer network",
+      "leanName": "OpenTheory.TwoLayerNet",
+      "leanNames": [
+        "OpenTheory.TwoLayerNet",
+        "OpenTheory.TwoLayerNet.forward"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
       "isVerified": true,
-      "dependencies": []
+      "dependencies": [
+        "def:activation"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
     },
     {
       "id": "def:mup_scaling",
       "kind": "definition",
-      "title": "Maximal Update Parametrization ($\\mu$P)",
-      "leanName": "OpenTheory.Architectures.MuPScaling",
+      "title": "Maximal Update Parametrization",
+      "leanName": "OpenTheory.MuPScaling",
+      "leanNames": [
+        "OpenTheory.MuPScaling",
+        "OpenTheory.MuPScaling.input_dim_pos",
+        "OpenTheory.MuPScaling.width_pos"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
       "isVerified": true,
       "dependencies": [
         "def:two_layer_net"
-      ]
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
     },
     {
       "id": "lem:lipschitz_gelu",
       "kind": "lemma",
-      "title": "Activation Lipschitz Bound",
-      "leanName": "OpenTheory.Spectral.activation_lipschitz_bound",
+      "title": "Activation Lipschitz bound",
+      "leanName": "OpenTheory.ActivationFunction.lipschitz_bound",
+      "leanNames": [
+        "OpenTheory.ActivationFunction.lipschitz_bound"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
       "isVerified": true,
       "dependencies": [
-        "def:two_layer_net"
-      ]
+        "def:activation"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Immediate from the Lipschitz field of \\cref{def:activation}."
+    },
+    {
+      "id": "lem:bounded_mean",
+      "kind": "lemma",
+      "title": "Bounded empirical means",
+      "leanName": "OpenTheory.abs_mean_le_of_abs_le_one",
+      "leanNames": [
+        "OpenTheory.abs_mean_le_of_abs_le_one"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [],
+      "bountyUsd": null,
+      "informalSketch": "Triangle inequality for finite sums and $|a_i|\\le 1$ give $\\bigl|\\sum a_i\\bigr|\\le n$. Multiply by the positive scalar $n^{-1}$."
     },
     {
       "id": "lem:rademacher_bound",
       "kind": "lemma",
-      "title": "Rademacher Complexity Symmetrization",
-      "leanName": "OpenTheory.Generalization.rademacher_symmetrization",
-      "isVerified": true,
+      "title": "Rademacher symmetrization",
+      "leanName": "OpenTheory.rademacher_symmetrization",
+      "leanNames": [
+        "OpenTheory.rademacher_symmetrization"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": false,
       "dependencies": [
-        "def:two_layer_net"
-      ]
+        "def:two_layer_net",
+        "lem:bounded_mean"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Open target. Do not tag this proof \\texttt{\\textbackslash leanok} until \\texttt{sorry} is gone. \\cref{lem:bounded_mean} is the intended elementary input."
     },
     {
       "id": "lem:gaussian_operator_norm",
       "kind": "lemma",
-      "title": "Spectral Norm of Gaussian Projections",
-      "leanName": "OpenTheory.Spectral.random_matrix_operator_norm_bound",
-      "isVerified": true,
+      "title": "Spectral norm of Gaussian projections",
+      "leanName": "OpenTheory.gaussian_operator_norm_bound",
+      "leanNames": [
+        "OpenTheory.gaussian_operator_norm_bound"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": false,
       "dependencies": [
         "def:two_layer_net"
-      ]
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Open target (concentration of measure)."
     },
     {
       "id": "lem:spectral_bias_mup",
       "kind": "lemma",
-      "title": "Spectral Bias in $\\mu$P Scaling",
-      "leanName": "OpenTheory.Dynamics.spectral_bias_mup_alignment",
+      "title": "Spectral bias in $\\mup$ scaling",
+      "leanName": "OpenTheory.spectral_bias_mup_alignment",
+      "leanNames": [
+        "OpenTheory.spectral_bias_mup_alignment"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
       "isVerified": false,
       "dependencies": [
         "def:mup_scaling",
         "lem:gaussian_operator_norm",
         "lem:lipschitz_gelu"
-      ]
+      ],
+      "bountyUsd": 2500,
+      "informalSketch": "Open target. Bounty \\$2500. Formalize without \\texttt{sorry}."
     },
     {
       "id": "lem:representation_contraction",
       "kind": "lemma",
-      "title": "Representation Contraction in Residual Blocks",
-      "leanName": "OpenTheory.Dynamics.resnet_representation_contraction",
+      "title": "Representation contraction in residual blocks",
+      "leanName": "OpenTheory.resnet_representation_contraction",
+      "leanNames": [
+        "OpenTheory.resnet_representation_contraction"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
       "isVerified": false,
       "dependencies": [
         "lem:lipschitz_gelu"
-      ]
+      ],
+      "bountyUsd": 1500,
+      "informalSketch": "Open target. Bounty \\$1500."
     },
     {
       "id": "conj:grand_feature_learning",
       "kind": "conjecture",
-      "title": "Global Feature Learning Alignment",
-      "leanName": "OpenTheory.GrandConjectures.feature_learning_resnet_alignment",
+      "title": "Global feature-learning alignment",
+      "leanName": "OpenTheory.feature_learning_resnet_alignment",
+      "leanNames": [
+        "OpenTheory.feature_learning_resnet_alignment"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
       "isVerified": false,
       "dependencies": [
         "lem:spectral_bias_mup",
         "lem:representation_contraction",
         "lem:gaussian_operator_norm"
-      ]
+      ],
+      "bountyUsd": 15000,
+      "informalSketch": "Apex target. Bounty \\$15000. Requires the preceding open lemmas."
     }
   ]
 }

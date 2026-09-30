@@ -1,9 +1,25 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# OpenTheory (Lean core)
 
-# This is NOT the Next.js you know
+This is a **Lean 4 + Mathlib** repository with a Patrick Massot `leanblueprint`. It is not a Next.js app.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## Source of truth
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+- Mathematics: `OpenTheory/**/*.lean` and `blueprint/src/content.tex`
+- Platform feed: `blueprint/blueprint.json` (regenerate with `python3 scripts/export_blueprint.py`)
+- Local agents: `mcp/` (stdio). Do not add an HTTP API on this repo.
 
-<!-- END:nextjs-agent-rules -->
+## Honesty rules
+
+- Every `\lean{Name}` in `content.tex` must be a real declaration (`python3 scripts/check_lean_decls.py`).
+- `\leanok` on a lemma/conjecture **proof** means no `sorry`. Statement-only `\leanok` means the claim is in Lean and may still be `sorry`.
+- Do not mark stubs, `True` fillers, or trivial `use` proofs as verified.
+- Allowed axioms: `propext`, `Classical.choice`, `Quot.sound`, and `sorryAx` on open targets.
+
+## Commands
+
+```bash
+lake build
+lake env lean --run scripts/audit_axioms.lean
+python3 scripts/check_lean_decls.py
+python3 scripts/export_blueprint.py blueprint/blueprint.json
+```

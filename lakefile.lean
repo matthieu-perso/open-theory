@@ -2,7 +2,7 @@ import Lake
 open Lake DSL
 
 package «open_theory» where
-  -- Package configuration options
+  -- Lean 4.11 + Mathlib v4.11.0. Blueprint lives in blueprint/ (leanblueprint).
 
 @[default_target]
 lean_lib «OpenTheory» where

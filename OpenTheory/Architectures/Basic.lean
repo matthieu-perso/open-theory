@@ -30,6 +30,12 @@ def TwoLayerNet.forward {d m : ℕ} (net : TwoLayerNet d m) (x : Fin d → ℝ) 
     net.act.σ (∑ j : Fin d, net.W₁ i j * x j)
   ∑ k : Fin m, net.W₂ 0 k * hidden k
 
+/-- Lipschitz continuity of the activation, extracted from the structure field.
+    This is a genuine kernel-checked lemma (no `sorry`). -/
+lemma ActivationFunction.lipschitz_bound (act : ActivationFunction) :
+    ∃ L : ℝ, ∀ x y : ℝ, |act.σ x - act.σ y| ≤ L * |x - y| :=
+  act.lipschitz
+
 /-- Mean Squared Error Empirical Risk Functional -/
 def EmpiricalRisk {d : ℕ} (n : ℕ) (X : Fin n → (Fin d → ℝ)) (Y : Fin n → ℝ)
     (f : (Fin d → ℝ) → ℝ) : ℝ :=
