@@ -8,6 +8,19 @@ Lean&nbsp;4 library and **Massot blueprint** for machine-checked deep learning t
 
 This repository is the source of mathematical truth. The Next.js dashboard is a separate repo that only **reads** `blueprint/blueprint.json`. There is no API on this library. Agents that prove lemmas talk to Lean through the **local** MCP server in `mcp/`.
 
+The Lean library follows the dependency order of the theory:
+
+```text
+OpenTheory/Data/             hypotheses on the sample and the spectrum
+OpenTheory/Architectures/    networks and expressivity
+OpenTheory/Parameterization/ µP and NTK: how width scales initialization and learning rates
+OpenTheory/Representation/   features, Gram matrix, alignment
+OpenTheory/Optimization/     empirical risk and descent
+OpenTheory/Generalization/   Lipschitz bounds, operator norm, Rademacher
+OpenTheory/Dynamics/         contraction, spectral bias, feature learning
+OpenTheory/EndToEnd.lean     population risk ≤ ε_approx + ε_opt + ε_gen
+```
+
 ---
 
 ## Dual track

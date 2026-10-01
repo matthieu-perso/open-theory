@@ -1,5 +1,5 @@
 import OpenTheory.Architectures.Basic
-import OpenTheory.Architectures.MuP
+import OpenTheory.Parameterization.MuP
 
 namespace OpenTheory
 
@@ -8,7 +8,7 @@ namespace OpenTheory
   Bounty Target: $2,500 for formalizing the lower bound on alignment rate.
 -/
 theorem spectral_bias_mup_alignment {d m : ℕ} (scale : MuPScaling d m)
-    (gram_eigenvalue : ℝ) (hλ : gram_eigenvalue > 0) :
+    (gram_eigenvalue : ℝ) (h_eigenvalue : gram_eigenvalue > 0) :
     ∃ (rate : ℝ), rate > 0 ∧
       ∀ t : ℝ, t ≥ 0 → rate * t ≤ gram_eigenvalue * t := by
   -- BOUNTY TARGET #001: Replace sorry with formal tactics

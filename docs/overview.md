@@ -9,11 +9,18 @@ The web dashboard is a **different** GitHub repo. It fetches `blueprint/blueprin
 ## Architecture
 
 ```
-OpenTheory/*.lean     kernel-checked library
-blueprint/src/        leanblueprint (web.tex, print.tex, content.tex)
-scripts/              axiom audit, JSON export, \lean name check
-mcp/                  stdio MCP for local agents
-home_page/            Jekyll landing page for GitHub Pages
+OpenTheory/Data/             sample, spectral gap, spiked model
+OpenTheory/Architectures/    activation, two-layer net, residual step, expressivity
+OpenTheory/Parameterization/ µP and NTK scale factors
+OpenTheory/Representation/   features, Gram matrix, alignment
+OpenTheory/Optimization/     empirical risk, descent path, convergence rate
+OpenTheory/Generalization/   Lipschitz bounds, operator norm, Rademacher
+OpenTheory/Dynamics/         contraction, spectral bias, feature-learning conjecture
+OpenTheory/EndToEnd.lean     population risk ≤ ε_approx + ε_opt + ε_gen
+blueprint/src/               leanblueprint (web.tex, print.tex, content.tex)
+scripts/                     axiom audit, JSON export, \lean name check
+mcp/                         stdio MCP for local agents
+home_page/                   Jekyll landing page for GitHub Pages
 ```
 
 ---
@@ -35,12 +42,20 @@ CI refuses `\lean` names that are not declarations.
 
 ### Formalized definitions and elementary lemmas (proof `\leanok`)
 
-- `def:activation`, `def:two_layer_net`, `def:mup_scaling`
-- `lem:lipschitz_gelu` — Lipschitz field of an activation
-- `lem:bounded_mean` — empirical means of 1-bounded sequences
+- Data: `def:sample`, `def:spectral_gap`, `def:spiked_model`
+- Architectures: `def:activation`, `def:two_layer_net`, `def:residual`, `def:approx_error`, `lem:approx_error_pointwise`
+- Parameterization: `def:mup_scaling`, `def:ntk_scaling`
+- Representation: `def:features`, `def:gram`, `def:alignment`, `lem:alignment_nonneg`
+- Optimization: `def:empirical_risk`, `def:descent`
+- Generalization: `lem:lipschitz_gelu`, `lem:bounded_mean`
+- End-to-end: `def:end_to_end`, `lem:population_risk`
 
 ### Statements in Lean, proofs open (`sorry`)
 
+- `lem:expressivity_subspace` — finite-sample approximation on the spike
+- `lem:alignment_le_one`, `lem:alignment_certificate`
+- `lem:risk_exponential` — Grönwall bound under a descent rate
+- `lem:layer_lipschitz`, `lem:forward_lipschitz`
 - `lem:rademacher_bound` — symmetrization scaffold
 - `lem:gaussian_operator_norm` — Gaussian operator-norm tails
 - `lem:spectral_bias_mup` — spectral bias under µP (bounty)

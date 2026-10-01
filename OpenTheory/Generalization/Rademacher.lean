@@ -11,7 +11,7 @@ lemma abs_mean_le_of_abs_le_one {n : ℕ} (hn : 0 < n) (a : Fin n → ℝ)
     (ha : ∀ i, |a i| ≤ 1) :
     |((n : ℝ)⁻¹) * ∑ i, a i| ≤ 1 := by
   have npos : (0 : ℝ) < n := Nat.cast_pos.mpr hn
-  have h₁ : |∑ i, a i| ≤ ∑ i, |a i| := abs_sum_le_sum_abs a Finset.univ
+  have h₁ : |∑ i, a i| ≤ ∑ i, |a i| := Finset.abs_sum_le_sum_abs a Finset.univ
   have h₂ : ∑ i, |a i| ≤ ∑ _i : Fin n, (1 : ℝ) :=
     Finset.sum_le_sum fun i _ => ha i
   have h₃ : ∑ _i : Fin n, (1 : ℝ) = (n : ℝ) := by
@@ -20,7 +20,7 @@ lemma abs_mean_le_of_abs_le_one {n : ℕ} (hn : 0 < n) (a : Fin n → ℝ)
   rw [abs_mul, abs_of_pos (inv_pos.mpr npos)]
   have hmul : (n : ℝ)⁻¹ * |∑ i, a i| ≤ (n : ℝ)⁻¹ * n :=
     mul_le_mul_of_nonneg_left hbound (inv_nonneg.mpr npos.le)
-  have hcancel : (n : ℝ)⁻¹ * n = 1 := inv_mul_cancel (ne_of_gt npos)
+  have hcancel : (n : ℝ)⁻¹ * n = 1 := inv_mul_cancel₀ (ne_of_gt npos)
   exact hmul.trans_eq hcancel
 
 /--

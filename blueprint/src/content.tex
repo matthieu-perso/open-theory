@@ -4,7 +4,37 @@ Modern analyses of deep networks mix high-dimensional probability, gradient-flow
 
 OpenTheory is a dual-track project in the sense of Massot's Lean blueprints~\cite{tao2023pfr}: every claim below is written for humans in \LaTeX{} and, when a Lean name is given, mapped to a declaration in the \texttt{OpenTheory} library. Border colour on the dependency graph records whether the \emph{statement} is in Lean (\texttt{\textbackslash leanok} on the environment). Fill colour records whether the \emph{proof} is kernel-checked (\texttt{\textbackslash leanok} inside \texttt{proof}).
 
+The chapters follow the dependency order of the library. Data states the hypotheses. Architectures define the network and what it can represent. Parameterization fixes how width enters initialization and learning rates. Representation defines features, the data Gram matrix, and alignment. Optimization is the training dynamics of the loss. Generalization passes from empirical risk to population risk. Dynamics describes how representations move. The last chapter adds the three error budgets.
+
 The only axioms permitted besides Mathlib's \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound} are \texttt{sorryAx} on explicitly open targets. Custom axioms fail CI.
+
+\chapter{Data}
+
+\begin{definition}[Labeled sample]\label{def:sample}
+\lean{OpenTheory.Sample}
+\leanok
+A sample of size $n\ge 1$ in dimension $d$ is a family $(x_i,y_i)_{i=1}^n$ with
+\[
+\sum_{j=1}^d x_{i,j}^2 \le 1, \qquad |y_i|\le 1
+\]
+for every $i$.
+\end{definition}
+
+\begin{definition}[Spectral gap]\label{def:spectral_gap}
+\lean{OpenTheory.SpectralGap}
+\leanok
+A spectral gap is a triple $(\lambda_{\mathrm{lead}},\lambda_{\mathrm{bulk}},\gamma)$ with $\gamma>0$, $\lambda_{\mathrm{bulk}}\ge 0$, and
+\[
+\lambda_{\mathrm{lead}} \ge \lambda_{\mathrm{bulk}} + \gamma.
+\]
+\end{definition}
+
+\begin{definition}[Spiked covariance]\label{def:spiked_model}
+\lean{OpenTheory.SpikedModel}
+\leanok
+\uses{def:spectral_gap}
+A spiked model in dimension $d$ records a signal rank $k$ with $1\le k\le d$, a signal strength, a noise level, and a spectral gap. The signal coordinates are the first $k$ coordinates of the input.
+\end{definition}
 
 \chapter{Architectures}
 
@@ -31,8 +61,52 @@ f_\theta(x)
 \]
 \end{definition}
 
+\begin{definition}[Residual step]\label{def:residual}
+\lean{OpenTheory.ResidualBranch, OpenTheory.residualStep}
+\leanok
+\uses{def:activation}
+A residual branch is a square matrix $W$ together with an admissible activation. The step of scale $\alpha\in\R$ is
+\[
+h \mapsto h + \alpha\,\sigma(Wh).
+\]
+\end{definition}
+
+\begin{definition}[Empirical approximation error]\label{def:approx_error}
+\lean{OpenTheory.coordinateLift, OpenTheory.NonPolynomial, OpenTheory.empiricalApproxError}
+\leanok
+\uses{def:two_layer_net, def:sample}
+For a network $f_\theta$, a target $g$, and a sample $(x_i)$, the empirical approximation error is
+\[
+\frac1n\sum_{i=1}^n \bigl|f_\theta(x_i)-g(x_i)\bigr|.
+\]
+$\mathtt{coordinateLift}$ reads the first $k$ coordinates of a vector in $\R^d$. $\mathtt{NonPolynomial}$ says $\sigma$ agrees with no polynomial.
+\end{definition}
+
+\begin{lemma}[Pointwise control of approximation error]\label{lem:approx_error_pointwise}
+\lean{OpenTheory.empiricalApproxError_le_of_pointwise}
+\leanok
+\uses{def:approx_error}
+If $|f_\theta(x_i)-g(x_i)|\le\varepsilon$ for every sample index $i$, then the empirical approximation error is at most $\varepsilon$.
+\end{lemma}
+\begin{proof}
+\leanok
+The average of numbers each at most $\varepsilon$ is at most $\varepsilon$. Multiply the resulting sum bound by $n^{-1}$.
+\end{proof}
+
+\begin{lemma}[Finite-sample expressivity on the spike]\label{lem:expressivity_subspace}
+\lean{OpenTheory.exists_subspace_approximation}
+\leanok
+\uses{def:spiked_model, def:approx_error, def:activation}
+Let the target be an arbitrary function of the first $k$ coordinates of a spiked model, and let $\sigma$ be a non-polynomial admissible activation. For every $\varepsilon>0$ and every finite sample, some width $m$ and some two-layer net with activation $\sigma$ has empirical approximation error at most $\varepsilon$.
+\end{lemma}
+\begin{proof}
+Open target. The finite-sample interpolation argument is not yet formalized.
+\end{proof}
+
+\chapter{Parameterization}
+
 \begin{definition}[Maximal Update Parametrization]\label{def:mup_scaling}
-\lean{OpenTheory.MuPScaling, OpenTheory.MuPScaling.input_dim_pos, OpenTheory.MuPScaling.width_pos}
+\lean{OpenTheory.MuPScaling, OpenTheory.MuPScaling.standard, OpenTheory.MuPScaling.input_dim_pos, OpenTheory.MuPScaling.width_pos}
 \leanok
 \uses{def:two_layer_net}
 Under $\mup$~\cite{yang2021tensor4,yang2022tensor5}, the default coordinate scaling is
@@ -40,10 +114,119 @@ Under $\mup$~\cite{yang2021tensor4,yang2022tensor5}, the default coordinate scal
 W_1\sim\mathcal{N}(0,1/d),\qquad
 W_2\sim\mathcal{N}(0,1/m),
 \]
-with learning rates $\eta_{W_1}=\Theta(1)$ and $\eta_{W_2}=\Theta(1/m)$. The Lean structure records the corresponding positive scale factors and the hypotheses $d>0$, $m>0$.
+with learning rates $\eta_{W_1}=\Theta(1)$ and $\eta_{W_2}=\Theta(1/m)$. The structure stores those four scale factors together with $d>0$ and $m>0$. \texttt{MuPScaling.standard} installs this choice.
 \end{definition}
 
-\chapter{Elementary bounds}
+\begin{definition}[Neural tangent parameterization]\label{def:ntk_scaling}
+\lean{OpenTheory.NTKScaling, OpenTheory.NTKScaling.standard, OpenTheory.NTKScaling.input_dim_pos, OpenTheory.NTKScaling.width_pos}
+\leanok
+\uses{def:two_layer_net}
+In the neural tangent parameterization~\cite{jacot2018neural,yang2021tensor4}, \texttt{NTKScaling.standard} sets both initialization standard deviations to $1/\sqrt{\mathrm{fan\_in}}$ and both learning rates to $1$. At infinite width the hidden features stay at initialization. The feature-learning conjecture is the statement that $\mup$ leaves this regime.
+\end{definition}
+
+\chapter{Representation}
+
+\begin{definition}[Hidden features]\label{def:features}
+\lean{OpenTheory.hiddenFeatures, OpenTheory.featureMatrix, OpenTheory.forward_eq_readout}
+\leanok
+\uses{def:two_layer_net, def:sample}
+The hidden representation of a two-layer net on $x\in\R^d$ is the vector $\sigma(W_1 x)\in\R^m$. On a sample, these vectors are the rows of the feature matrix. The network output is the readout of that vector by $W_2$.
+\end{definition}
+\begin{proof}
+\leanok
+The readout identity is the definition of \texttt{forward}, unfolded.
+\end{proof}
+
+\begin{definition}[Data Gram matrix]\label{def:gram}
+\lean{OpenTheory.dataGram}
+\leanok
+\uses{def:sample}
+The empirical Gram matrix of a sample is $G\in\R^{d\times d}$ with
+\[
+G_{ij} = \sum_{s=1}^n x_{s,i}\, x_{s,j}.
+\]
+\end{definition}
+
+\begin{definition}[Alignment]\label{def:alignment}
+\lean{OpenTheory.frobeniusSq, OpenTheory.IsOrthoProjector, OpenTheory.alignment}
+\leanok
+\uses{def:features, def:gram}
+Let $H$ be a feature matrix with rows indexed by the sample and let $P$ be a matrix on feature coordinates. Alignment is the fraction of Frobenius energy that survives $P$:
+\[
+a(H,P) = \frac{\lVert HP\rVert_F^2}{\lVert H\rVert_F^2},
+\]
+and $a(H,P)=0$ when $H=0$. An orthogonal projector satisfies $P^2=P$ and $P^\top=P$. The projector used in later chapters is the orthogonal projector onto a leading eigenspace of the Gram matrix; that identification is not yet a definition in Lean.
+\end{definition}
+
+\begin{lemma}[Alignment is non-negative]\label{lem:alignment_nonneg}
+\lean{OpenTheory.alignment_nonneg}
+\leanok
+\uses{def:alignment}
+For every feature matrix $H$ and every matrix $P$ of the right shape, $a(H,P)\ge 0$.
+\end{lemma}
+\begin{proof}
+\leanok
+Both the numerator and the denominator are sums of squares. The zero-matrix case returns $0$.
+\end{proof}
+
+\begin{lemma}[Alignment is at most one]\label{lem:alignment_le_one}
+\lean{OpenTheory.alignment_le_one}
+\leanok
+\uses{def:alignment}
+If $P$ is an orthogonal projector, then $a(H,P)\le 1$.
+\end{lemma}
+\begin{proof}
+Open target. It uses $\lVert HP\rVert_F \le \lVert H\rVert_F$ for an orthogonal projector.
+\end{proof}
+
+\begin{lemma}[Alignment certificate]\label{lem:alignment_certificate}
+\lean{OpenTheory.alignment_feature_distance}
+\leanok
+\uses{lem:alignment_le_one}
+Let $P$ be an orthogonal projector and $\lVert H\rVert_F \ne 0$. If $a(H,P)\ge 1-\varepsilon$ for some $\varepsilon\ge 0$, then
+\[
+\lVert H - HP\rVert_F^2 \le \varepsilon\,\lVert H\rVert_F^2.
+\]
+This is the sense in which a high alignment score says the features lie close to the subspace.
+\end{lemma}
+\begin{proof}
+Open target.
+\end{proof}
+
+\chapter{Optimization}
+
+\begin{definition}[Empirical risk]\label{def:empirical_risk}
+\lean{OpenTheory.EmpiricalRisk}
+\leanok
+\uses{def:two_layer_net, def:sample}
+The empirical risk of a two-layer net on a sample is the mean squared error
+\[
+\frac1n\sum_{i=1}^n \bigl(f_\theta(x_i)-y_i\bigr)^2.
+\]
+\end{definition}
+
+\begin{definition}[Descent path]\label{def:descent}
+\lean{OpenTheory.DescentPath}
+\leanok
+\uses{def:empirical_risk}
+A descent path is a trajectory $t\mapsto \theta_t$ of two-layer nets whose empirical risk admits a derivative $L'(t)\le 0$ at every time. The full gradient-flow ODE, identifying $L'$ with minus a learning rate times the loss gradient, is not yet formalized.
+\end{definition}
+
+\begin{lemma}[Exponential approach under a descent rate]\label{lem:risk_exponential}
+\lean{OpenTheory.risk_exponential_approach}
+\leanok
+\uses{def:descent, def:mup_scaling}
+Let the empirical risk of a descent path be bounded below by a floor $F$, and suppose its derivative satisfies $L'(t) \le -c\,(L(t)-F)$ for some $c>0$. Then for every $t\ge 0$,
+\[
+L(t) \le F + e^{-ct}\bigl(L(0)-F\bigr).
+\]
+The µP scale is a parameter of the statement. Proving the rate $c$ from the gradient-flow ODE is open.
+\end{lemma}
+\begin{proof}
+Open target. The remaining step is a Grönwall estimate from the rate hypothesis.
+\end{proof}
+
+\chapter{Generalization}
 
 \begin{lemma}[Activation Lipschitz bound]\label{lem:lipschitz_gelu}
 \lean{OpenTheory.ActivationFunction.lipschitz_bound}
@@ -54,6 +237,31 @@ If $\sigma$ is an admissible activation, then $\sigma$ is Lipschitz: there exist
 \begin{proof}
 \leanok
 Immediate from the Lipschitz field of \cref{def:activation}.
+\end{proof}
+
+\begin{lemma}[Lipschitz bound for one layer]\label{lem:layer_lipschitz}
+\lean{OpenTheory.dotProduct, OpenTheory.l2Norm, OpenTheory.layer_lipschitz}
+\leanok
+\uses{lem:lipschitz_gelu}
+For an admissible activation, a weight vector $w\in\R^d$, and inputs $x,y$,
+\[
+\bigl|\sigma(\langle w,x\rangle)-\sigma(\langle w,y\rangle)\bigr|
+\le L\,\|w\|_2\,\|x-y\|_2,
+\]
+where $L$ is a Lipschitz constant of $\sigma$.
+\end{lemma}
+\begin{proof}
+Open target. Compose the activation Lipschitz bound with Cauchy--Schwarz on $\langle w, x-y\rangle$.
+\end{proof}
+
+\begin{lemma}[Lipschitz bound for the network]\label{lem:forward_lipschitz}
+\lean{OpenTheory.forward_lipschitz}
+\leanok
+\uses{lem:layer_lipschitz, def:two_layer_net}
+The map $x\mapsto f_\theta(x)$ of a two-layer net is Lipschitz.
+\end{lemma}
+\begin{proof}
+Open target. Sum the one-layer bound over the hidden units and weight by $W_2$.
 \end{proof}
 
 \begin{lemma}[Bounded empirical means]\label{lem:bounded_mean}
@@ -99,8 +307,8 @@ Open target (concentration of measure).
 \begin{lemma}[Spectral bias in $\mup$ scaling]\label{lem:spectral_bias_mup}
 \lean{OpenTheory.spectral_bias_mup_alignment}
 \leanok
-\uses{def:mup_scaling, lem:gaussian_operator_norm, lem:lipschitz_gelu}
-Under continuous gradient flow with $\mup$ scaling, hidden representations align with principal eigenspaces of the data Gram matrix at a rate controlled by the corresponding eigenvalues~\cite{rahaman2019spectral}.
+\uses{def:mup_scaling, lem:gaussian_operator_norm, lem:lipschitz_gelu, def:alignment, def:spectral_gap}
+Under continuous gradient flow with $\mup$ scaling, hidden representations align with principal eigenspaces of the data Gram matrix at a rate controlled by the corresponding eigenvalues~\cite{rahaman2019spectral}. The Lean declaration is still a scaffold for that rate.
 \end{lemma}
 \begin{proof}
 Open target. Bounty \$2500. Formalize without \texttt{sorry}.
@@ -109,7 +317,7 @@ Open target. Bounty \$2500. Formalize without \texttt{sorry}.
 \begin{lemma}[Representation contraction in residual blocks]\label{lem:representation_contraction}
 \lean{OpenTheory.resnet_representation_contraction}
 \leanok
-\uses{lem:lipschitz_gelu}
+\uses{lem:lipschitz_gelu, def:residual}
 For depth $L$ residual blocks with branch scaling $1/\sqrt{L}$~\cite{hayou2021stable}, distances in representation space expand by at most a factor $1+O(L^{-1/2})$:
 \[
 \|h_{\ell+1}(x)-h_{\ell+1}(y)\|_2
@@ -117,21 +325,40 @@ For depth $L$ residual blocks with branch scaling $1/\sqrt{L}$~\cite{hayou2021st
 \Bigl(1+\frac{c}{\sqrt{L}}\Bigr)
 \|h_\ell(x)-h_\ell(y)\|_2.
 \]
+The Lean declaration is still a scaffold for the constant $c$.
 \end{lemma}
 \begin{proof}
 Open target. Bounty \$1500.
 \end{proof}
 
-\chapter{Grand conjecture}
-
 \begin{conjecture}[Global feature-learning alignment]\label{conj:grand_feature_learning}
 \lean{OpenTheory.feature_learning_resnet_alignment}
 \leanok
-\uses{lem:spectral_bias_mup, lem:representation_contraction, lem:gaussian_operator_norm}
-Deep residual networks trained by gradient flow under $\mup$ align representations with the leading data eigenspaces, strictly beyond the frozen-feature Neural Tangent Kernel regime of Jacot--Gabriel--Hongler~\cite{jacot2018neural} and the infinite-width kernel limit of Arora et al.~\cite{arora2019exact}.
+\uses{lem:spectral_bias_mup, lem:representation_contraction, lem:gaussian_operator_norm, def:alignment, def:ntk_scaling}
+Deep residual networks trained by gradient flow under $\mup$ align representations with the leading data eigenspaces, strictly beyond the frozen-feature Neural Tangent Kernel regime of Jacot--Gabriel--Hongler~\cite{jacot2018neural} and the infinite-width kernel limit of Arora et al.~\cite{arora2019exact}. The Lean declaration is still a scaffold: it asserts existence of some overlap, not yet the alignment score of \cref{def:alignment}.
 \end{conjecture}
 \begin{proof}
 Apex target. Bounty \$15000. Requires the preceding open lemmas.
+\end{proof}
+
+\chapter{End-to-end guarantee}
+
+\begin{definition}[Error budget]\label{def:end_to_end}
+\lean{OpenTheory.EndToEndError, OpenTheory.populationRiskBound}
+\leanok
+\uses{lem:expressivity_subspace, lem:risk_exponential, lem:rademacher_bound, conj:grand_feature_learning}
+An error budget is a triple $(\varepsilon_{\mathrm{approx}},\varepsilon_{\mathrm{opt}},\varepsilon_{\mathrm{gen}})$ of non-negative reals. The population-risk bound is their sum. Expressivity supplies $\varepsilon_{\mathrm{approx}}$, optimization supplies $\varepsilon_{\mathrm{opt}}$, and generalization supplies $\varepsilon_{\mathrm{gen}}$. Alignment is what makes the approximation term available for the features training actually reaches.
+\end{definition}
+
+\begin{lemma}[Population risk adds]\label{lem:population_risk}
+\lean{OpenTheory.population_risk_le_sum}
+\leanok
+\uses{def:end_to_end}
+If the empirical risk is at most $\varepsilon_{\mathrm{approx}}+\varepsilon_{\mathrm{opt}}$ and the population risk is at most the empirical risk plus $\varepsilon_{\mathrm{gen}}$, then the population risk is at most $\varepsilon_{\mathrm{approx}}+\varepsilon_{\mathrm{opt}}+\varepsilon_{\mathrm{gen}}$.
+\end{lemma}
+\begin{proof}
+\leanok
+Add the two inequalities.
 \end{proof}
 
 \bibliographystyle{alpha}

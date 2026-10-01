@@ -1,5 +1,5 @@
 import OpenTheory.Architectures.Basic
-import OpenTheory.Architectures.MuP
+import OpenTheory.Parameterization.MuP
 import OpenTheory.Dynamics.SpectralBias
 
 namespace OpenTheory

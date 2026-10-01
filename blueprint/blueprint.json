@@ -1,9 +1,56 @@
 {
-  "generatedAt": "2026-09-30T16:23:39.100137+00:00",
+  "generatedAt": "2026-10-01T12:57:01.226231+00:00",
   "toolchain": "leanprover/lean4:v4.11.0",
   "convention": "massot-leanblueprint",
-  "nodesCount": 10,
+  "nodesCount": 31,
   "nodes": [
+    {
+      "id": "def:sample",
+      "kind": "definition",
+      "title": "Labeled sample",
+      "leanName": "OpenTheory.Sample",
+      "leanNames": [
+        "OpenTheory.Sample"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "def:spectral_gap",
+      "kind": "definition",
+      "title": "Spectral gap",
+      "leanName": "OpenTheory.SpectralGap",
+      "leanNames": [
+        "OpenTheory.SpectralGap"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "def:spiked_model",
+      "kind": "definition",
+      "title": "Spiked covariance",
+      "leanName": "OpenTheory.SpikedModel",
+      "leanNames": [
+        "OpenTheory.SpikedModel"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "def:spectral_gap"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
     {
       "id": "def:activation",
       "kind": "definition",
@@ -38,12 +85,87 @@
       "informalSketch": null
     },
     {
+      "id": "def:residual",
+      "kind": "definition",
+      "title": "Residual step",
+      "leanName": "OpenTheory.ResidualBranch",
+      "leanNames": [
+        "OpenTheory.ResidualBranch",
+        "OpenTheory.residualStep"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "def:activation"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "def:approx_error",
+      "kind": "definition",
+      "title": "Empirical approximation error",
+      "leanName": "OpenTheory.coordinateLift",
+      "leanNames": [
+        "OpenTheory.coordinateLift",
+        "OpenTheory.NonPolynomial",
+        "OpenTheory.empiricalApproxError"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net",
+        "def:sample"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "lem:approx_error_pointwise",
+      "kind": "lemma",
+      "title": "Pointwise control of approximation error",
+      "leanName": "OpenTheory.empiricalApproxError_le_of_pointwise",
+      "leanNames": [
+        "OpenTheory.empiricalApproxError_le_of_pointwise"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:approx_error"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "The average of numbers each at most $\\varepsilon$ is at most $\\varepsilon$. Multiply the resulting sum bound by $n^{-1}$."
+    },
+    {
+      "id": "lem:expressivity_subspace",
+      "kind": "lemma",
+      "title": "Finite-sample expressivity on the spike",
+      "leanName": "OpenTheory.exists_subspace_approximation",
+      "leanNames": [
+        "OpenTheory.exists_subspace_approximation"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": false,
+      "dependencies": [
+        "def:spiked_model",
+        "def:approx_error",
+        "def:activation"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Open target. The finite-sample interpolation argument is not yet formalized."
+    },
+    {
       "id": "def:mup_scaling",
       "kind": "definition",
       "title": "Maximal Update Parametrization",
       "leanName": "OpenTheory.MuPScaling",
       "leanNames": [
         "OpenTheory.MuPScaling",
+        "OpenTheory.MuPScaling.standard",
         "OpenTheory.MuPScaling.input_dim_pos",
         "OpenTheory.MuPScaling.width_pos"
       ],
@@ -55,6 +177,187 @@
       ],
       "bountyUsd": null,
       "informalSketch": null
+    },
+    {
+      "id": "def:ntk_scaling",
+      "kind": "definition",
+      "title": "Neural tangent parameterization",
+      "leanName": "OpenTheory.NTKScaling",
+      "leanNames": [
+        "OpenTheory.NTKScaling",
+        "OpenTheory.NTKScaling.standard",
+        "OpenTheory.NTKScaling.input_dim_pos",
+        "OpenTheory.NTKScaling.width_pos"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "def:features",
+      "kind": "definition",
+      "title": "Hidden features",
+      "leanName": "OpenTheory.hiddenFeatures",
+      "leanNames": [
+        "OpenTheory.hiddenFeatures",
+        "OpenTheory.featureMatrix",
+        "OpenTheory.forward_eq_readout"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net",
+        "def:sample"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "The readout identity is the definition of \\texttt{forward}, unfolded."
+    },
+    {
+      "id": "def:gram",
+      "kind": "definition",
+      "title": "Data Gram matrix",
+      "leanName": "OpenTheory.dataGram",
+      "leanNames": [
+        "OpenTheory.dataGram"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "def:sample"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "def:alignment",
+      "kind": "definition",
+      "title": "Alignment",
+      "leanName": "OpenTheory.frobeniusSq",
+      "leanNames": [
+        "OpenTheory.frobeniusSq",
+        "OpenTheory.IsOrthoProjector",
+        "OpenTheory.alignment"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "def:features",
+        "def:gram"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "lem:alignment_nonneg",
+      "kind": "lemma",
+      "title": "Alignment is non-negative",
+      "leanName": "OpenTheory.alignment_nonneg",
+      "leanNames": [
+        "OpenTheory.alignment_nonneg"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:alignment"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Both the numerator and the denominator are sums of squares. The zero-matrix case returns $0$."
+    },
+    {
+      "id": "lem:alignment_le_one",
+      "kind": "lemma",
+      "title": "Alignment is at most one",
+      "leanName": "OpenTheory.alignment_le_one",
+      "leanNames": [
+        "OpenTheory.alignment_le_one"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": false,
+      "dependencies": [
+        "def:alignment"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Open target. It uses $\\lVert HP\\rVert_F \\le \\lVert H\\rVert_F$ for an orthogonal projector."
+    },
+    {
+      "id": "lem:alignment_certificate",
+      "kind": "lemma",
+      "title": "Alignment certificate",
+      "leanName": "OpenTheory.alignment_feature_distance",
+      "leanNames": [
+        "OpenTheory.alignment_feature_distance"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": false,
+      "dependencies": [
+        "lem:alignment_le_one"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Open target."
+    },
+    {
+      "id": "def:empirical_risk",
+      "kind": "definition",
+      "title": "Empirical risk",
+      "leanName": "OpenTheory.EmpiricalRisk",
+      "leanNames": [
+        "OpenTheory.EmpiricalRisk"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net",
+        "def:sample"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "def:descent",
+      "kind": "definition",
+      "title": "Descent path",
+      "leanName": "OpenTheory.DescentPath",
+      "leanNames": [
+        "OpenTheory.DescentPath"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "def:empirical_risk"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "lem:risk_exponential",
+      "kind": "lemma",
+      "title": "Exponential approach under a descent rate",
+      "leanName": "OpenTheory.risk_exponential_approach",
+      "leanNames": [
+        "OpenTheory.risk_exponential_approach"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": false,
+      "dependencies": [
+        "def:descent",
+        "def:mup_scaling"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Open target. The remaining step is a Gr\u00f6nwall estimate from the rate hypothesis."
     },
     {
       "id": "lem:lipschitz_gelu",
@@ -72,6 +375,43 @@
       ],
       "bountyUsd": null,
       "informalSketch": "Immediate from the Lipschitz field of \\cref{def:activation}."
+    },
+    {
+      "id": "lem:layer_lipschitz",
+      "kind": "lemma",
+      "title": "Lipschitz bound for one layer",
+      "leanName": "OpenTheory.dotProduct",
+      "leanNames": [
+        "OpenTheory.dotProduct",
+        "OpenTheory.l2Norm",
+        "OpenTheory.layer_lipschitz"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": false,
+      "dependencies": [
+        "lem:lipschitz_gelu"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Open target. Compose the activation Lipschitz bound with Cauchy--Schwarz on $\\langle w, x-y\\rangle$."
+    },
+    {
+      "id": "lem:forward_lipschitz",
+      "kind": "lemma",
+      "title": "Lipschitz bound for the network",
+      "leanName": "OpenTheory.forward_lipschitz",
+      "leanNames": [
+        "OpenTheory.forward_lipschitz"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": false,
+      "dependencies": [
+        "lem:layer_lipschitz",
+        "def:two_layer_net"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Open target. Sum the one-layer bound over the hidden units and weight by $W_2$."
     },
     {
       "id": "lem:bounded_mean",
@@ -137,7 +477,9 @@
       "dependencies": [
         "def:mup_scaling",
         "lem:gaussian_operator_norm",
-        "lem:lipschitz_gelu"
+        "lem:lipschitz_gelu",
+        "def:alignment",
+        "def:spectral_gap"
       ],
       "bountyUsd": 2500,
       "informalSketch": "Open target. Bounty \\$2500. Formalize without \\texttt{sorry}."
@@ -154,7 +496,8 @@
       "proofFormalized": false,
       "isVerified": false,
       "dependencies": [
-        "lem:lipschitz_gelu"
+        "lem:lipschitz_gelu",
+        "def:residual"
       ],
       "bountyUsd": 1500,
       "informalSketch": "Open target. Bounty \\$1500."
@@ -173,10 +516,50 @@
       "dependencies": [
         "lem:spectral_bias_mup",
         "lem:representation_contraction",
-        "lem:gaussian_operator_norm"
+        "lem:gaussian_operator_norm",
+        "def:alignment",
+        "def:ntk_scaling"
       ],
       "bountyUsd": 15000,
       "informalSketch": "Apex target. Bounty \\$15000. Requires the preceding open lemmas."
+    },
+    {
+      "id": "def:end_to_end",
+      "kind": "definition",
+      "title": "Error budget",
+      "leanName": "OpenTheory.EndToEndError",
+      "leanNames": [
+        "OpenTheory.EndToEndError",
+        "OpenTheory.populationRiskBound"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [
+        "lem:expressivity_subspace",
+        "lem:risk_exponential",
+        "lem:rademacher_bound",
+        "conj:grand_feature_learning"
+      ],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "lem:population_risk",
+      "kind": "lemma",
+      "title": "Population risk adds",
+      "leanName": "OpenTheory.population_risk_le_sum",
+      "leanNames": [
+        "OpenTheory.population_risk_le_sum"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:end_to_end"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Add the two inequalities."
     }
   ]
 }

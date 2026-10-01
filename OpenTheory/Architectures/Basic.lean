@@ -36,9 +36,4 @@ lemma ActivationFunction.lipschitz_bound (act : ActivationFunction) :
     ∃ L : ℝ, ∀ x y : ℝ, |act.σ x - act.σ y| ≤ L * |x - y| :=
   act.lipschitz
 
-/-- Mean Squared Error Empirical Risk Functional -/
-def EmpiricalRisk {d : ℕ} (n : ℕ) (X : Fin n → (Fin d → ℝ)) (Y : Fin n → ℝ)
-    (f : (Fin d → ℝ) → ℝ) : ℝ :=
-  (1 / (n : ℝ)) * ∑ i : Fin n, (f (X i) - Y i)^2
-
 end OpenTheory
