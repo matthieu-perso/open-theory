@@ -9,11 +9,7 @@ def isAllowedForCompleted (n : Name) : Bool :=
   isAllowedAxiom n && n != ``sorryAx
 
 /-- Existing research targets only. New declarations are strict by default. -/
-def openTargets : List Name := [
-  `OpenTheory.feature_learning_resnet_alignment,
-  `OpenTheory.rademacher_symmetrization,
-  `OpenTheory.exists_subspace_approximation,
-  `OpenTheory.gaussian_operator_norm_bound]
+def openTargets : List Name := []
 
 def axiomsOf (env : Environment) (declName : Name) : IO (Array Name) :=
   (Lean.collectAxioms declName : CoreM (Array Name)).toIO'

@@ -91,7 +91,7 @@ theorem preShift_step (net : TwoLayerNet d m) (x : Fin d → ℝ) (y η lam : �
 /-- An explicit T-step drift bound under a residual envelope and nonexpansive
 regularization decay. No bounded-noise or residual-stability claim is hidden. -/
 theorem iterate_preShift_le (net : TwoLayerNet d m) (x : Fin d → ℝ) (y η lam : ℝ)
-    {A L R : ℝ} (hη : 0 ≤ η) (hA : 0 ≤ A) (hL : 0 ≤ L) (hR : 0 ≤ R)
+    {A L R : ℝ} (hη : 0 ≤ η) (hA : 0 ≤ A) (_hL : 0 ≤ L) (hR : 0 ≤ R)
     (hdecay : |1 - η * lam| ≤ 1)
     (hW : ∀ i, |net.W₂ 0 i| ≤ A) (hσ : ∀ u, |deriv net.act.σ u| ≤ L)
     (T : ℕ)

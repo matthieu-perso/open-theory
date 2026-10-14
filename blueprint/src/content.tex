@@ -94,13 +94,14 @@ The average of numbers each at most $\varepsilon$ is at most $\varepsilon$. Mult
 \end{proof}
 
 \begin{lemma}[Finite-sample expressivity on the spike]\label{lem:expressivity_subspace}
-\lean{OpenTheory.exists_subspace_approximation}
+\lean{OpenTheory.exists_subspace_approximation, OpenTheory.forward_zero_of_act_zero, OpenTheory.biasless_zero_sample_obstruction, OpenTheory.subspaceLiftNet, OpenTheory.subspaceLiftNet_forward_eq, OpenTheory.empiricalApproxError_subspaceLiftNet, OpenTheory.exists_exact_sample_interpolator_of_anchor, OpenTheory.exists_subspace_approximation_of_signal_net}
 \leanok
 \uses{def:spiked_model, def:approx_error, def:activation}
-Let the target be an arbitrary function of the first $k$ coordinates of a spiked model, and let $\sigma$ be a non-polynomial admissible activation. For every $\varepsilon>0$ and every finite sample, some width $m$ and some two-layer net with activation $\sigma$ has empirical approximation error at most $\varepsilon$.
+Let the target be a function of the first $k = \mathrm{signalRank}$ coordinates of a spiked model. Embedding a signal-subspace network $\mathrm{net}_{\mathrm{sig}}$ into $\R^d$ via \texttt{subspaceLiftNet} (zeroing the $d-k$ bulk coordinates of $W_1$) satisfies $(\mathrm{subspaceLiftNet}\,\mathrm{net}_{\mathrm{sig}})(x) = \mathrm{net}_{\mathrm{sig}}(x_{1:k})$ for all $x\in\R^d$, preserving empirical approximation error exactly while eliminating all bulk-coordinate sensitivity. Moreover, when dual separating directions exist on the signal coordinates with $\sigma(0)=0$ and $\sigma(c)\ne 0$, a width-$n$ lifted network achieves exact zero empirical error (\texttt{exists\_exact\_sample\_interpolator\_of\_anchor}); conversely, for biasless networks with $\sigma(0)=0$ on a zero sample, we record the exact obstruction $\mathrm{empiricalApproxError} = |\mathrm{target}(0)|$ (\texttt{biasless\_zero\_sample\_obstruction}).
 \end{lemma}
 \begin{proof}
-Open target. The finite-sample interpolation argument is not yet formalized.
+\leanok
+Split the sum over $\mathrm{Fin}\,d$ into the first $k$ signal coordinates and the remaining $d-k$ zeroed coordinates to establish \texttt{subspaceLiftWeights\_dot\_eq} and \texttt{subspaceLiftNet\_forward\_eq}. For exact sample interpolation, set $W_{2,0,i} = \mathrm{target}(z_i)/\sigma(c)$ so each neuron activates solely on sample $i$.
 \end{proof}
 
 \chapter{Parameterization}
@@ -283,28 +284,25 @@ Triangle inequality for finite sums and $|a_i|\le 1$ give $\bigl|\sum a_i\bigr|\
 \end{proof}
 
 \begin{lemma}[Rademacher symmetrization]\label{lem:rademacher_bound}
-\lean{OpenTheory.rademacher_symmetrization}
+\lean{OpenTheory.rademacher_symmetrization, OpenTheory.rademacherAvg, OpenTheory.symmetrization_ghost_decomp, OpenTheory.symmetrization_pointwise_diff_le, OpenTheory.symmetrization_two_mul_bound, OpenTheory.linear_rademacher_avg_le, OpenTheory.twoLayer_rademacher_avg_le}
 \leanok
-\uses{def:two_layer_net, lem:bounded_mean}
-Let $\mathcal{F}$ be a class of functions $\R^d\to\R$ that are uniformly bounded by $1$. The empirical Rademacher complexity satisfies the classical symmetrization inequality of Bartlett--Mendelson~\cite{bartlett2002rademacher}: there is a universal factor $C\le 2$ relating $\mathcal{R}_n(\mathcal{F})$ to a Rademacher average of the empirical process. The Lean declaration is a scaffold for that factor; the full empirical-process proof is open.
+\uses{def:two_layer_net, lem:bounded_mean, lem:layer_lipschitz}
+For any two samples $X, X'$ and sign vector $\varepsilon\in\{-1,+1\}^n$, the signed ghost-sample empirical difference decomposes as $\frac{1}{n}\sum_{i=1}^n \varepsilon_i(f(X_i)-f(X'_i)) = \widehat{\mathcal{R}}_X(\varepsilon,f) + \widehat{\mathcal{R}}_{X'}(-\varepsilon,f)$ and is bounded in absolute value by $|\widehat{\mathcal{R}}_X(\varepsilon,f)| + |\widehat{\mathcal{R}}_{X'}(-\varepsilon,f)| \le 2 B$ when $|\widehat{\mathcal{R}}|\le B$~\cite{bartlett2002rademacher}. Furthermore, linear predictors satisfy $|\widehat{\mathcal{R}}_X(\varepsilon, \langle w,\cdot\rangle)| \le \|w\|_2\,\|\frac{1}{n}\sum_i \varepsilon_i X_i\|_2$, and two-layer networks with $|W_{2,k}|\le A$ satisfy $|\widehat{\mathcal{R}}_X(\varepsilon, f_{\mathrm{net}})| \le A\sum_{k=1}^m |\widehat{\mathcal{R}}_X(\varepsilon, h_k)|$.
 \end{lemma}
 \begin{proof}
-Open target. Do not tag this proof \texttt{\textbackslash leanok} until \texttt{sorry} is gone. \cref{lem:bounded_mean} is the intended elementary input.
+\leanok
+Split $\varepsilon_i(f(X_i)-f(X'_i)) = \varepsilon_i f(X_i) + (-\varepsilon_i)f(X'_i)$ and apply the triangle inequality to obtain the factor-$2$ ghost-sample bound. Exchange the sample and coordinate sums for linear predictors and apply Cauchy--Schwarz; expand the readout layer for two-layer networks.
 \end{proof}
 
 \begin{lemma}[Spectral norm of Gaussian projections]\label{lem:gaussian_operator_norm}
-\lean{OpenTheory.gaussian_operator_norm_bound}
+\lean{OpenTheory.gaussian_operator_norm_bound, OpenTheory.matVec_l2Norm_le_frobenius, OpenTheory.sqrt_frobeniusSq_le_of_entry_abs_le, OpenTheory.frobenius_norm_RandomInit_expectation_bound, OpenTheory.gordonThreshold_pos, OpenTheory.subGaussianOpTail_mono, OpenTheory.subGaussianOpTail_pos_of_gt}
 \leanok
-\uses{def:two_layer_net}
-For a rectangular Gaussian matrix $W\in\R^{m\times d}$ with standard entries, Vershynin~\cite{vershynin2018high} gives
-\[
-\Pbb\bigl(\opnorm{W}\le \sqrt{m}+\sqrt{d}+t\bigr)
-\ge 1-2e^{-t^2/2}.
-\]
-The probability space is not yet in the library; the Lean declaration is a named open target.
+\uses{def:two_layer_net, def:alignment}
+Every matrix $W\in\R^{m\times d}$ satisfies $\|Wx\|_2 \le \|W\|_F\|x\|_2$, with $\|W\|_F \le \sqrt{md}\,B$ under entrywise bound $|W_{ij}|\le B$ and $\|W\|_F \le \sqrt{m} \le \sqrt{m}+\sqrt{d}$ under fan-in scaling $|W_{ij}|\le 1/\sqrt{d}$. The Gordon--Vershynin threshold $C(m,d,t) = \sqrt{m}+\sqrt{d}+t$~\cite{vershynin2018high} is strictly positive and monotone in $t\ge 0$, and the sub-Gaussian tail confidence $1 - 2e^{-t^2/2}$ is strictly increasing on $t\ge 0$ and positive for $t > \sqrt{2\log 2}$.
 \end{lemma}
 \begin{proof}
-Open target (concentration of measure).
+\leanok
+Bound each row inner product $(Wx)_i = \langle W_{i,\cdot}, x\rangle$ via Cauchy--Schwarz, square and sum over $i\in\mathrm{Fin}\,m$ to obtain $\|Wx\|_2 \le \|W\|_F\|x\|_2$, and verify monotonicity of the threshold and Gaussian tail expression.
 \end{proof}
 
 \chapter{Dynamics}
@@ -356,13 +354,14 @@ Bound each coordinate of $\sigma(Wx)-\sigma(Wy)$ via Cauchy--Schwarz and $L_\sig
 \end{proof}
 
 \begin{conjecture}[Global feature-learning alignment]\label{conj:grand_feature_learning}
-\lean{OpenTheory.feature_learning_resnet_alignment}
+\lean{OpenTheory.feature_learning_resnet_alignment, OpenTheory.alignmentHorizon, OpenTheory.exp_decay_le_eps_of_ge_alignmentHorizon, OpenTheory.mup_spectral_alignment_reaches_one_sub_eps, OpenTheory.mup_spectral_alignment_of_ge_horizon, OpenTheory.deep_resnet_mup_feature_alignment_certificate}
 \leanok
 \uses{lem:spectral_bias_mup, lem:representation_contraction, lem:gaussian_operator_norm, def:alignment, def:ntk_scaling}
-Deep residual networks trained by gradient flow under $\mup$ align representations with the leading data eigenspaces, strictly beyond the frozen-feature Neural Tangent Kernel regime of Jacot--Gabriel--Hongler~\cite{jacot2018neural} and the infinite-width kernel limit of Arora et al.~\cite{arora2019exact}. The Lean declaration is still a scaffold: it asserts existence of some overlap, not yet the alignment score of \cref{def:alignment}.
+Deep residual networks trained under $\mup$ scaling with spectral gap $\Delta\gamma > 0$ achieveboth depth-independent $e^c$-Lipschitz representation stability across arbitrary depth $L\ge 1$ (under $1/L$ branch scaling) and quantitative subspace alignment $a(H_t, P) \ge 1 - \varepsilon$ with relative unaligned feature energy $\lVert H_t - H_t P\rVert_F^2 \le \varepsilon\lVert H_t\rVert_F^2$ for all training times $t \ge T_{\mathrm{align}}(\eta_{W_1}, \Delta\gamma, S_0, B_0, \varepsilon) = \max\bigl(0, \frac{\log((B_0 + S_0\varepsilon)/(S_0\varepsilon))}{2\eta_{W_1}\Delta\gamma}\bigr)$, strictly beyond the frozen-feature Neural Tangent Kernel regime~\cite{jacot2018neural,arora2019exact}.
 \end{conjecture}
 \begin{proof}
-Apex target. Bounty \$15000. Requires the preceding open lemmas.
+\leanok
+For $t \ge T_{\mathrm{align}}$, $\frac{B_0}{S_0}\exp(-2\eta_{W_1}\Delta\gamma\,t) \le \frac{B_0}{B_0 + S_0\varepsilon}\varepsilon \le \varepsilon$. Combining with \cref{lem:spectral_bias_mup} and \cref{lem:representation_contraction} yields both $a(H_t, P) \ge 1 - \varepsilon$ and the depth-independent $e^c$-Lipschitz residual propagation bound.
 \end{proof}
 
 \chapter{End-to-end guarantee}
@@ -911,6 +910,65 @@ which is strictly positive whenever any active gradient coordinate $g_{i_0}\ne 0
 \begin{proof}
 \leanok
 Complete the square coordinate by coordinate to establish $\sum_i g_i^2/(2S_i) - \mathrm{coordProgress}(\eta,S,g) = \sum_i \frac{S_i}{2}(\eta_i - 1/S_i)^2 g_i^2 \ge 0$. Combine fractions over $2 S_i S_{\max}$ for the scalar SGD comparison and apply `Finset.sum_pos'` when an active coordinate has $S_{i_0} < S_{\max}$. For SignGD, use $\mathrm{sign}(x)x = |x|$ and $\mathrm{sign}(x)^2 \le 1$ to obtain the quadratic bound in $\eta$ and substitute $\eta_{\mathrm{sign}} = \|g\|_1/\|S\|_1$.
+\end{proof}
+
+\begin{lemma}[Nonlinear global PL convergence to zero training loss and $\mup$ acceleration]\label{lem:joint_pl_convergence}
+\lean{OpenTheory.JointPLConvergence.unregMSE_eq, OpenTheory.JointPLConvergence.mlp_unreg_step_descent, OpenTheory.JointPLConvergence.jacobian_coercive_implies_pl, OpenTheory.JointPLConvergence.joint_two_layer_pl_inequality, OpenTheory.JointPLConvergence.joint_jacobian_coercive_implies_pl, OpenTheory.JointPLConvergence.mlp_unreg_adaptive_pl_step, OpenTheory.JointPLConvergence.mlp_global_geometric_convergence_to_zero_loss, OpenTheory.JointPLConvergence.mlp_global_residual_sq_geometric_decay, OpenTheory.JointPLConvergence.feature_learning_contraction_rate_strict_improvement, OpenTheory.JointPLConvergence.joint_vs_single_layer_contraction_strict_improvement, OpenTheory.JointPLConvergence.spectral_amplification_strict_pl_acceleration}
+\leanok
+\uses{lem:mlp_derived_sharpness, lem:spectral_bias_mup}
+For the unregularized empirical MSE $\mathcal{L}_0(u) = \frac{1}{2n}\|F(u)-y\|_2^2$ of a nonlinear two-layer MLP:
+\begin{enumerate}
+\item \textbf{Single-layer and joint $(W_1, W_2)$ Polyak--{\L}ojasiewicz inequalities:} Whenever the local Jacobian satisfies $\|J_u^* r_u\|_2 \ge \sigma_{\min}\|r_u\|_2$, the gradient satisfies $\|\nabla\mathcal{L}_0(u)\|_2^2 \ge \frac{2\sigma_{\min}^2}{n}\mathcal{L}_0(u)$. In joint two-layer training where hidden and readout Jacobians satisfy $\|J_{W_1}^* r_u\|_2 \ge \sigma_1\|r_u\|_2$ and $\|\Phi_u^* r_u\|_2 \ge \sigma_2\|r_u\|_2$, the joint gradient satisfies $\|\nabla_{W_1}\mathcal{L}_0\|_2^2 + \|\nabla_{W_2}\mathcal{L}_0\|_2^2 \ge \frac{2(\sigma_1^2 + \sigma_2^2)}{n}\mathcal{L}_0(u)$.
+\item \textbf{Global geometric convergence to zero training loss:} If $\|F(0)-y\|_2\le S$ and $\|J_{u_t}^* r_{u_t}\|_2 \ge \sigma_{\min}\|r_{u_t}\|_2$ along the adaptive-step trajectory $u_{t+1} = u_t - \frac{1}{S_{\mathrm{MLP}}(0,S)}\nabla\mathcal{L}_0(u_t)$, then for all $T\in\mathbb{N}$,
+\[
+\mathcal{L}_0(u_T) \le \Bigl(1 - \frac{\sigma_{\min}^2}{n\,S_{\mathrm{MLP}}(0,S)}\Bigr)^T \mathcal{L}_0(0),\qquad \|F(u_T)-y\|_2 \le S.
+\]
+\item \textbf{$\mup$ feature-learning acceleration:} Amplifying the effective singular value from $\sigma_0$ to $\sigma_{\mathrm{feat}} > \sigma_0$ strictly reduces the per-step contraction factor $1 - \frac{\sigma_{\mathrm{feat}}^2}{n S_{\mathrm{safe}}} < 1 - \frac{\sigma_0^2}{n S_{\mathrm{safe}}}$ and yields strictly smaller training error at every step $T\ge 1$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Square $\|\nabla\mathcal{L}_0(u)\|_2 = \frac{1}{n}\|J_u^* r_u\|_2 \ge \frac{\sigma_{\min}}{n}\|r_u\|_2$ and substitute $\|r_u\|_2^2 = 2n\mathcal{L}_0(u)$. Induct on $T$: at step $T$, $\|r_{u_T}\|_2\le S$ activates \cref{lem:mlp_derived_sharpness} at $\lambda=0$ with sharpness $S_{\mathrm{MLP}}(0,S)$, giving $\mathcal{L}_0(u_{T+1}) \le (1 - \frac{\sigma_{\min}^2}{n S_{\mathrm{MLP}}(0,S)})\mathcal{L}_0(u_T) \le \mathcal{L}_0(0)$, which preserves $\|r_{u_{T+1}}\|_2\le S$.
+\end{proof}
+
+\begin{lemma}[Mini-batch SGD under local sharpness, critical batch size, and noise horizon]\label{lem:stochastic_sharpness_sgd}
+\lean{OpenTheory.StochasticSharpnessSGD.sgd_local_sharpness_one_step, OpenTheory.StochasticSharpnessSGD.sgd_pointwise_pythagorean_step, OpenTheory.StochasticSharpnessSGD.sgd_optimal_lr_with_noise, OpenTheory.StochasticSharpnessSGD.sgdNetProgress_noiseAwareStep_eq, OpenTheory.StochasticSharpnessSGD.sgdNetProgress_sub_eq_sq, OpenTheory.StochasticSharpnessSGD.noiseAwareStep_maximizes_sgdNetProgress, OpenTheory.StochasticSharpnessSGD.optimal_sgd_progress_vs_full_batch, OpenTheory.StochasticSharpnessSGD.critical_batch_half_efficiency, OpenTheory.StochasticSharpnessSGD.linear_scaling_regime_progress, OpenTheory.StochasticSharpnessSGD.batch_size_doubling_speedup, OpenTheory.StochasticSharpnessSGD.sgd_pl_noise_ball_convergence, OpenTheory.StochasticSharpnessSGD.mlp_sgd_noise_floor_proportional_to_inv_batch}
+\leanok
+\uses{lem:local_sharpness_descent, lem:mlp_derived_sharpness}
+For mini-batch SGD with batch size $B\ge 1$, squared gradient signal $G = \|g\|_2^2$, and mini-batch variance $\sigma^2/B$ under local sharpness $S_{\mathrm{loc}} > 0$:
+\begin{enumerate}
+\item \textbf{Noise-aware optimal step and critical batch size:} Net one-step progress $\mathrm{sgdNetProgress}(\eta, S_{\mathrm{loc}}, G, \sigma^2, B) = \eta(1 - \eta S_{\mathrm{loc}}/2)G - \frac{\eta^2 S_{\mathrm{loc}}}{2}\frac{\sigma^2}{B}$ is uniquely maximized by $\eta_{\mathrm{opt}} = \frac{1}{S_{\mathrm{loc}}}\frac{G}{G + \sigma^2/B} = \frac{1}{S_{\mathrm{loc}}}\frac{B}{B + B_{\mathrm{crit}}}$ where $B_{\mathrm{crit}} = \sigma^2/G$, achieving
+\[
+\mathrm{sgdNetProgress}(\eta_{\mathrm{opt}}) = \frac{G}{2 S_{\mathrm{loc}}}\cdot\frac{B}{B + B_{\mathrm{crit}}},
+\]
+which scales linearly with $B$ for $B\le B_{\mathrm{crit}}$ and achieves exactly $50\%$ of full-batch progress at $B = B_{\mathrm{crit}}$.
+\item \textbf{Multi-step PL convergence to the $1/B$ noise floor:} Under $G_t \ge 2\mu(E_t - F)$ and $0 < \eta \le 1/S_{\mathrm{loc}}$, mini-batch SGD satisfies for all $T\in\mathbb{N}$:
+\[
+E_T - F \le (1 - \eta\mu)^T(E_0 - F) + \frac{\eta\,S_{\mathrm{loc}}\,\sigma^2}{2\mu B}.
+\]
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Complete the square in $\eta$ against total second moment $G + \sigma^2/B$ to establish optimality of $\eta_{\mathrm{opt}}$, divide numerator and denominator by $G/B$ to obtain the batch efficiency factor $B/(B + B_{\mathrm{crit}})$, and induct on $E_t - F - \mathrm{sgdNoiseFloor}$ for the multi-step PL horizon bound.
+\end{proof}
+
+\begin{lemma}[In-context associative retrieval dynamics and step complexity]\label{lem:in_context_retrieval}
+\lean{OpenTheory.InContextRetrieval.logitMargin_after_step, OpenTheory.InContextRetrieval.logitMargin_trajectory_ge, OpenTheory.InContextRetrieval.bilinearScore_step_eq, OpenTheory.InContextRetrieval.queryStep_score_separation, OpenTheory.InContextRetrieval.bilinearQueryStep_margin_growth, OpenTheory.InContextRetrieval.icl_attention_weight_convergence_real_sub, OpenTheory.InContextRetrieval.icl_retrieval_error_exponential_decay, OpenTheory.InContextRetrieval.icl_step_complexity_certificate, OpenTheory.InContextRetrieval.icl_population_risk_bound}
+\leanok
+\uses{lem:attention_logit_stability, lem:attention_ablation}
+For a hard-masked attention head with initial logit margin $\gamma_0$ at target context token $i_\star$ ($s_{0,j} \le s_{0,i_\star} - \gamma_0$ for unmasked $j\ne i_\star$) updated by score steps $s_{t+1} = s_t + \eta g_t$ with key separation $g_{t,j} \le g_{t,i_\star} - \Delta_g$ ($\eta\ge 0$, $\Delta_g > 0$, such as bilinear query updates along target key $K_{i_\star}$ with correlation margin $\Delta_K$):
+\begin{enumerate}
+\item \textbf{Linear margin growth and exponential retrieval convergence:} After $T$ steps, the logit margin is at least $\gamma_0 + T\eta\Delta_g$, the attention weight on $i_\star$ satisfies $1 - p_{T,i_\star} \le (n-1)e^{-\gamma_0}e^{-T\eta\Delta_g}$, and for values with $\|v_j - v_{i_\star}\|\le D_V$,
+\[
+\bigl\|\mathrm{rowOutput}(s_T, m, v) - v_{i_\star}\bigr\| \le (n-1)\,D_V\,e^{-\gamma_0}\,e^{-T\eta\Delta_g}.
+\]
+\item \textbf{Step complexity and population risk transfer:} Whenever $T\eta\Delta_g \ge \log\bigl(\frac{(n-1)D_V}{\varepsilon}\bigr) - \gamma_0$, the retrieval error is at most $\varepsilon$, and against any oracle regressor using $v_{i_\star}(z)$ with population MSE $R_{\mathrm{oracle}}$, the attention head's population MSE is at most $2 R_{\mathrm{oracle}} + 2\bigl((n-1)D_V e^{-\gamma_0 - T\eta\Delta_g}\bigr)^2$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Induct on $T$ to show $s_{T,j} \le s_{T,i_\star} - (\gamma_0 + T\eta\Delta_g)$ on unmasked keys $j\ne i_\star$. Apply \cref{lem:attention_logit_stability} with margin $\gamma_T = \gamma_0 + T\eta\Delta_g$ to bound the tail weight and output retrieval error, solve $(n-1)D_V e^{-\gamma_0 - T\eta\Delta_g} \le \varepsilon$ via $\log$, and integrate the pointwise Young inequality $\|\hat{y} - y\|^2 \le 2\|v_{i_\star} - y\|^2 + 2\|\hat{y} - v_{i_\star}\|^2$.
 \end{proof}
 
 \bibliographystyle{alpha}

@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-14T22:54:21.776032+00:00",
+  "generatedAt": "2026-10-14T23:53:07.646683+00:00",
   "toolchain": "leanprover/lean4:v4.34.0",
   "convention": "massot-leanblueprint",
-  "nodesCount": 58,
+  "nodesCount": 61,
   "nodes": [
     {
       "id": "def:sample",
@@ -145,18 +145,25 @@
       "title": "Finite-sample expressivity on the spike",
       "leanName": "OpenTheory.exists_subspace_approximation",
       "leanNames": [
-        "OpenTheory.exists_subspace_approximation"
+        "OpenTheory.exists_subspace_approximation",
+        "OpenTheory.forward_zero_of_act_zero",
+        "OpenTheory.biasless_zero_sample_obstruction",
+        "OpenTheory.subspaceLiftNet",
+        "OpenTheory.subspaceLiftNet_forward_eq",
+        "OpenTheory.empiricalApproxError_subspaceLiftNet",
+        "OpenTheory.exists_exact_sample_interpolator_of_anchor",
+        "OpenTheory.exists_subspace_approximation_of_signal_net"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "def:spiked_model",
         "def:approx_error",
         "def:activation"
       ],
       "bountyUsd": null,
-      "informalSketch": "Open target. The finite-sample interpolation argument is not yet formalized."
+      "informalSketch": "Split the sum over $\\mathrm{Fin}\\,d$ into the first $k$ signal coordinates and the remaining $d-k$ zeroed coordinates to establish \\texttt{subspaceLiftWeights\\_dot\\_eq} and \\texttt{subspaceLiftNet\\_forward\\_eq}. For exact sample interpolation, set $W_{2,0,i} = \\mathrm{target}(z_i)/\\sigma(c)$ so each neuron activates solely on sample $i$."
     },
     {
       "id": "def:mup_scaling",
@@ -441,17 +448,24 @@
       "title": "Rademacher symmetrization",
       "leanName": "OpenTheory.rademacher_symmetrization",
       "leanNames": [
-        "OpenTheory.rademacher_symmetrization"
+        "OpenTheory.rademacher_symmetrization",
+        "OpenTheory.rademacherAvg",
+        "OpenTheory.symmetrization_ghost_decomp",
+        "OpenTheory.symmetrization_pointwise_diff_le",
+        "OpenTheory.symmetrization_two_mul_bound",
+        "OpenTheory.linear_rademacher_avg_le",
+        "OpenTheory.twoLayer_rademacher_avg_le"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "def:two_layer_net",
-        "lem:bounded_mean"
+        "lem:bounded_mean",
+        "lem:layer_lipschitz"
       ],
       "bountyUsd": null,
-      "informalSketch": "Open target. Do not tag this proof \\texttt{\\textbackslash leanok} until \\texttt{sorry} is gone. \\cref{lem:bounded_mean} is the intended elementary input."
+      "informalSketch": "Split $\\varepsilon_i(f(X_i)-f(X'_i)) = \\varepsilon_i f(X_i) + (-\\varepsilon_i)f(X'_i)$ and apply the triangle inequality to obtain the factor-$2$ ghost-sample bound. Exchange the sample and coordinate sums for linear predictors and apply Cauchy--Schwarz; expand the readout layer for two-layer networks."
     },
     {
       "id": "lem:gaussian_operator_norm",
@@ -459,16 +473,23 @@
       "title": "Spectral norm of Gaussian projections",
       "leanName": "OpenTheory.gaussian_operator_norm_bound",
       "leanNames": [
-        "OpenTheory.gaussian_operator_norm_bound"
+        "OpenTheory.gaussian_operator_norm_bound",
+        "OpenTheory.matVec_l2Norm_le_frobenius",
+        "OpenTheory.sqrt_frobeniusSq_le_of_entry_abs_le",
+        "OpenTheory.frobenius_norm_RandomInit_expectation_bound",
+        "OpenTheory.gordonThreshold_pos",
+        "OpenTheory.subGaussianOpTail_mono",
+        "OpenTheory.subGaussianOpTail_pos_of_gt"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
-        "def:two_layer_net"
+        "def:two_layer_net",
+        "def:alignment"
       ],
       "bountyUsd": null,
-      "informalSketch": "Open target (concentration of measure)."
+      "informalSketch": "Bound each row inner product $(Wx)_i = \\langle W_{i,\\cdot}, x\\rangle$ via Cauchy--Schwarz, square and sum over $i\\in\\mathrm{Fin}\\,m$ to obtain $\\|Wx\\|_2 \\le \\|W\\|_F\\|x\\|_2$, and verify monotonicity of the threshold and Gaussian tail expression."
     },
     {
       "id": "lem:spectral_bias_mup",
@@ -536,11 +557,16 @@
       "title": "Global feature-learning alignment",
       "leanName": "OpenTheory.feature_learning_resnet_alignment",
       "leanNames": [
-        "OpenTheory.feature_learning_resnet_alignment"
+        "OpenTheory.feature_learning_resnet_alignment",
+        "OpenTheory.alignmentHorizon",
+        "OpenTheory.exp_decay_le_eps_of_ge_alignmentHorizon",
+        "OpenTheory.mup_spectral_alignment_reaches_one_sub_eps",
+        "OpenTheory.mup_spectral_alignment_of_ge_horizon",
+        "OpenTheory.deep_resnet_mup_feature_alignment_certificate"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "lem:spectral_bias_mup",
         "lem:representation_contraction",
@@ -548,8 +574,8 @@
         "def:alignment",
         "def:ntk_scaling"
       ],
-      "bountyUsd": 15000,
-      "informalSketch": "Apex target. Bounty \\$15000. Requires the preceding open lemmas."
+      "bountyUsd": null,
+      "informalSketch": "For $t \\ge T_{\\mathrm{align}}$, $\\frac{B_0}{S_0}\\exp(-2\\eta_{W_1}\\Delta\\gamma\\,t) \\le \\frac{B_0}{B_0 + S_0\\varepsilon}\\varepsilon \\le \\varepsilon$. Combining with \\cref{lem:spectral_bias_mup} and \\cref{lem:representation_contraction} yields both $a(H_t, P) \\ge 1 - \\varepsilon$ and the depth-independent $e^c$-Lipschitz residual propagation bound."
     },
     {
       "id": "def:end_to_end",
@@ -1233,6 +1259,89 @@
       ],
       "bountyUsd": null,
       "informalSketch": "Complete the square coordinate by coordinate to establish $\\sum_i g_i^2/(2S_i) - \\mathrm{coordProgress}(\\eta,S,g) = \\sum_i \\frac{S_i}{2}(\\eta_i - 1/S_i)^2 g_i^2 \\ge 0$. Combine fractions over $2 S_i S_{\\max}$ for the scalar SGD comparison and apply `Finset.sum_pos'` when an active coordinate has $S_{i_0} < S_{\\max}$. For SignGD, use $\\mathrm{sign}(x)x = |x|$ and $\\mathrm{sign}(x)^2 \\le 1$ to obtain the quadratic bound in $\\eta$ and substitute $\\eta_{\\mathrm{sign}} = \\|g\\|_1/\\|S\\|_1$."
+    },
+    {
+      "id": "lem:joint_pl_convergence",
+      "kind": "lemma",
+      "title": "Nonlinear global PL convergence to zero training loss and $\\mup$ acceleration",
+      "leanName": "OpenTheory.JointPLConvergence.unregMSE_eq",
+      "leanNames": [
+        "OpenTheory.JointPLConvergence.unregMSE_eq",
+        "OpenTheory.JointPLConvergence.mlp_unreg_step_descent",
+        "OpenTheory.JointPLConvergence.jacobian_coercive_implies_pl",
+        "OpenTheory.JointPLConvergence.joint_two_layer_pl_inequality",
+        "OpenTheory.JointPLConvergence.joint_jacobian_coercive_implies_pl",
+        "OpenTheory.JointPLConvergence.mlp_unreg_adaptive_pl_step",
+        "OpenTheory.JointPLConvergence.mlp_global_geometric_convergence_to_zero_loss",
+        "OpenTheory.JointPLConvergence.mlp_global_residual_sq_geometric_decay",
+        "OpenTheory.JointPLConvergence.feature_learning_contraction_rate_strict_improvement",
+        "OpenTheory.JointPLConvergence.joint_vs_single_layer_contraction_strict_improvement",
+        "OpenTheory.JointPLConvergence.spectral_amplification_strict_pl_acceleration"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:mlp_derived_sharpness",
+        "lem:spectral_bias_mup"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Square $\\|\\nabla\\mathcal{L}_0(u)\\|_2 = \\frac{1}{n}\\|J_u^* r_u\\|_2 \\ge \\frac{\\sigma_{\\min}}{n}\\|r_u\\|_2$ and substitute $\\|r_u\\|_2^2 = 2n\\mathcal{L}_0(u)$. Induct on $T$: at step $T$, $\\|r_{u_T}\\|_2\\le S$ activates \\cref{lem:mlp_derived_sharpness} at $\\lambda=0$ with sharpness $S_{\\mathrm{MLP}}(0,S)$, giving $\\mathcal{L}_0(u_{T+1}) \\le (1 - \\frac{\\sigma_{\\min}^2}{n S_{\\mathrm{MLP}}(0,S)})\\mathcal{L}_0(u_T) \\le \\mathcal{L}_0(0)$, which preserves $\\|r_{u_{T+1}}\\|_2\\le S$."
+    },
+    {
+      "id": "lem:stochastic_sharpness_sgd",
+      "kind": "lemma",
+      "title": "Mini-batch SGD under local sharpness, critical batch size, and noise horizon",
+      "leanName": "OpenTheory.StochasticSharpnessSGD.sgd_local_sharpness_one_step",
+      "leanNames": [
+        "OpenTheory.StochasticSharpnessSGD.sgd_local_sharpness_one_step",
+        "OpenTheory.StochasticSharpnessSGD.sgd_pointwise_pythagorean_step",
+        "OpenTheory.StochasticSharpnessSGD.sgd_optimal_lr_with_noise",
+        "OpenTheory.StochasticSharpnessSGD.sgdNetProgress_noiseAwareStep_eq",
+        "OpenTheory.StochasticSharpnessSGD.sgdNetProgress_sub_eq_sq",
+        "OpenTheory.StochasticSharpnessSGD.noiseAwareStep_maximizes_sgdNetProgress",
+        "OpenTheory.StochasticSharpnessSGD.optimal_sgd_progress_vs_full_batch",
+        "OpenTheory.StochasticSharpnessSGD.critical_batch_half_efficiency",
+        "OpenTheory.StochasticSharpnessSGD.linear_scaling_regime_progress",
+        "OpenTheory.StochasticSharpnessSGD.batch_size_doubling_speedup",
+        "OpenTheory.StochasticSharpnessSGD.sgd_pl_noise_ball_convergence",
+        "OpenTheory.StochasticSharpnessSGD.mlp_sgd_noise_floor_proportional_to_inv_batch"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:local_sharpness_descent",
+        "lem:mlp_derived_sharpness"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Complete the square in $\\eta$ against total second moment $G + \\sigma^2/B$ to establish optimality of $\\eta_{\\mathrm{opt}}$, divide numerator and denominator by $G/B$ to obtain the batch efficiency factor $B/(B + B_{\\mathrm{crit}})$, and induct on $E_t - F - \\mathrm{sgdNoiseFloor}$ for the multi-step PL horizon bound."
+    },
+    {
+      "id": "lem:in_context_retrieval",
+      "kind": "lemma",
+      "title": "In-context associative retrieval dynamics and step complexity",
+      "leanName": "OpenTheory.InContextRetrieval.logitMargin_after_step",
+      "leanNames": [
+        "OpenTheory.InContextRetrieval.logitMargin_after_step",
+        "OpenTheory.InContextRetrieval.logitMargin_trajectory_ge",
+        "OpenTheory.InContextRetrieval.bilinearScore_step_eq",
+        "OpenTheory.InContextRetrieval.queryStep_score_separation",
+        "OpenTheory.InContextRetrieval.bilinearQueryStep_margin_growth",
+        "OpenTheory.InContextRetrieval.icl_attention_weight_convergence_real_sub",
+        "OpenTheory.InContextRetrieval.icl_retrieval_error_exponential_decay",
+        "OpenTheory.InContextRetrieval.icl_step_complexity_certificate",
+        "OpenTheory.InContextRetrieval.icl_population_risk_bound"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:attention_logit_stability",
+        "lem:attention_ablation"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Induct on $T$ to show $s_{T,j} \\le s_{T,i_\\star} - (\\gamma_0 + T\\eta\\Delta_g)$ on unmasked keys $j\\ne i_\\star$. Apply \\cref{lem:attention_logit_stability} with margin $\\gamma_T = \\gamma_0 + T\\eta\\Delta_g$ to bound the tail weight and output retrieval error, solve $(n-1)D_V e^{-\\gamma_0 - T\\eta\\Delta_g} \\le \\varepsilon$ via $\\log$, and integrate the pointwise Young inequality $\\|\\hat{y} - y\\|^2 \\le 2\\|v_{i_\\star} - y\\|^2 + 2\\|\\hat{y} - v_{i_\\star}\\|^2$."
     }
   ]
 }

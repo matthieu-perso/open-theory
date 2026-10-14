@@ -151,7 +151,7 @@ theorem nonlinear_linearized_gap (net : TwoLayerNet d m) (x : Fin d → ℝ)
 /-- Initial/current Jacobian correlation changes at most linearly in hidden
 preactivation displacement. This is the missing derivative-drift term. -/
 theorem crossKernel_drift_le (net : TwoLayerNet d m) (x : Fin d → ℝ) (U)
-    {A L M D : ℝ} (hA : 0 ≤ A) (hL : 0 ≤ L) (hM : 0 ≤ M)
+    {A L M D : ℝ} (_hA : 0 ≤ A) (hL : 0 ≤ L) (hM : 0 ≤ M)
     (hW : ∀ i, |net.W₂ 0 i| ≤ A)
     (hσ : ∀ u, |deriv net.act.σ u| ≤ L)
     (hLip : ∀ a b, |deriv net.act.σ a - deriv net.act.σ b| ≤ M * |a - b|)

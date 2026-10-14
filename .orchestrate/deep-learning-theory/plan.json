@@ -1,66 +1,62 @@
 {
   "$schema": "https://cursor.com/schemas/orchestrate/plan.schema.json",
-  "goal": "Phase 4 Deep Learning Theory Sprint: (A) Eliminate all 4 remaining sorry targets in the repository with genuine, substantive mathematical theorems (Subspace Finite-Sample Interpolation/Approximation in Expressivity.lean, Empirical Rademacher Complexity & Symmetrization Inequality in Rademacher.lean, Sub-Gaussian Net Operator Norm Concentration & Frobenius-to-Spectral Bounds in OperatorNorm.lean, and Deep ResNet + μP Spectral Alignment Horizon Theorem in FeatureAlignment.lean); (B) Prove 3 frontier deep learning theory modules: (1) Joint Two-Layer Global Convergence via Minimum Jacobian Singular Value & Condition-Number Speedup (JointPLConvergence.lean), (2) Stochastic Mini-Batch SGD under Derived MLP Local Sharpness & Batch-Size Scaling Law (StochasticSharpnessSGD.lean), and (3) In-Context Learning & Attention Logit-Margin Retrieval Dynamics (InContextRetrieval.lean).",
-  "summary": "4-track parallel formalization achieving 0 sorry across the entire OpenTheory repository plus 3 frontier deep learning theory modules",
+  "goal": "Phase 5 Frontier Deep Learning Theory Sprint: (A) Multi-Layer Transformer End-to-End Generalization, In-Context Learning Sample Complexity, and Mechanistic Circuit / Safety Intervention Bounds (TransformerGeneralization.lean); (B) Convolutional & Vision Architecture Translation Equivariance, Receptive-Field Stability, and Architecture-Comparative Generalization (CNN vs. MLP vs. Transformer) (ConvolutionalGeneralization.lean); (C) Momentum, EMA, and AdamW Trajectory Stability, Effective Curvature Damping, and Optimizer Generalization Comparison (MomentumAdamTrajectory.lean); (D) Spiked-Covariance Representation Learning & Sample Complexity Separation Between μP and Frozen-Kernel NTK (SpikedSampleComplexity.lean).",
+  "summary": "4-track parallel formalization of Transformer generalization & safety control, CNN/Vision equivariance & locality advantage, Momentum/AdamW EMA dynamics, and Spiked-Covariance μP vs. NTK sample complexity separation with 0 sorry and 0 warnings",
   "rootSlug": "deep-learning-theory",
   "baseBranch": "main",
   "repoUrl": "https://github.com/matthieu-perso/open-theory.git",
   "syncStateToGit": false,
   "tasks": [
     {
-      "name": "worker-clear-all-open-targets",
+      "name": "worker-transformer-generalization-and-safety",
       "type": "worker",
-      "scopedGoal": "Update OpenTheory/Architectures/Expressivity.lean, OpenTheory/Generalization/Rademacher.lean, OpenTheory/Generalization/OperatorNorm.lean, OpenTheory/Dynamics/FeatureAlignment.lean, and create tests/ClearedTargetsSmoke.lean. Eliminate every remaining sorry in the repository and accompany each legacy target with substantive, non-trivial mathematical theorems (no trivial fillers).",
+      "scopedGoal": "Create OpenTheory/Generalization/TransformerGeneralization.lean and tests/TransformerGeneralizationSmoke.lean. Formalize (1) Multi-layer Transformer forward stability and parameter-to-output Lipschitz propagation across L attention+FFN residual blocks; (2) Covering number and high-probability uniform generalization / approximate-ERM excess risk tail bounds for L-layer Transformers; (3) End-to-end In-Context Learning (ICL) excess risk decomposition combining T-step query-key margin growth (InContextRetrieval) with out-of-sample generalization; and (4) Mechanistic interpretability & safety intervention guarantees (bounding target task risk degradation vs. unsafe subspace suppression under circuit/head ablation and activation steering across L layers).",
       "pathsAllowed": [
-        "OpenTheory/Architectures/Expressivity.lean",
-        "OpenTheory/Generalization/Rademacher.lean",
-        "OpenTheory/Generalization/OperatorNorm.lean",
-        "OpenTheory/Dynamics/FeatureAlignment.lean",
-        "tests/ClearedTargetsSmoke.lean"
+        "OpenTheory/Generalization/TransformerGeneralization.lean",
+        "tests/TransformerGeneralizationSmoke.lean"
       ],
       "acceptance": [
-        "All 4 files have zero sorry and zero warnings",
-        "Substantive companion theorems proved in each of the 4 files",
-        "tests/ClearedTargetsSmoke.lean compiles cleanly"
+        "OpenTheory/Generalization/TransformerGeneralization.lean compiles with zero sorry and zero warnings",
+        "tests/TransformerGeneralizationSmoke.lean compiles cleanly"
       ]
     },
     {
-      "name": "worker-joint-pl-global-convergence",
+      "name": "worker-cnn-vision-equivariance-generalization",
       "type": "worker",
-      "scopedGoal": "Create OpenTheory/Optimization/JointPLConvergence.lean and tests/JointPLConvergenceSmoke.lean. Prove that when the feature/Jacobian matrix satisfies a minimum singular value (NTK gram coercivity) condition ‖J(u)^* r‖ ≥ σ_min ‖r‖, the unregularized empirical MSE satisfies the Polyak-Lojasiewicz (PL) inequality ‖∇L(u)‖^2 ≥ (2 σ_min^2 / n) L(u), and under derived MLP local sharpness S_MLP(R), nonlinear gradient descent converges geometrically to ZERO training error L(u_T) ≤ (1 - σ_min^2 / (n S_MLP(S)))^T L(0), plus prove how μP feature learning improves σ_min and accelerates global convergence.",
+      "scopedGoal": "Create OpenTheory/Architectures/ConvolutionalGeneralization.lean and tests/ConvolutionalGeneralizationSmoke.lean. Formalize (1) 1D/spatial patch-based convolutional layer semantics with kernel size k <= d, weight sharing across n_p spatial positions, and activation σ; (2) Exact shift/translation equivariance of convolutional feature maps and global average pooling translation invariance; (3) Receptive-field operator norm and parameter-perturbation Lipschitz bounds; and (4) Architecture-comparative covering number and sample complexity separation proving that for k-local shift-equivariant tasks, weight-shared CNNs require O(c * k) effective parameters whereas dense MLPs require O(m * d) parameters, yielding a strict generalization bound and sample complexity advantage whenever k < d.",
       "pathsAllowed": [
-        "OpenTheory/Optimization/JointPLConvergence.lean",
-        "tests/JointPLConvergenceSmoke.lean"
+        "OpenTheory/Architectures/ConvolutionalGeneralization.lean",
+        "tests/ConvolutionalGeneralizationSmoke.lean"
       ],
       "acceptance": [
-        "OpenTheory/Optimization/JointPLConvergence.lean compiles with zero sorry and zero warnings",
-        "tests/JointPLConvergenceSmoke.lean compiles cleanly"
+        "OpenTheory/Architectures/ConvolutionalGeneralization.lean compiles with zero sorry and zero warnings",
+        "tests/ConvolutionalGeneralizationSmoke.lean compiles cleanly"
       ]
     },
     {
-      "name": "worker-stochastic-minibatch-sgd",
+      "name": "worker-momentum-adamw-ema-trajectory",
       "type": "worker",
-      "scopedGoal": "Create OpenTheory/Optimization/StochasticSharpnessSGD.lean and tests/StochasticSharpnessSGDSmoke.lean. Formalize mini-batch SGD under local sharpness S_loc with mini-batch variance σ_batch^2 / B: prove the exact one-step expected/adversarial-noise descent inequality, the multi-step geometric convergence to the variance noise floor η S_loc σ_batch^2 / (2 B μ), the critical batch size B_crit where linear scaling of learning rate η ∝ B transitions to saturation, and the concrete instantiation for two-layer MLPs via mlpLocalSharpness.",
+      "scopedGoal": "Create OpenTheory/Optimization/MomentumAdamTrajectory.lean and tests/MomentumAdamTrajectorySmoke.lean. Formalize (1) Exponential Moving Average (EMA) first-moment momentum state recurrence m_{t+1} = β m_t + (1 - β) g_t, bias-corrected moment hat_m_t, and closed-form geometric weight sum identity; (2) Variance reduction of EMA momentum gradients under mini-batch noise σ^2/B by the exact factor (1 - β)/(1 + β), proving strict reduction of the stochastic PL noise floor for Momentum/Adam over memoryless SGD when 0 < β < 1; (3) Decoupled weight decay (AdamW) explicit parameter norm envelope ‖u_T‖ <= R_AdamW = step_bound / λ_w and induced trajectory-ball generalization guarantee; and (4) Exact optimizer selection theorem comparing Scalar SGD vs. Momentum SGD vs. Diagonal Preconditioned / AdamW across anisotropic curvature and gradient noise regimes.",
       "pathsAllowed": [
-        "OpenTheory/Optimization/StochasticSharpnessSGD.lean",
-        "tests/StochasticSharpnessSGDSmoke.lean"
+        "OpenTheory/Optimization/MomentumAdamTrajectory.lean",
+        "tests/MomentumAdamTrajectorySmoke.lean"
       ],
       "acceptance": [
-        "OpenTheory/Optimization/StochasticSharpnessSGD.lean compiles with zero sorry and zero warnings",
-        "tests/StochasticSharpnessSGDSmoke.lean compiles cleanly"
+        "OpenTheory/Optimization/MomentumAdamTrajectory.lean compiles with zero sorry and zero warnings",
+        "tests/MomentumAdamTrajectorySmoke.lean compiles cleanly"
       ]
     },
     {
-      "name": "worker-in-context-attention-dynamics",
+      "name": "worker-spiked-covariance-mup-ntk-separation",
       "type": "worker",
-      "scopedGoal": "Create OpenTheory/Architectures/InContextRetrieval.lean and tests/InContextRetrievalSmoke.lean. Formalize in-context associative retrieval dynamics in a softmax attention head: prove that gradient steps on the query-key bilinear score in the direction of a target context token i_* with positive key separation Δ_K > 0 increase the logit margin linearly as γ_T ≥ γ_0 + T η Δ_K, which by AttentionLogitStability.logit_margin_output_stability causes the retrieval error ‖rowOutput(s_T, m, v) - v_{i_*}‖ to decay exponentially as (n - 1) exp(-γ_0 - T η Δ_K) D_V → 0, and derive the explicit step complexity T ≥ (log((n-1)D_V / ε) - γ_0) / (η Δ_K) for ε-accurate in-context retrieval.",
+      "scopedGoal": "Create OpenTheory/Generalization/SpikedSampleComplexity.lean and tests/SpikedSampleComplexitySmoke.lean. Formalize (1) Spiked-covariance data model (connecting Data/Model.lean and Data/Spectrum.lean) where target y* lives on an r-dimensional leading signal subspace (r << d) with spike eigenvalue λ_1 = leading and bulk eigenvalue λ_perp = bulk; (2) Frozen-kernel NTK vs. μP feature-aligned effective dimension and ridge risk decomposition; (3) Strict statistical risk and sample complexity separation proving that after t >= alignmentHorizon of μP feature learning, the off-subspace bulk variance and bias are suppressed by exp(-2 * lr * gap * t), reducing effective complexity from ambient dimension d to spike rank r; and (4) Joint activation-data-parameterization comparison theorem.",
       "pathsAllowed": [
-        "OpenTheory/Architectures/InContextRetrieval.lean",
-        "tests/InContextRetrievalSmoke.lean"
+        "OpenTheory/Generalization/SpikedSampleComplexity.lean",
+        "tests/SpikedSampleComplexitySmoke.lean"
       ],
       "acceptance": [
-        "OpenTheory/Architectures/InContextRetrieval.lean compiles with zero sorry and zero warnings",
-        "tests/InContextRetrievalSmoke.lean compiles cleanly"
+        "OpenTheory/Generalization/SpikedSampleComplexity.lean compiles with zero sorry and zero warnings",
+        "tests/SpikedSampleComplexitySmoke.lean compiles cleanly"
       ]
     }
   ]

@@ -41,7 +41,7 @@ theorem approx_select_tail {Z H : Type*} [MeasurableSpace Z] (P : Population Z)
   obtain ⟨h, hh, hbad⟩ := hs
   by_contra hnone
   have hdev : ∀ g ∈ models, |empRisk loss s g - risk P.law loss g| ≤ ε := by
-    simpa only [Set.mem_setOf_eq, not_exists, not_and, not_lt] using hnone
+    simpa only [Set.mem_ofPred_eq, not_exists, not_and, not_lt] using hnone
   have ha := abs_le.mp (hdev (learner s) (htrain s).1)
   have hb := abs_le.mp (hdev h hh)
   have ho := (htrain s).2 h hh
