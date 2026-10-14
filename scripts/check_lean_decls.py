@@ -28,8 +28,26 @@ def declared_names() -> set[str]:
     names: set[str] = set()
     for path in LEAN_ROOT.rglob("*.lean"):
         text = path.read_text(encoding="utf-8")
+        # This is only a source index; audit_axioms.lean resolves the references
+        # against Lean itself. Track namespaces/sections for qualified local names.
+        scopes: list[str] = []
+        scope_events = iter(re.finditer(
+            r"^\s*(?:noncomputable\s+)?(namespace|section|end)\b(?:[ \t]+([A-Za-z0-9_'.]+))?",
+            text, re.MULTILINE,
+        ))
+        event = next(scope_events, None)
         for match in DECL.finditer(text):
+            while event is not None and event.start() < match.start():
+                kind, name = event.groups()
+                if kind == "end":
+                    if scopes:
+                        scopes.pop()
+                else:
+                    scopes.append((name or "") if kind == "namespace" else "")
+                event = next(scope_events, None)
             raw = match.group(1)
+            prefix = ".".join(scope for scope in scopes if scope)
+            names.add(f"{prefix}.{raw}" if prefix else raw)
             short = raw.split(".")[-1]
             names.add(raw)
             names.add(short)

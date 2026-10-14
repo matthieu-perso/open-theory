@@ -5,22 +5,47 @@ open Lean
 def isAllowedAxiom (n : Name) : Bool :=
   n == ``Classical.choice || n == ``Quot.sound || n == ``propext || n == ``sorryAx
 
-def axiomsOf (env : Environment) (declName : Name) : Array Name :=
-  let (_, s) := ((CollectAxioms.collect declName).run env).run {}
-  s.axioms
+def isAllowedForCompleted (n : Name) : Bool :=
+  isAllowedAxiom n && n != ``sorryAx
+
+/-- Existing research targets only. New declarations are strict by default. -/
+def openTargets : List Name := [
+  `OpenTheory.feature_learning_resnet_alignment,
+  `OpenTheory.rademacher_symmetrization,
+  `OpenTheory.exists_subspace_approximation,
+  `OpenTheory.gaussian_operator_norm_bound]
+
+def axiomsOf (env : Environment) (declName : Name) : IO (Array Name) :=
+  (Lean.collectAxioms declName : CoreM (Array Name)).toIO'
+    { fileName := "audit", fileMap := default } { env := env }
+
+/-- Resolve blueprint references against the actual imported Lean environment. -/
+def blueprintNames (source : String) : List Name :=
+  ((source.splitOn "\\lean{").drop 1).flatMap fun block =>
+    ((block.splitOn "}").head!).splitOn "," |>.map fun name => name.trimAscii.toString.toName
 
 def main : IO UInt32 := do
-  let env ← importModules [{ module := `OpenTheory }] {}
+  let env ← importModules #[{ module := `OpenTheory }] {}
+  let names := blueprintNames (← IO.FS.readFile "blueprint/src/content.tex")
+  for name in names do
+    if (env.find? name).isNone then
+      IO.println s!"[FATAL] Blueprint declaration not found in Lean: {name}"
+      return 1
+  IO.println s!"[VERIFIED] {names.length} blueprint references resolve in Lean (including imports)."
   let mut violations : List (Name × Name) := []
   let mut sorryDecls : List Name := []
 
-  for (declName, _) in env.constants.toList do
+  for (declName, info) in env.constants.toList do
     unless declName.toString.startsWith "OpenTheory" do
       continue
-    for ax in axiomsOf env declName do
+    -- Unsafe compiler intermediates may contain erased proofs such as lcProof.
+    -- They cannot be used in kernel proofs; audit the safe declarations instead.
+    if info.isUnsafe then
+      continue
+    for ax in ← axiomsOf env declName do
       if ax == ``sorryAx then
         sorryDecls := declName :: sorryDecls
-      else if !isAllowedAxiom ax then
+      if !isAllowedForCompleted ax && !(ax == ``sorryAx && openTargets.contains declName) then
         violations := (declName, ax) :: violations
 
   let sorryUnique := sorryDecls.eraseDups
@@ -34,5 +59,5 @@ def main : IO UInt32 := do
       IO.println s!"  Declaration: {decl} -> Illegal Axiom: {ax}"
     return 1
 
-  IO.println "[VERIFIED] No axioms outside {propext, Classical.choice, Quot.sound, sorryAx}."
+  IO.println "[VERIFIED] Safe OpenTheory declarations use only standard axioms; sorryAx is confined to named open targets."
   return 0

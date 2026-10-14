@@ -170,27 +170,29 @@ Both the numerator and the denominator are sums of squares. The zero-matrix case
 \end{proof}
 
 \begin{lemma}[Alignment is at most one]\label{lem:alignment_le_one}
-\lean{OpenTheory.alignment_le_one}
+\lean{OpenTheory.alignment_le_one, OpenTheory.orthoProjector_row_sq_sum, OpenTheory.frobeniusSq_sub_mul_orthoProjector, OpenTheory.frobeniusSq_mul_orthoProjector_le}
 \leanok
 \uses{def:alignment}
 If $P$ is an orthogonal projector, then $a(H,P)\le 1$.
 \end{lemma}
 \begin{proof}
-Open target. It uses $\lVert HP\rVert_F \le \lVert H\rVert_F$ for an orthogonal projector.
+\leanok
+By symmetry $P^\top=P$ and idempotence $P^2=P$, each row $i$ satisfies $\sum_j ((HP)_{ij})^2 = \sum_j (HP)_{ij} H_{ij}$. Expanding $\lVert H - HP\rVert_F^2$ row by row yields the exact Frobenius Pythagorean identity $\lVert H - HP\rVert_F^2 = \lVert H\rVert_F^2 - \lVert HP\rVert_F^2$. Since $\lVert H - HP\rVert_F^2 \ge 0$, $\lVert HP\rVert_F^2 \le \lVert H\rVert_F^2$, so dividing by $\lVert H\rVert_F^2 > 0$ gives $a(H,P)\le 1$.
 \end{proof}
 
 \begin{lemma}[Alignment certificate]\label{lem:alignment_certificate}
 \lean{OpenTheory.alignment_feature_distance}
 \leanok
 \uses{lem:alignment_le_one}
-Let $P$ be an orthogonal projector and $\lVert H\rVert_F \ne 0$. If $a(H,P)\ge 1-\varepsilon$ for some $\varepsilon\ge 0$, then
+Let $P$ is an orthogonal projector and $\lVert H\rVert_F \ne 0$. If $a(H,P)\ge 1-\varepsilon$ for some $\varepsilon\ge 0$, then
 \[
 \lVert H - HP\rVert_F^2 \le \varepsilon\,\lVert H\rVert_F^2.
 \]
 This is the sense in which a high alignment score says the features lie close to the subspace.
 \end{lemma}
 \begin{proof}
-Open target.
+\leanok
+From the Frobenius Pythagorean identity $\lVert H - HP\rVert_F^2 = \lVert H\rVert_F^2 - \lVert HP\rVert_F^2 = (1 - a(H,P))\lVert H\rVert_F^2$, the lower bound $a(H,P)\ge 1-\varepsilon$ immediately yields $\lVert H - HP\rVert_F^2 \le \varepsilon \lVert H\rVert_F^2$.
 \end{proof}
 
 \chapter{Optimization}
@@ -223,7 +225,8 @@ L(t) \le F + e^{-ct}\bigl(L(0)-F\bigr).
 The µP scale is a parameter of the statement. Proving the rate $c$ from the gradient-flow ODE is open.
 \end{lemma}
 \begin{proof}
-Open target. The remaining step is a Grönwall estimate from the rate hypothesis.
+\leanok
+Define the rescaled excess risk $g(s) = e^{cs}(L(s)-F)$. By the product and chain rules, $g'(s) = e^{cs}(c(L(s)-F) + L'(s)) \le 0$ for all $s\in\mathbb{R}$. Monotonicity of functions with nonpositive derivative (`image_le_of_deriv_right_le_deriv_boundary`) yields $g(t)\le g(0) = L(0)-F$ for $t\ge 0$, and multiplying by $e^{-ct}>0$ completes the proof.
 \end{proof}
 
 \chapter{Generalization}
@@ -240,7 +243,7 @@ Immediate from the Lipschitz field of \cref{def:activation}.
 \end{proof}
 
 \begin{lemma}[Lipschitz bound for one layer]\label{lem:layer_lipschitz}
-\lean{OpenTheory.dotProduct, OpenTheory.l2Norm, OpenTheory.layer_lipschitz}
+\lean{OpenTheory.dotProduct, OpenTheory.l2Norm, OpenTheory.abs_dotProduct_le, OpenTheory.abs_dotProduct_sub_le, OpenTheory.layer_lipschitz_of_lip, OpenTheory.layer_lipschitz}
 \leanok
 \uses{lem:lipschitz_gelu}
 For an admissible activation, a weight vector $w\in\R^d$, and inputs $x,y$,
@@ -251,17 +254,19 @@ For an admissible activation, a weight vector $w\in\R^d$, and inputs $x,y$,
 where $L$ is a Lipschitz constant of $\sigma$.
 \end{lemma}
 \begin{proof}
-Open target. Compose the activation Lipschitz bound with Cauchy--Schwarz on $\langle w, x-y\rangle$.
+\leanok
+Apply the finite-sum Cauchy--Schwarz inequality (`Finset.sum_mul_sq_le_sq_mul_sq`) to $\langle w, x\rangle - \langle w, y\rangle = \langle w, x-y\rangle$ to obtain $|\langle w,x\rangle - \langle w,y\rangle| \le \|w\|_2\|x-y\|_2$, and compose with the activation Lipschitz bound $|\sigma(a)-\sigma(b)|\le L|a-b|$.
 \end{proof}
 
 \begin{lemma}[Lipschitz bound for the network]\label{lem:forward_lipschitz}
-\lean{OpenTheory.forward_lipschitz}
+\lean{OpenTheory.forward_lipschitz_explicit, OpenTheory.forward_lipschitz}
 \leanok
 \uses{lem:layer_lipschitz, def:two_layer_net}
-The map $x\mapsto f_\theta(x)$ of a two-layer net is Lipschitz.
+The map $x\mapsto f_\theta(x)$ of a two-layer net is Lipschitz with explicit constant $\sum_{i=1}^m |W_{2,i}|\,L\,\|W_{1,i}\|_2$.
 \end{lemma}
 \begin{proof}
-Open target. Sum the one-layer bound over the hidden units and weight by $W_2$.
+\leanok
+Apply the triangle inequality to the sum over hidden units $i\in\mathrm{Fin}\,m$, bound each unit by $|W_{2,i}|\,L\,\|W_{1,i}\|_2\,\|x-y\|_2$ using \cref{lem:layer_lipschitz}, and factor out $\|x-y\|_2$.
 \end{proof}
 
 \begin{lemma}[Bounded empirical means]\label{lem:bounded_mean}
@@ -305,30 +310,49 @@ Open target (concentration of measure).
 \chapter{Dynamics}
 
 \begin{lemma}[Spectral bias in $\mup$ scaling]\label{lem:spectral_bias_mup}
-\lean{OpenTheory.spectral_bias_mup_alignment}
+\lean{OpenTheory.spectral_bias_mup_alignment, OpenTheory.spectral_bias_mup_gap_alignment_cont, OpenTheory.spectral_bias_mup_gap_alignment_disc, OpenTheory.MultiStepSpectralBias.hasDerivAt_modeAmpCont, OpenTheory.MultiStepSpectralBias.modeAmpDisc_step, OpenTheory.MultiStepSpectralBias.signal_to_bulk_ratio_cont, OpenTheory.MultiStepSpectralBias.signal_to_bulk_ratio_disc, OpenTheory.MultiStepSpectralBias.alignment_lower_bound_of_signal_bulk, OpenTheory.MultiStepSpectralBias.spectral_bias_alignment_cont_ge, OpenTheory.MultiStepSpectralBias.spectral_bias_alignment_disc_ge, OpenTheory.MultiStepSpectralBias.spiked_model_alignment_cont_ge, OpenTheory.MultiStepSpectralBias.multistep_kernel_growth_improves_ridge_mse}
 \leanok
-\uses{def:mup_scaling, lem:gaussian_operator_norm, lem:lipschitz_gelu, def:alignment, def:spectral_gap}
-Under continuous gradient flow with $\mup$ scaling, hidden representations align with principal eigenspaces of the data Gram matrix at a rate controlled by the corresponding eigenvalues~\cite{rahaman2019spectral}. The Lean declaration is still a scaffold for that rate.
+\uses{def:mup_scaling, def:alignment, lem:alignment_certificate, def:spectral_gap, lem:feature_learning_advantage}
+Under $\mup$ feature-learning scaling on a data Gram matrix with spectral gap $\gamma_{\mathrm{lead}} \ge \gamma_{\mathrm{bulk}} + \Delta\gamma$ ($\Delta\gamma > 0$), eigenmodes along eigenspace $\gamma$ evolve at continuous rate $e^{\gamma t}$ and discrete rate $(1 + \eta\gamma)^T$~\cite{rahaman2019spectral}:
+\begin{enumerate}
+\item \textbf{Exponential signal-to-bulk amplification:} When signal energy grows as $S(t) \ge e^{2\gamma_{\mathrm{lead}} t} S_0$ (or $(1+\eta\gamma_{\mathrm{lead}})^{2T} S_0$) and bulk energy satisfies $B(t) \le e^{2\gamma_{\mathrm{bulk}} t} B_0$ (or $(1+\eta\gamma_{\mathrm{bulk}})^{2T} B_0$), the bulk-to-signal ratio decays exponentially as $B(t)/S(t) \le (B_0/S_0)e^{-2\Delta\gamma t}$ in continuous time and $B_T/S_T \le (B_0/S_0)\bigl(\frac{1+\eta\gamma_{\mathrm{bulk}}}{1+\eta\gamma_{\mathrm{lead}}}\bigr)^{2T}$ in discrete time.
+\item \textbf{Subspace alignment convergence to $1$:} For any orthogonal signal projector $P$, the Frobenius Pythagorean identity yields $a(H, P) \ge \frac{S}{S+B} \ge 1 - \frac{B}{S}$, so
+\[
+a(H_t, P) \ge 1 - \frac{B_0}{S_0}e^{-2\Delta\gamma t},\qquad
+a(H_T, P) \ge 1 - \frac{B_0}{S_0}\Bigl(\frac{1+\eta\gamma_{\mathrm{bulk}}}{1+\eta\gamma_{\mathrm{lead}}}\Bigr)^{2T},
+\]
+and the relative unaligned feature error $\lVert H - HP\rVert_F^2 / \lVert H\rVert_F^2$ decays at the same exponential rate.
+\item \textbf{Multi-step ridge risk improvement:} Over $T\ge 1$ steps, the amplified target kernel energy $K_T \ge (1+\eta\gamma_{\mathrm{lead}})^{2T} K_0 > K_0$ strictly reduces both the squared ridge bias and the total expected ridge MSE.
+\end{enumerate}
 \end{lemma}
 \begin{proof}
-Open target. Bounty \$2500. Formalize without \texttt{sorry}.
+\leanok
+Combine $e^{2\gamma_{\mathrm{bulk}}t} = e^{2(\gamma_{\mathrm{bulk}}-\gamma_{\mathrm{lead}})t} e^{2\gamma_{\mathrm{lead}}t} \le e^{-2\Delta\gamma t} e^{2\gamma_{\mathrm{lead}}t}$ with the signal and bulk bounds in continuous time, and compare $1+\eta\gamma_{\mathrm{lead}} \ge 1+\eta\gamma_{\mathrm{bulk}} + \eta\Delta\gamma$ in discrete time. Apply the Frobenius Pythagorean identity $\lVert H\rVert_F^2 = \lVert HP\rVert_F^2 + \lVert H-HP\rVert_F^2$ to lower-bound $a(H,P)$ by $1 - B/S$, and invoke Lemma~\ref{lem:feature_learning_advantage} for the multi-step ridge MSE improvement.
 \end{proof}
 
 \begin{lemma}[Representation contraction in residual blocks]\label{lem:representation_contraction}
-\lean{OpenTheory.resnet_representation_contraction}
+\lean{OpenTheory.resnet_representation_contraction, OpenTheory.resnet_step_contraction_le, OpenTheory.resnet_representation_contraction_lipschitz, OpenTheory.DeepResidualScaling.branchOutput_l2Norm_le, OpenTheory.DeepResidualScaling.residualStep_l2Norm_le, OpenTheory.DeepResidualScaling.residualStep_sqrt_depth_scaling, OpenTheory.DeepResidualScaling.deepResidual_l2Norm_le, OpenTheory.DeepResidualScaling.one_add_div_pow_le_exp, OpenTheory.DeepResidualScaling.deepResidualChain_depth_independent_exp_bound, OpenTheory.DeepResidualScaling.deepResidual_norm_window}
 \leanok
-\uses{lem:lipschitz_gelu, def:residual}
-For depth $L$ residual blocks with branch scaling $1/\sqrt{L}$~\cite{hayou2021stable}, distances in representation space expand by at most a factor $1+O(L^{-1/2})$:
+\uses{lem:lipschitz_gelu, def:residual, lem:layer_lipschitz}
+For a residual branch $h \mapsto h + \alpha\,\sigma(Wh)$ with $L_\sigma$-Lipschitz activation and $L_\sigma\|W\|_F \le c$:
+\begin{enumerate}
+\item \textbf{Single-block $1/\sqrt{L}$ and $1/L$ scaling:} With $\alpha = 1/\sqrt{L}$~\cite{hayou2021stable}, Euclidean representation distances expand by at most $1 + c/\sqrt{L}$:
 \[
 \|h_{\ell+1}(x)-h_{\ell+1}(y)\|_2
 \le
 \Bigl(1+\frac{c}{\sqrt{L}}\Bigr)
 \|h_\ell(x)-h_\ell(y)\|_2.
 \]
-The Lean declaration is still a scaffold for the constant $c$.
+\item \textbf{Depth-independent $\exp(c)$ stability across $L$ layers:} Across an $L$-layer residual chain with branch scaling $\alpha = 1/L$, the compound amplification $(1 + c/L)^L$ is bounded uniformly for all $L\ge 1$ by $e^c$:
+\[
+\bigl\|\mathrm{deepResidual}_L(x) - \mathrm{deepResidual}_L(y)\bigr\|_2 \le e^c\,\|x - y\|_2,
+\]
+and when $\sigma(0)=0$, representation norms satisfy the two-sided non-collapse window $(1 - |\alpha|c)\|h\|_2 \le \|\mathrm{residualStep}(h)\|_2$ and $\|\mathrm{deepResidual}_L(x)\|_2 \le e^c\|x\|_2$.
+\end{enumerate}
 \end{lemma}
 \begin{proof}
-Open target. Bounty \$1500.
+\leanok
+Bound each coordinate of $\sigma(Wx)-\sigma(Wy)$ via Cauchy--Schwarz and $L_\sigma$-Lipschitzness, square and sum over rows to obtain $\|\sigma(Wx)-\sigma(Wy)\|_2 \le L_\sigma\|W\|_F\|x-y\|_2$, and apply the Euclidean triangle inequality to $x + \alpha\sigma(Wx)$. Induct over $L$ layers and apply $(1+c/L)^L \le (e^{c/L})^L = e^c$.
 \end{proof}
 
 \begin{conjecture}[Global feature-learning alignment]\label{conj:grand_feature_learning}
@@ -359,6 +383,534 @@ If the empirical risk is at most $\varepsilon_{\mathrm{approx}}+\varepsilon_{\ma
 \begin{proof}
 \leanok
 Add the two inequalities.
+\end{proof}
+
+\chapter{Checked reuse foundation}
+
+\begin{definition}[Data and probability interfaces]\label{def:reuse_data}
+\lean{OpenTheory.Dataset, OpenTheory.Parameters, OpenTheory.Population, OpenTheory.IIDSample}
+\leanok
+Finite observations are independent of boundedness assumptions. Parameters use
+Euclidean geometry. A population is a probability law; IID samples have independent
+coordinates with that common law. Population-risk integrability is an explicit
+separate predicate, not inferred from writing an integral.
+\end{definition}
+
+\begin{lemma}[Finite-data ridge training]\label{lem:reuse_ridge}
+\lean{OpenTheory.Dataset.ridgeLoss_eq, OpenTheory.Dataset.ridge_training, OpenTheory.Ridge.admissible_step}
+\leanok
+\uses{def:reuse_data}
+For a nonempty sample and $\lambda>0$, the objective
+$\frac{1}{2n}\sum_i(\langle\theta,x_i\rangle-y_i)^2+
+\frac{\lambda}{2}\|\theta\|^2$ has a minimizer. Let $A$ be its observation
+operator and $L=\|A^*A/n+\lambda I\|+|\lambda|$.
+For $\eta>0$ and $\eta L^2<2\lambda$, exact gradient descent satisfies
+$\|\theta_k-\theta_*\|^2\leq q^k\|\theta_0-\theta_*\|^2$,
+where $q=1-2\eta\lambda+\eta^2L^2<1$.
+The step $\eta=\lambda/L^2$ is admissible.
+\end{lemma}
+\begin{proof}
+\leanok
+Identify the actual gradient using Mathlib calculus. Positive regularization makes
+the finite-dimensional Hessian injective and hence surjective, giving a stationary
+point. Quadratic expansion proves minimization. Apply TorchLean's strongly monotone
+Lipschitz-operator gradient-descent theorem.
+\end{proof}
+
+\begin{lemma}[Reused neural semantics and global bounds]\label{lem:reuse_mlp}
+\lean{OpenTheory.Torch.legacy_correspondence, OpenTheory.Torch.MLP.lipschitz, OpenTheory.Torch.MLP.residual_lipschitz}
+\leanok
+A biased two-layer ReLU MLP built from TorchLean affine layers is globally
+$\|W_2\|_F\|W_1\|_F$-Lipschitz. Its residual version is
+$(1+\|W_2\|_F\|W_1\|_F)$-Lipschitz. A zero-bias instantiation with the legacy
+activation agrees exactly with the original forward map.
+\end{lemma}
+\begin{proof}
+\leanok
+Reuse TorchLean's Euclidean tensor metric, matrix Frobenius bound and ReLU
+Lipschitz theorem; compose with Mathlib's Lipschitz lemmas. Expand coordinates
+for the legacy correspondence. No differentiability of ReLU at zero is assumed.
+\end{proof}
+
+\begin{lemma}[Exact masked attention bounds]\label{lem:reuse_attention}
+\lean{OpenTheory.Attention.weight_nonneg, OpenTheory.Attention.weights_sum_one, OpenTheory.Attention.rowOutput_blocked, OpenTheory.Attention.rowOutput_mem_convexHull, OpenTheory.Attention.rowOutput_perturbation, OpenTheory.Attention.masked_output_abs_le, OpenTheory.Attention.causal_future_zero, OpenTheory.Attention.causal_row_sum_one}
+\leanok
+Hard-masked attention has nonnegative weights. If a row has an allowed key,
+its weights sum to one and its output lies in the convex hull of its values.
+With fixed weights, perturbing every value by at most $\delta$ perturbs the
+output by at most $\delta$. Every actual scaled-dot-product output coordinate
+is bounded in absolute value by a common bound on the corresponding value
+coordinates. All-blocked rows return zero. Causal masks exclude future keys
+and retain the diagonal, so every causal row is normalized.
+\end{lemma}
+\begin{proof}
+\leanok
+Reuse TorchLean's exact hard-mask coordinate formula and positive denominator;
+apply Mathlib's convex-combination and norm inequalities. Identify the actual
+matrix-product coordinates. This does not bound perturbations of queries or keys.
+\end{proof}
+
+\begin{definition}[Masked transformer inference]\label{def:reuse_transformer}
+\lean{OpenTheory.Transformer.Config, OpenTheory.Transformer.Config.head_coverage, OpenTheory.Transformer.Config.head_dim_pos, OpenTheory.Transformer.forward, OpenTheory.Transformer.causalForward, OpenTheory.Transformer.forward_eq_upstream}
+\leanok
+A deterministic post-norm transformer block reuses TorchLean multi-head
+attention, feedforward layers, residual addition and layer normalization.
+Configuration requires positive dimensions and epsilon, and head divisibility,
+ensuring positive head width and full dimension coverage. Arbitrary and causal
+masks are supported. Without a mask and with the upstream epsilon, the wrapper
+equals the upstream encoder. No dropout or training convergence is asserted.
+\end{definition}
+
+\begin{lemma}[Population-risk envelopes]\label{lem:reuse_risk_envelopes}
+\lean{OpenTheory.Population.risk_le_envelope, OpenTheory.Population.risk_le_secondMoments, OpenTheory.Population.attentionRisk_le}
+\leanok
+\uses{def:reuse_data, lem:reuse_attention}
+Let observations have any probability law, and assume the indicated squared
+loss is almost-everywhere strongly measurable. For a $K$-Lipschitz predictor
+$f$, finite input and label second moments imply integrability and
+\[
+\mathbb E\|f(X)-Y\|^2\leq
+3\bigl(K^2\mathbb E\|X\|^2+\|f(0)\|^2+\mathbb E\|Y\|^2\bigr).
+\]
+For an attention row with an allowed key almost surely, values bounded by $B$
+and labels bounded by $T$, the expected squared error is at most $(B+T)^2$,
+even when scores and masks depend on the observation. These statements permit
+arbitrary measurable observation types and normed feature spaces under their
+explicit hypotheses; they are not empirical-to-population gap bounds.
+\end{lemma}
+\begin{proof}
+\leanok
+Bound the squared error pointwise using the triangle inequality and Lipschitz
+or convex-combination bounds. Dominate it by an integrable envelope and apply
+monotonicity and linearity of the Bochner integral.
+\end{proof}
+
+\begin{lemma}[Conditional empirical-risk oracle bridge]\label{lem:reuse_erm_bridge}
+\lean{OpenTheory.Dataset.empiricalRisk_eq_foml, OpenTheory.Population.risk_eq_foml, OpenTheory.Population.bounded_loss_integrable, OpenTheory.Population.supervised_excessRisk_le}
+\leanok
+\uses{def:reuse_data}
+Our empirical and population risks agree with FoML's risk definitions. A
+measurable uniformly bounded loss is integrable under a population law.
+If a trained predictor has empirical risk within $\eta$ of every predictor
+in a fixed class, and every empirical/population discrepancy is at most
+$\varepsilon$, its excess population risk relative to any comparator in
+that class is at most $2\varepsilon+\eta$.
+This is conditional: no probability bound for the deviation or optimization
+guarantee for a particular neural training algorithm is asserted.
+\end{lemma}
+\begin{proof}
+\leanok
+Identify the risk normalizations and apply FoML's deterministic
+approximate-ERM oracle inequality. Integrability follows by bounded domination.
+\end{proof}
+
+\begin{lemma}[Finite-class uniform deviation]\label{lem:reuse_finite_class}
+\lean{OpenTheory.Population.finiteClass_deviation_le}
+\leanok
+\uses{def:reuse_data, lem:reuse_erm_bridge}
+For a fixed finite class $\mathcal H$ of predictors whose supervised losses
+are measurable and lie in $[0,1]$, and for $n\geq1$ IID observations,
+\[
+\Pr\!\left(\exists h\in\mathcal H:\
+  |\widehat R_n(h)-R(h)|>\varepsilon\right)
+\leq 2|\mathcal H|\exp(-2n\varepsilon^2)
+\]
+for every $\varepsilon>0$. The sample event uses the product law. The class
+must be fixed independently of the sample; this theorem alone does not cover
+a continuous neural parameter class.
+\end{lemma}
+\begin{proof}
+\leanok
+Identify OpenTheory's supervised risks with StatLean's definitions, then reuse
+its sub-Gaussian Hoeffding bound and finite-union argument.
+\end{proof}
+
+\begin{lemma}[Ridge objective convergence]\label{lem:reuse_ridge_objective}
+\lean{OpenTheory.Ridge.objective_gap_le, OpenTheory.Ridge.training_objective_gap}
+\leanok
+\uses{lem:reuse_ridge}
+For nonnegative data weight and positive ridge regularization, exact gradient
+descent satisfies the existing geometric distance bound and therefore a
+geometric regularized-objective gap bound. The conversion constant is
+$\frac c2\|A\|^2+\frac\lambda2$. This concerns the actual iterates and supplies
+the optimization component for a later population-risk theorem.
+\end{lemma}
+\begin{proof}
+\leanok
+Expand the quadratic at the stationary minimizer, bound $\|A v\|$ by
+$\|A\|\|v\|$, and compose with the checked TorchLean distance rate.
+\end{proof}
+
+\begin{lemma}[Learning by finite model selection]\label{lem:finite_learning}
+\lean{OpenTheory.FiniteLearning.select, OpenTheory.FiniteLearning.select_isERM, OpenTheory.FiniteLearning.approx_select_tail, OpenTheory.FiniteLearning.select_tail}
+\leanok
+\uses{lem:reuse_finite_class}
+For a nonempty finite collection of models fixed before sampling, an empirical
+minimizer exists. For measurable losses in $[0,1]$, $n\geq1$ IID observations
+and $\varepsilon>0$, the outer probability that its population risk exceeds
+any candidate's by more than $2\varepsilon$ is at most
+$2|\mathcal H|\exp(-2n\varepsilon^2)$. An approximate selector adds its
+empirical optimization error $\eta$ to the threshold. The exact selector uses
+classical choice; executable real-number comparison is not asserted.
+\end{lemma}
+\begin{proof}
+\leanok
+Use Mathlib's finite minimum theorem, then contain the excess-risk event in
+StatLean's finite-class uniform-deviation event.
+\end{proof}
+
+\begin{lemma}[Continuous-class cover transfer]\label{lem:loss_cover}
+\lean{OpenTheory.Covering.risk_close, OpenTheory.Covering.empirical_close, OpenTheory.Covering.uniform_deviation_tail, OpenTheory.Covering.compact_loss_cover, OpenTheory.Covering.approx_learner_tail}
+\leanok
+\uses{lem:reuse_finite_class, lem:finite_learning}
+Let a fixed class have measurable losses in $[0,1]$ and an internal finite
+uniform loss cover of size $N$ and error $\rho$. For $n\geq1$ IID observations
+and $\varepsilon>0$, the outer probability of a uniform deviation exceeding
+$\varepsilon+2\rho$ is at most $2N\exp(-2n\varepsilon^2)$.
+An approximate empirical minimizer with error $\eta$ has the same tail bound
+for excess risk above $2\varepsilon+4\rho+\eta$, against every class member.
+Compact parameter classes with uniformly parameter-Lipschitz losses admit
+finite covers; no dimension-dependent cardinality estimate is asserted.
+\end{lemma}
+\begin{proof}
+\leanok
+Each covered loss differs from its representative by at most $\rho$ in both
+empirical and population risk. Contain the bad event in StatLean's finite-class
+event. Reuse Mathlib's compact finite-ball cover for existence.
+\end{proof}
+
+\begin{lemma}[A fixed ball for ridge training]\label{lem:ridge_radius}
+\lean{OpenTheory.Ridge.minimizer_norm_le, OpenTheory.Ridge.training_radius, OpenTheory.Dataset.labels_energy_le, OpenTheory.Dataset.ridge_training_radius}
+\leanok
+\uses{lem:reuse_ridge, lem:reuse_ridge_objective}
+For $c\geq0$, $\lambda>0$, $R\geq0$ and
+$c\|y\|^2\leq\lambda R^2$, every ridge minimizer has norm at most $R$.
+Under the existing admissible-step condition, all exact-GD iterates from zero
+have norm at most $2R$. For nonempty finite data with labels bounded by $T\geq0$,
+$T^2\leq\lambda R^2$ suffices, independently of the sampled inputs.
+The admissible step can still depend on the dataset.
+\end{lemma}
+\begin{proof}
+\leanok
+Compare the minimizer's objective with the objective at zero. The geometric
+distance bound never exceeds the initial distance, and the triangle inequality
+gives the iterate radius. Bound mean squared labels by $T^2$.
+\end{proof}
+
+\begin{lemma}[Trained ridge excess risk]\label{lem:trained_ridge}
+\lean{OpenTheory.TrainedRidge.trained_ridge_tail, OpenTheory.Dataset.uniformStep, OpenTheory.Dataset.uniformFactor, OpenTheory.Dataset.uniformStep_admissible, OpenTheory.Dataset.data_q_le_uniformFactor, OpenTheory.BallCover.euclideanBall_net, OpenTheory.Ridge.minimizer_grad_eq_zero}
+\leanok
+\uses{lem:ridge_radius, lem:loss_cover, lem:reuse_ridge_objective}
+Let $B,T,R\geq 0$, $\lambda>0$, $T^2\leq\lambda R^2$, $n\geq 1$, $\varepsilon>0$
+and $\rho>0$, and let the population be supported on $\|x\|\leq B$ and
+$|y|\leq T$. Run zero-initialized exact gradient descent on the ridge objective
+for $k$ steps with step $\lambda/(B^2+2\lambda)^2$. On the ball of radius $2R$,
+squared prediction error is at most $(2RB+T)^2$; dividing by that scale puts the
+loss in $[0,1]$. Outside the bounded set the normalized loss is zero.
+The outer probability that some comparator of norm at most $R$ beats the trained
+predictor's normalized population risk by more than
+\[
+2(\varepsilon+2\rho)+\frac{(B^2+\lambda)q^k R^2+\lambda R^2}{(2RB+T)^2}
+\]
+is at most $2(N+1)^d\exp(-2n\varepsilon^2)$, where
+$q=1-(\lambda/(B^2+2\lambda))^2$ and $N$ is the grid-cover axis count of the
+Euclidean ball of radius $2R$. When the scale is zero the normalized risks
+vanish and the bad event is empty. The grid cardinality is a convenient bound,
+not a sharp covering number. Gradient descent minimizes the regularized
+objective, so the budget pays the optimization gap and the comparator's
+regularization. This is a linear ridge guarantee.
+\end{lemma}
+\begin{proof}
+\leanok
+The uniform step is admissible for every design whose rows are bounded by $B$,
+and the resulting contraction is at most $q$. A minimizer is the unique
+stationary point, so the distance bound and the quadratic expansion control the
+regularized gap. A floor grid, radially projected onto the ball, is a finite
+net; the finite-class Hoeffding bound transfers across that net. Product
+samples that leave the bounded set have measure zero.
+\end{proof}
+
+\begin{lemma}[Fixed-design ridge degrees of freedom]\label{lem:ridge_risk}
+\lean{OpenTheory.RidgeRisk.fixed_design_mse, OpenTheory.RidgeRisk.fixed_design_mse_of_rank, OpenTheory.RidgeRisk.degreesOfFreedom, OpenTheory.RidgeRisk.degreesOfFreedom_le_rank, OpenTheory.RidgeRisk.gd_approaches_ridgeSolution, OpenTheory.RidgeRisk.LabelNoise, OpenTheory.RidgeRisk.design_rank_le_input, OpenTheory.RidgeRisk.design_rank_le_output}
+\leanok
+\uses{lem:reuse_ridge_objective}
+Let $m\geq 1$, $\lambda>0$, and let the design $A$ be held fixed. Labels are
+$A\theta_\star+\varepsilon$, where $\varepsilon$ is white noise of scale $\sigma$:
+integrable, mean zero, and with covariance $\sigma^2 I$. Exact gradient descent
+on the ridge objective converges to the unique ridge minimizer. The in-sample
+mean squared error of that minimizer is at most
+\[
+\frac{\lambda}{4}\|\theta_\star\|^2+\sigma^2\frac{\mathrm{df}(A,\lambda)}{m}.
+\]
+The degrees of freedom are the trace of the ridge hat operator. They are at most
+$\operatorname{rank}(A)$, and that rank is at most $\min(d,m)$. If the rank is
+at most $r$, the variance term may be replaced by $\sigma^2 r/m$. The bias term
+is the price of regularization and does not vanish as $m$ grows. Ambient
+dimension enters only through the rank, so the bound is informative when the
+design rank or the degrees of freedom are much smaller than $d$. This is the
+classical fixed-design bias--variance shape for ridge regression. It is not a
+random-design generalization theorem and not a neural-network theorem. It is
+the linear prototype of a kernel or NTK guarantee.
+\end{lemma}
+\begin{proof}
+\leanok
+A minimizer is the unique stationary point, so the gradient-descent limit equals
+the ridge solution. The prediction error splits into a regularization bias and
+the hat operator applied to the noise. The bias quadratic form is at most
+$\lambda/(4c)$ times $\|\theta_\star\|^2$; with $c=1/m$, dividing by $m$ leaves
+$(\lambda/4)\|\theta_\star\|^2$. The hat operator is self-adjoint with
+eigenvalues in $[0,1]$, so its trace is at most its number of nonzero
+eigenvalues, which is at most the rank of $A$. White noise has mean zero, so
+the cross term integrates to zero, and the expected noise energy is $\sigma^2$
+times the sum of squared eigenvalues, hence at most $\sigma^2$ times the
+degrees of freedom.
+\end{proof}
+
+\begin{lemma}[Kernel form of ridge]\label{lem:kernel_ridge}
+\lean{OpenTheory.KernelRidge.prediction_eq_kernelRidge, OpenTheory.KernelRidge.hat_eq_kernelSmoother, OpenTheory.KernelRidge.prediction_eq_of_kernelOp, OpenTheory.KernelRidge.kernelSmoother_eq_of_kernelOp, OpenTheory.KernelRidge.kernel_rank_eq, OpenTheory.KernelRidge.fixed_design_kernel_mse, OpenTheory.KernelRidge.kernelOp}
+\leanok
+\uses{lem:ridge_risk}
+Let $K=cAA^*$ be the kernel operator of a fixed feature map $A$. Exact gradient
+descent on the primal ridge objective has predictions $K(K+\lambda I)^{-1}y$.
+The ridge hat operator is this same smoother, so the degrees of freedom in the
+fixed-design bound are the trace of $K(K+\lambda I)^{-1}$. Two feature maps
+with the same kernel produce the same predictions. For $c\neq 0$, the rank of
+$K$ equals the rank of $A$, so the feature dimension cancels. The in-sample
+mean squared error of the kernel smoother obeys the same bound as primal ridge.
+The bias term still uses the norm of the primal parameter in the chosen feature
+coordinates. This is the classical primal--dual identity for kernel ridge. A
+frozen feature map, including Jacobian features of a linearized model, inherits
+it. It does not prove that a neural network stays close to its linearization.
+\end{lemma}
+\begin{proof}
+\leanok
+The operators satisfy $(K+\lambda I)A=A(cA^*A+\lambda I)$. Inverting and
+composing with $A^*$ identifies the primal predictor with the kernel smoother.
+Equal kernels determine the same smoother. The range of $AA^*$ equals the range
+of $A$, and a nonzero scalar does not change that range. Rewrite the
+fixed-design integral through the prediction identity.
+\end{proof}
+
+\begin{lemma}[One-step feature displacement]\label{lem:feature_step}
+\lean{OpenTheory.FeatureStep.preactivation_step, OpenTheory.FeatureStep.abs_preactivation_step, OpenTheory.FeatureStep.loss_hasDerivAt_entry, OpenTheory.FeatureStep.ntk_preactivation_step_le, OpenTheory.FeatureStep.mup_preactivation_step_le, OpenTheory.FeatureStep.feature_learning_preactivation_step_le, OpenTheory.FeatureStep.feature_learning_preactivation_step_ge, OpenTheory.FeatureStep.featureLearningRate}
+\leanok
+\uses{def:two_layer_net}
+One gradient step on the half-squared loss of a two-layer network changes hidden preactivation $i$ by
+\[
+\Delta\mathrm{pre}_i
+=
+-\eta_1\,(f(x)-y)\,\sigma'(\mathrm{pre}_i)\,W_{2,i}\,\|x\|^2.
+\]
+If the readout coordinate is at most its initialization scale, the checked NTK rate $\eta_1=1$ moves that preactivation by $O(1/\sqrt{m})$, and the repository's checked $\mu$P rate $\eta_1=1$ moves it by $O(1/m)$. Both vanish as the width grows, so both are kernel-regime steps for this forward pass. The first-layer rate $\eta_1=m$, with a readout coordinate of size $1/m$, moves the preactivation by a width-independent amount: at most $|f(x)-y|\,L\,\|x\|^2$, and at least $c^3$ when the readout, derivative, residual and input energy are all at least $c$. This is the one-step calculation behind the Yang--Hu exponent, not the infinite-width dynamical dichotomy and not a generalization theorem. Kernel ridge applies to these features only while the displacement stays negligible.
+\end{lemma}
+\begin{proof}
+\leanok
+The partial derivative of the half-squared loss in a first-layer entry is the residual times the readout coordinate, the activation derivative and the corresponding input coordinate. Summing the resulting entrywise updates against the input produces the preactivation identity. The three rates are the absolute value of that identity under the corresponding bounds on the readout.
+\end{proof}
+
+\begin{lemma}[Tangent step and ridge perturbation]\label{lem:tangent_step}
+\lean{OpenTheory.TangentStep.tangentUpdate_eq, OpenTheory.TangentStep.forward_after_sub_tangent, OpenTheory.TangentStep.abs_quadratic_remainder, OpenTheory.TangentStep.ntk_tangent_gap, OpenTheory.TangentStep.mup_tangent_gap, OpenTheory.TangentStep.feature_learning_tangent_gap, OpenTheory.TangentStep.tangentOutput, OpenTheory.PredictionGap.sq_norm_le_double, OpenTheory.PredictionGap.expected_mse_of_near_ridge}
+\leanok
+\uses{lem:feature_step, lem:ridge_risk}
+The network output after one first-layer step equals the tangent update plus the sum of activation remainders. The tangent update is $- \eta_1 (f(x)-y) \|x\|^2 \sum_i (W_{2,i}\sigma'(\mathrm{pre}_i))^2$. If $\sigma'$ is $M$-Lipschitz, the mean value theorem bounds each activation remainder by $M$ times the squared preactivation move; the integral form would replace $M$ by $M/2$. Under the checked NTK initialization the output gap is at most $M |f(x)-y|^2 L^2 \|x\|^4 / \sqrt{m}$. Under the checked $\mu$P initialization it is at most the same quantity over $m^2$. Both vanish as the width grows. The feature-learning rate $\eta_1=m$ leaves an output gap of order $|f(x)-y|^2$, with no negative power of the width. Separately, a predictor within $\delta$ of the ridge predictor has in-sample mean squared error at most twice the ridge bound plus $2\delta^2/m$. The factor two is $2ab\le a^2+b^2$. Lemma~\ref{lem:mlp_batch_risk} discharges this $\delta$ over $T$ steps of multi-observation nonlinear batch gradient descent.
+\end{lemma}
+\begin{proof}
+\leanok
+Substitute the exact preactivation step into the first-order output formula. The difference from the updated network is a sum of activation remainders. Apply the mean value theorem on the segment from the old preactivation to the new one, and use the Lipschitz bound on $\sigma'$. Sum the resulting coordinate bounds under each learning-rate hypothesis. For the ridge comparison, expand $\|p-t\|^2$ by the triangle inequality and replace the cross term using $2ab\le a^2+b^2$. Integrate and insert the fixed-design bound.
+\end{proof}
+
+\begin{lemma}[Single-input nonlinear trajectory and centered ridge endpoint]\label{lem:mlp_single_trajectory}
+\lean{OpenTheory.MLPTrajectory.preShift_step, OpenTheory.MLPTrajectory.forward_remainder_le, OpenTheory.MLPTrajectory.iterate_preShift_le, OpenTheory.MLPTrajectory.iterate_remainder_le, OpenTheory.MLPComparison.explicit_nonlinear_linearized_gap, OpenTheory.MLPEndpoint.nonlinear_endpoint_gap, OpenTheory.MLPResidual.residual_le, OpenTheory.MLPRisk.trained_endpoint_gap, OpenTheory.MLPRisk.expected_mse}
+\leanok
+\uses{lem:tangent_step}
+For a single input $x\in\mathbb{R}^d$ with $\|x\|^2=E$, first-layer regularized gradient descent on $(f_U(x)-y)^2/2 + (\lambda/2)\|U\|_F^2$ induces a scalar recurrence on the initial-feature projection and hidden preactivations. When $|1-\eta\lambda|\le 1$, $|W_{2,i}|\le A$, $|\sigma'|\le L$, and $\sigma'$ is $M$-Lipschitz, the initial residual bound $|f_0(x)-y|\le S$ implies an a priori geometric envelope $\|U_t\|_F\le S g^t$, preactivation shift $|\Delta\mathrm{pre}_i(t)|\le S g^t\sqrt{E}$, and residual $|f_{U_t}(x)-y|\le (1+m A L\sqrt{E})S g^t$ for all $t\le T$, where $g=1+\eta\sqrt{m}A L E(1+m A L\sqrt{E})$. Accumulating the local Taylor remainder and derivative drift along the contracting linear ridge recurrence ($|1-\eta(\lambda+K)|\le q<1$) bounds the $T$-step distance between the nonlinear trained network output and the centered ridge prediction $f_0(x)+\frac{K}{K+\lambda}(y-f_0(x))$, yielding an expected squared error bound under discrete centered label noise without unproved trajectory hypotheses.
+\end{lemma}
+\begin{proof}
+\leanok
+Bound the Frobenius norm of each first-layer update by Cauchy--Schwarz and induction on $t$. Derive the preactivation shift and output residual envelopes from the parameter norm. Combine the one-step output remainder and slope drift with the scalar linear contraction recurrence to bound the $T$-step trajectory gap, add the geometric optimization residual $q^T|f_0(x)-y|$, and integrate against the discrete noise distribution.
+\end{proof}
+
+\begin{lemma}[Multi-observation nonlinear MLP trajectory and fixed-design statistical risk]\label{lem:mlp_batch_risk}
+\lean{OpenTheory.MLPFixedDesign.predict_flatten, OpenTheory.MLPFixedDesign.gd_to_ridge, OpenTheory.MLPFixedDesign.ridge_expected_mse, OpenTheory.MLPBatchBounds.output_remainder_le, OpenTheory.MLPBatchBounds.design_drift_le, OpenTheory.MLPBatchBounds.adjoint_residual_gap_le, OpenTheory.MLPBatchTrajectory.batch_norm_le, OpenTheory.MLPBatchTrajectory.batch_shift_le, OpenTheory.MLPBatchTrajectory.batch_residual_le, OpenTheory.MLPBatchTrajectory.nonlinear_linear_param_gap, OpenTheory.MLPBatchTrajectory.nonlinear_linear_output_gap, OpenTheory.MLPBatchTrajectory.batch_trained_ridge_gap, OpenTheory.MLPBatchRisk.batch_trained_pointwise_error_le, OpenTheory.MLPBatchRisk.batch_trained_expected_mse, OpenTheory.MLPBatchRisk.batch_trained_expected_mse_of_rank}
+\leanok
+\uses{lem:mlp_single_trajectory, lem:ridge_risk}
+Let $X\in\mathbb{R}^{n\times d}$ be an arbitrary $n$-observation dataset with row energies $\|X_r\|_2^2\le E$, and let $J_0=\mathrm{design}(\mathrm{net},X):\mathbb{R}^{md}\to\mathbb{R}^n$ be the multi-row initial-Jacobian feature operator around initialization $F_0=\mathrm{initialOutput}(\mathrm{net},X)$. Consider $T$ steps of exact batch gradient descent on the nonlinear first-layer regularized empirical risk $\frac{1}{2n}\|F(u)-y\|_2^2+\frac{\lambda}{2}\|u\|_2^2$ with step size $\eta>0$ satisfying $|1-\eta\lambda|\le 1$ and the ridge step condition $\eta L_{\mathrm{ridge}}^2<2\lambda$. If $\|F_0-y\|_2\le S$, then for all $t\le T$:
+\begin{enumerate}
+\item The parameter norm satisfies $\|u_t\|_2\le S g_n^t$, preactivation shifts satisfy $|\Delta\mathrm{pre}_i(X_r,t)|\le S g_n^t\sqrt{E}$, and batch residuals satisfy $\|F(u_t)-y\|_2\le (1+\sqrt{n}m A L\sqrt{E})S g_n^t$, where $g_n=1+\frac{\eta}{n}\sqrt{n}\sqrt{m}A L E(1+\sqrt{n}m A L\sqrt{E})$.
+\item The $T$-step nonlinear batch prediction $F(u_T)$ stays within an explicit deterministic budget $\delta=\mathrm{batchGap}(T,m,n,\eta,\lambda,A,L,M,E,\|J_0\|_{\mathrm{op}},q,S)$ of the centered initial-Jacobian ridge prediction $F_0+J_0(J_0^*J_0+n\lambda I)^{-1}J_0^*(y-F_0)$.
+\item When labels are generated as $y=F_0+J_0 u_\star+z$ with mean-zero variance-$\sigma^2$ label noise $z$ satisfying $\|z\|_2\le B_z$ almost surely (setting $S=\|J_0 u_\star\|_2+B_z$), the expected in-sample mean squared error of the nonlinear trained network $F(u_T)$ over the $n$ observations is at most
+\[
+2\left(\frac{\lambda}{4}\|u_\star\|_2^2+\sigma^2\frac{\mathrm{df}(J_0,\lambda)}{n}\right)+\frac{2\delta^2}{n}
+\le
+2\left(\frac{\lambda}{4}\|u_\star\|_2^2+\sigma^2\frac{\operatorname{rank}(J_0)}{n}\right)+\frac{2\delta^2}{n}.
+\]
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Flatten the $m\times d$ displacement matrix via $\mathrm{finProdFinEquiv}$ so the multi-row linearized forward pass equals $F_0+J_0 u$. Bound the operator norm of the shifted Jacobian design at every step by $\sqrt{n}\sqrt{m}A L\sqrt{E}$ and induct on $t$ to obtain the closed norm, preactivation-shift, and residual envelopes from $\|F_0-y\|_2\le S$. Decompose each parameter step difference $u_{t+1}-v_{t+1}$ into the nonexpansive linear ridge step applied to $u_t-v_t$ plus the adjoint-residual Taylor and Jacobian-drift defect $(\eta/n)(\|J_0\|_{\mathrm{op}}B+G R)$. Sum the defects over $T$ steps, convert parameter distance to output distance via $B+\|J_0\|_{\mathrm{op}}\|u_T-v_T\|_2$, and combine with geometric ridge GD convergence $\|v_T-u_\star^{\mathrm{ridge}}\|_2\le q^{T/2}S/\sqrt{n\lambda}$. Finally, apply the pointwise quadratic perturbation bound $\|p-t\|_2^2\le 2\|q-t\|_2^2+2\delta^2$ and integrate against the fixed-design ridge degrees-of-freedom theorem.
+\end{proof}
+
+\begin{lemma}[Horizon-free contractive MLP trajectory and statistical risk]\label{lem:mlp_contractive}
+\lean{OpenTheory.MLPContractive.nonlinearBatchStep_norm_le, OpenTheory.MLPContractive.contractive_norm_le, OpenTheory.MLPContractive.contractive_shift_le, OpenTheory.MLPContractive.contractive_residual_le, OpenTheory.MLPContractive.accumulated_contracting_vector_defect, OpenTheory.MLPContractive.linearBatchStep_contractive, OpenTheory.MLPContractive.contractive_nonlinear_linear_param_gap, OpenTheory.MLPContractive.contractive_nonlinear_linear_output_gap, OpenTheory.MLPContractive.contractive_batch_trained_ridge_gap, OpenTheory.MLPContractive.contractive_batch_pointwise_error_le, OpenTheory.MLPContractive.contractive_batch_expected_mse, OpenTheory.MLPContractive.contractive_batch_expected_mse_of_rank}
+\leanok
+\uses{lem:mlp_batch_risk}
+When the nonlinear contraction factor $q_{\mathrm{nl}} = |1-\eta\lambda| + \eta m\sqrt{m}A^2 L^2 E < 1$ (which holds whenever $0<\eta$, $\eta\lambda\le 1$, and $m\sqrt{m}A^2 L^2 E < \lambda$), the multi-observation nonlinear batch gradient descent trajectory satisfies horizon-free uniform envelopes for all $t\in\mathbb{N}$:
+\[
+\|u_t\|_2 \le \frac{c_{\mathrm{nl}} S}{1 - q_{\mathrm{nl}}} =: U_\infty,\qquad
+|\Delta\mathrm{pre}_i(X_r,t)| \le U_\infty\sqrt{E} =: D_\infty,\qquad
+\|F(u_t)-y\|_2 \le S + \sqrt{n}m A L D_\infty =: R_\infty.
+\]
+Moreover, under the ridge step condition $\eta L_{\mathrm{ridge}}^2 < 2\lambda$, the linear initial-feature step is strictly contractive with factor $q_{\mathrm{gd}} = \sqrt{q(\eta,\lambda,L_{\mathrm{ridge}})} < 1$, so the accumulated nonlinear-to-linear parameter defect is bounded uniformly over all $T\in\mathbb{N}$ by $\delta_{\mathrm{step}}/(1-q_{\mathrm{gd}})$, and the distance to the centered ridge prediction is bounded by
+\[
+\delta_\infty(T) = B_\infty + \|J_0\|_{\mathrm{op}}\frac{\delta_{\mathrm{step}}}{1-q_{\mathrm{gd}}} + q_{\mathrm{gd}}^T \frac{S}{\sqrt{n\lambda}}\|J_0\|_{\mathrm{op}},
+\]
+yielding a horizon-uniform expected in-sample MSE bound under bounded white label noise in which the optimization error decays geometrically as $T\to\infty$ without any exponential $g_n^T$ trajectory blowup.
+\end{lemma}
+\begin{proof}
+\leanok
+Combine the operator-norm bound on the shifted Jacobian with the output-change bound to establish the one-step affine norm recurrence $\|u_{t+1}\|_2 \le q_{\mathrm{nl}}\|u_t\|_2 + c_{\mathrm{nl}}S$. Induct on $t$ using $q_{\mathrm{nl}}<1$ to obtain the geometric fixed-point bound $U_\infty$, and deduce the time-uniform shift and residual envelopes $D_\infty$ and $R_\infty$. Use strict contraction of the strongly convex ridge GD step (`Optim.GD.step_norm_sq_le` and `Optim.GD.q_lt_one_of_mul_sq_lt`) to sum the one-step defects as a convergent geometric series bounded by $\delta_{\mathrm{step}}/(1-q_{\mathrm{gd}})$. Combine with geometric convergence to the ridge solution and integrate via `PredictionGap.sq_norm_le_double` and `MLPFixedDesign.ridge_expected_mse`.
+\end{proof}
+
+\begin{lemma}[Feature-learning advantage over frozen initial kernels]\label{lem:feature_learning_advantage}
+\lean{OpenTheory.FeatureLearningAdvantage.feature_learning_preactivation_shift_exact, OpenTheory.FeatureLearningAdvantage.standard_lr_preactivation_shift_suppressed, OpenTheory.FeatureLearningAdvantage.feature_learning_vs_standard_shift_ratio, OpenTheory.FeatureLearningAdvantage.feature_learning_preactivation_sq_strict_growth, OpenTheory.FeatureLearningAdvantage.kernel_strict_growth_of_slope_growth, OpenTheory.FeatureLearningAdvantage.ridgeWeights_objective_eq_minRidgeObj, OpenTheory.FeatureLearningAdvantage.endpoint_expected_mse_eq_ridgeExpectedMSE, OpenTheory.FeatureLearningAdvantage.minRidgeObj_strict_anti, OpenTheory.FeatureLearningAdvantage.biasSq_sub_eq, OpenTheory.FeatureLearningAdvantage.biasSq_strict_anti, OpenTheory.FeatureLearningAdvantage.biasSq_reduction_lower_bound, OpenTheory.FeatureLearningAdvantage.ridge_mse_strict_improvement_of_kernel_growth, OpenTheory.FeatureLearningAdvantage.ridge_mse_strict_improvement_of_weighted_snr, OpenTheory.FeatureLearningAdvantage.frobeniusSq_residual_eq_one_sub_alignment, OpenTheory.FeatureLearningAdvantage.residual_projection_strict_decrease_of_alignment_growth}
+\leanok
+\uses{lem:feature_step, lem:mlp_single_trajectory, lem:alignment_certificate}
+Under the feature-learning rate $\eta_1 = m$ and readout scale $W_{2,i} = s_i/m$ ($s_i^2=1$) at zero initial prediction $f_0(x)=0$ with local activation slope $\alpha>0$, one gradient step on target $y\ne 0$ shifts hidden preactivation $i$ by the exact width-independent quantity $\Delta\mathrm{pre}_i = y\alpha s_i\|x\|_2^2$ ($m$ times larger than the $O(1/m)$ shift under standard $\mu$P unit learning rate), strictly increasing squared preactivations and the post-step tangent kernel energy from $K_0$ to $K_1 > K_0$ when active slopes grow. For any centered ridge problem with regularization $\lambda>0$ and target offset $\Delta y\ne 0$, increasing the feature kernel energy from $K_0$ to $K_1 > K_0$ strictly decreases both the minimum regularized ridge objective $\frac{1}{2}\frac{\lambda}{K+\lambda}\Delta y^2$ and the squared regularization bias $\bigl(\frac{\lambda}{K+\lambda}\bigr)^2\Delta y^2$ by the exact gap
+\[
+\mathrm{biasSq}(K_0,\lambda,\Delta y) - \mathrm{biasSq}(K_1,\lambda,\Delta y)
+= \frac{\lambda^2 \Delta y^2 (K_1 - K_0)(K_1 + K_0 + 2\lambda)}{(K_0+\lambda)^2(K_1+\lambda)^2} > 0,
+\]
+and strictly reduces the total expected ridge mean squared error $\bigl(\frac{\lambda}{K+\lambda}\bigr)^2\Delta y^2 + \bigl(\frac{K}{K+\lambda}\bigr)^2\sigma^2$ whenever $(K_1(K_0+\lambda)+K_0(K_1+\lambda))\sigma^2 < \lambda(K_1+K_0+2\lambda)\Delta y^2$ (in particular whenever $K_1\sigma^2 \le \lambda\Delta y^2$). Equivalently, at fixed total Frobenius feature energy, strictly increasing subspace alignment $a(H_0,P) < a(H_1,P)$ strictly decreases residual projection error $\lVert H_1 - H_1 P\rVert_F^2 < \lVert H_0 - H_0 P\rVert_F^2$.
+\end{lemma}
+\begin{proof}
+\leanok
+Specialize `FeatureStep.preactivation_step` to $f_0(x)=0$, $W_{2,i}=s_i/m$, and $\eta_1=m$ to cancel $m$ and obtain the exact shift $y\alpha s_i\|x\|_2^2$. Expand $(p_i + \Delta\mathrm{pre}_i)^2 - p_i^2$ and sum over neurons to establish strict kernel growth. Evaluate the centered ridge objective and finite-noise expected MSE at `MLPEndpoint.ridgeWeights`, put the difference of rational functions over the common denominator $(K_0+\lambda)^2(K_1+\lambda)^2$, and apply positivity under the signal-to-noise threshold. Combine with the Frobenius Pythagorean identity from Lemma~\ref{lem:alignment_le_one} for the subspace residual reduction.
+\end{proof}
+
+\begin{lemma}[Multi-head attention ablation fidelity, residual propagation, and risk transfer]\label{lem:attention_ablation}
+\lean{OpenTheory.AttentionAblation.headContribution_norm_le, OpenTheory.AttentionAblation.ablation_diff_eq, OpenTheory.AttentionAblation.subset_ablation_norm_le, OpenTheory.AttentionAblation.single_head_ablation_norm_le, OpenTheory.AttentionAblation.multiHead_value_perturbation, OpenTheory.AttentionAblation.residual_block_ablation_bound, OpenTheory.AttentionAblation.multilayer_residual_perturbation, OpenTheory.AttentionAblation.ablation_pointwise_sq_error_le, OpenTheory.AttentionAblation.ablation_population_mse_le, OpenTheory.AttentionAblation.single_head_ablation_population_mse_le}
+\leanok
+\uses{lem:attention_convex, lem:population_envelope, lem:tangent_step}
+Consider an $H$-head hard-masked attention layer $\mathrm{MHA}(x) = \sum_{h=1}^H W_{O,h}\,\mathrm{rowOutput}(s_h, m_h, v_h)$ and the head-ablation intervention $\mathrm{MHA}_{\mathrm{keep}}(x) = \sum_{h\in\mathrm{keep}} W_{O,h}\,\mathrm{rowOutput}(s_h, m_h, v_h)$ that zeros out heads in $\mathrm{keep}^c$ without rescaling remaining heads:
+\begin{enumerate}
+\item \textbf{Head-ablation fidelity:} If every ablated head $h\in\mathrm{keep}^c$ has at least one unmasked key and value norm bounded by $\|v_{h,i}\|\le B_{V,h}$, then
+\[
+\bigl\|\mathrm{MHA}(x) - \mathrm{MHA}_{\mathrm{keep}}(x)\bigr\| \le \sum_{h\in\mathrm{keep}^c} \|W_{O,h}\|_{\mathrm{op}}\,B_{V,h},
+\]
+and zeroing a single head $h_0$ changes the output by at most $\|W_{O,h_0}\|_{\mathrm{op}}\,B_{V,h_0}$.
+\item \textbf{Downstream residual & multilayer propagation:} Passing the post-attention residual $x + \mathrm{MHA}(x)$ through an $L_{\mathrm{ff}}$-Lipschitz downstream block $G$ bounds the output change by $L_{\mathrm{ff}}\sum_{h\in\mathrm{keep}^c}\|W_{O,h}\|_{\mathrm{op}}B_{V,h}$, and across an $L$-layer residual stack with branch Lipschitz constants $c_t$ and layerwise perturbations $\varepsilon_t$, the end-to-end perturbation is bounded by the recurrence $E_{t+1} = (1+c_t)E_t + \varepsilon_t$.
+\item \textbf{Statistical population risk transfer:} Under a data population $P$ where the mask and value bounds hold almost surely on $\mathrm{keep}^c$, the population squared-error risk of the ablated model is bounded by
+\[
+R_P(\mathrm{MHA}_{\mathrm{keep}}) \le 2\,R_P(\mathrm{MHA}) + 2\left(\sum_{h\in\mathrm{keep}^c} \|W_{O,h}\|_{\mathrm{op}}\,B_{V,h}\right)^2.
+\]
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Split the full sum over $\mathrm{Fin}\,H$ into $\mathrm{keep}$ and $\mathrm{keep}^c$ via `Finset.sum_add_sum_compl`. Bound each ablated head's row output by $B_{V,h}$ using `Attention.rowOutput_norm_le` and apply the continuous linear operator norm bound $\|W_{O,h}(u)\| \le \|W_{O,h}\|_{\mathrm{op}}\|u\|$. Propagate through $G$ by Lipschitz continuity and through $L$ residual stages by induction on $L$. For the population risk bound, apply `PredictionGap.sq_norm_le_double` pointwise a.e. and integrate against $P.\mathrm{law}$.
+\end{proof}
+
+\begin{lemma}[Local-sharpness adaptive descent, objective coercivity, and discrete PL convergence]\label{lem:local_sharpness_descent}
+\lean{OpenTheory.LocalSharpnessDescent.local_sharpness_descent, OpenTheory.LocalSharpnessDescent.adaptive_step_progress_eq, OpenTheory.LocalSharpnessDescent.stepProgress_sub_eq_sq, OpenTheory.LocalSharpnessDescent.adaptive_step_maximizes_progress, OpenTheory.LocalSharpnessDescent.adaptive_step_optimal_drop, OpenTheory.LocalSharpnessDescent.adaptive_vs_global_sharpness_speedup, OpenTheory.LocalSharpnessDescent.adaptive_step_strictly_beats_conservative, OpenTheory.LocalSharpnessDescent.regularized_loss_coercive_residual_le, OpenTheory.LocalSharpnessDescent.regularized_loss_coercive_norm_le, OpenTheory.LocalSharpnessDescent.regularized_loss_coercive_shift_le, OpenTheory.LocalSharpnessDescent.descent_trajectory_horizon_free_bounds, OpenTheory.LocalSharpnessDescent.pl_adaptive_one_step_contraction, OpenTheory.LocalSharpnessDescent.pl_trajectory_geometric_convergence}
+\leanok
+\uses{lem:mlp_batch_risk, lem:risk_exponential}
+Let $L(u)$ satisfy the local quadratic sharpness bound $L(u - \eta g) \le L(u) - \eta\|g\|_2^2 + \frac{S_{\mathrm{loc}}}{2}\eta^2\|g\|_2^2$ with local sharpness $0 < S_{\mathrm{loc}} < S_{\mathrm{global}}$:
+\begin{enumerate}
+\item \textbf{Optimal adaptive step size:} The guaranteed one-step loss reduction $\mathrm{stepProgress}(\eta, S_{\mathrm{loc}}, \|g\|_2^2) = \eta(1 - \eta S_{\mathrm{loc}}/2)\|g\|_2^2$ satisfies the exact completion-of-squares identity
+\[
+\frac{\|g\|_2^2}{2 S_{\mathrm{loc}}} - \mathrm{stepProgress}(\eta, S_{\mathrm{loc}}, \|g\|_2^2) = \frac{S_{\mathrm{loc}}}{2}\Bigl(\eta - \frac{1}{S_{\mathrm{loc}}}\Bigr)^2 \|g\|_2^2 \ge 0,
+\]
+so $\eta^\star = 1/S_{\mathrm{loc}}$ uniquely maximizes guaranteed progress and achieves an exact $S_{\mathrm{global}}/S_{\mathrm{loc}} > 1$ speedup over the conservative global step $1/S_{\mathrm{global}}$.
+\item \textbf{Coercivity without contraction ($q_{\mathrm{nl}} < 1$ not required):} Along any monotone loss-descent trajectory $\mathcal{L}(u_t) \le \mathcal{L}(0)$ on the nonlinear regularized empirical risk $\mathcal{L}(u) = \frac{1}{2n}\|F(u)-y\|_2^2 + \frac{\lambda}{2}\|u\|_2^2$ with $\|F(0)-y\|_2\le S$, every iterate $t\in\mathbb{N}$ satisfies the horizon-free bounds
+\[
+\|F(u_t)-y\|_2 \le S,\qquad \|u_t\|_2 \le \frac{S}{\sqrt{n\lambda}},\qquad |\Delta\mathrm{pre}_i(X_r, t)| \le \frac{S\sqrt{E}}{\sqrt{n\lambda}}.
+\]
+\item \textbf{Discrete Polyak--{\L}ojasiewicz convergence:} Under the local PL condition $\|g_t\|_2^2 \ge 2\mu(L(u_t)-F)$ and $0 < \mu \le S_{\mathrm{loc}}(t) \le S_{\max}$, adaptive steps $\eta_t = 1/S_{\mathrm{loc}}(t)$ satisfy $L(u_T) - F \le (1 - \mu/S_{\max})^T (L(u_0) - F)$ for all $T\in\mathbb{N}$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Complete the square in $\eta$ to prove optimality of $\eta^\star = 1/S_{\mathrm{loc}}$. For coercivity, drop each nonnegative term in $\frac{1}{2n}\|F(u_t)-y\|_2^2 + \frac{\lambda}{2}\|u_t\|_2^2 \le \frac{S^2}{2n}$ to bound $\|F(u_t)-y\|_2$ and $\|u_t\|_2$ directly, and apply Cauchy--Schwarz for the preactivation shift. For PL convergence, substitute $\|g_t\|_2^2 \ge 2\mu(L(u_t)-F)$ into the optimal drop $L(u_{t+1}) \le L(u_t) - \|g_t\|_2^2/(2 S_{\mathrm{loc}}(t))$ and induct on $T$.
+\end{proof}
+
+\begin{lemma}[Trajectory-localized out-of-sample generalization bound]\label{lem:trajectory_generalization}
+\lean{OpenTheory.TrajectoryGeneralization.forward_param_diff_le, OpenTheory.TrajectoryGeneralization.paramLoss_lipschitz, OpenTheory.TrajectoryGeneralization.clippedSqLoss_lipschitz, OpenTheory.TrajectoryGeneralization.clippedSqLoss_param_lipschitz, OpenTheory.TrajectoryGeneralization.trajectoryBall_loss_cover, OpenTheory.TrajectoryGeneralization.trajectory_uniform_deviation_tail, OpenTheory.TrajectoryGeneralization.contractive_trajectory_in_ball, OpenTheory.TrajectoryGeneralization.contractive_trajectory_generalization_tail, OpenTheory.TrajectoryGeneralization.approx_erm_trajectory_excess_risk_tail}
+\leanok
+\uses{lem:ball_cover_oracle, lem:mlp_contractive, lem:forward_lipschitz}
+For a two-layer network with $|W_{2,i}|\le A$, $|\sigma'|\le L$, inputs with $\|x\|_2^2\le E$, and an $L_\ell$-Lipschitz $[0,1]$-bounded loss $\ell$ (such as the clipped squared loss $\min(1, ((p-y)/B)^2)$ with $L_\ell = 2/B$), the parameter-to-loss map $u\mapsto \ell(f_{u}(x), y)$ is $L_{\mathrm{param}}$-Lipschitz on $\mathbb{R}^{md}$ with $L_{\mathrm{param}} = L_\ell m A L\sqrt{E}$. Consequently, for any trajectory radius $R\ge 0$ (such as the contractive radius $U_\infty$ or coercive radius $S/\sqrt{n\lambda}$) and grid resolution $\delta>0$, the parameter ball $B_{md}(R) = \{u\in\mathbb{R}^{md} : \|u\|_2\le R\}$ admits an explicit finite loss cover of cardinality $N(R,\delta) \le (\mathrm{coverAxis}(R,\delta,md)+1)^{md}$ such that for every $n\ge 1$ and $\varepsilon>0$:
+\[
+\mathbb{P}_{s\sim P^n}\!\left(\sup_{u\in B_{md}(R)} \bigl|\widehat{R}_s(u) - R_P(u)\bigr| > \varepsilon + 2 L_{\mathrm{param}}\delta\right)
+\le 2\,\bigl(\mathrm{coverAxis}(R,\delta,md)+1\bigr)^{md}\exp(-2n\varepsilon^2).
+\]
+In particular, under the contractive training condition $q_{\mathrm{nl}}<1$, every gradient descent iterate $u_T$ ($T\in\mathbb{N}$) lies in $B_{md}(U_\infty)$ and satisfies this out-of-sample generalization bound uniformly in $T$.
+\end{lemma}
+\begin{proof}
+\leanok
+Write $f_u(x) - f_v(x)$ as the forward change from base network $\mathrm{atDisplacement}(\mathrm{net}, v)$ under displacement $u-v$, bound preactivation shifts by $\|u-v\|_2\sqrt{E}$, and apply `MLPResidual.forward_change_le` to obtain $|f_u(x)-f_v(x)| \le m A L\sqrt{E}\|u-v\|_2$. Combine with `BallCover.euclideanBall_net` to construct the finite loss cover of $B_{md}(R)$ and apply `Covering.uniform_deviation_tail` and `Covering.approx_learner_tail`.
+\end{proof}
+
+\begin{lemma}[Softmax score sensitivity, joint Q/K/V stability, and logit-margin concentration]\label{lem:attention_logit_stability}
+\lean{OpenTheory.AttentionLogitStability.rowOutput_sub_eq_centered_sum, OpenTheory.AttentionLogitStability.rowOutput_score_perturbation_l1, OpenTheory.AttentionLogitStability.rowOutput_score_perturbation_centered, OpenTheory.AttentionLogitStability.rowOutput_joint_qkv_perturbation, OpenTheory.AttentionLogitStability.multiHead_joint_qkv_perturbation, OpenTheory.AttentionLogitStability.tail_mass_eq_of_focused, OpenTheory.AttentionLogitStability.focused_rowOutput_approx_dominant, OpenTheory.AttentionLogitStability.focused_weight_l1_bound, OpenTheory.AttentionLogitStability.focused_score_perturbation_stability, OpenTheory.AttentionLogitStability.logit_margin_implies_focused, OpenTheory.AttentionLogitStability.logit_margin_output_stability}
+\leanok
+\uses{lem:attention_convex, lem:attention_ablation}
+Let $p(s, m) = \mathrm{rowWeights}(s, m)$ denote the hard-masked softmax attention distribution on $\mathrm{Fin}\,n$ when at least one key is unmasked:
+\begin{enumerate}
+\item \textbf{Centered value-dispersion & joint Q/K/V perturbation:} For any reference vector $\bar{v}\in E$ with $\|v_i - \bar{v}\|\le \Delta_V$ on unmasked keys and value shift $\|v_{1,i} - v_{2,i}\|\le \delta_V$, perturbing scores $s_1\to s_2$ and values $v_1\to v_2$ satisfies
+\[
+\bigl\|\mathrm{rowOutput}(s_1, m, v_1) - \mathrm{rowOutput}(s_2, m, v_2)\bigr\| \le \Delta_V\,\|p(s_1,m) - p(s_2,m)\|_1 + \delta_V,
+\]
+and across $H$ heads, $\|\mathrm{MHA}(s_1, v_1) - \mathrm{MHA}(s_2, v_2)\| \le \sum_{h=1}^H \|W_{O,h}\|_{\mathrm{op}}(\Delta_{V,h}\|p_1^{(h)} - p_2^{(h)}\|_1 + \delta_{V,h})$.
+\item \textbf{Focused / low-entropy stability:} If $p(s,m)_{i_\star} \ge 1 - \varepsilon$ and $\|v_j - v_{i_\star}\|\le D_V$ on unmasked keys, then $\|\mathrm{rowOutput}(s,m,v) - v_{i_\star}\| \le \varepsilon D_V$. If two score vectors focus on $i_\star$ with tail defects $\varepsilon_1, \varepsilon_2$, then $\|p(s_1,m) - p(s_2,m)\|_1 \le 2(\varepsilon_1 + \varepsilon_2)$ and $\|\mathrm{rowOutput}(s_1,m,v) - \mathrm{rowOutput}(s_2,m,v)\| \le (\varepsilon_1 + \varepsilon_2)D_V$.
+\item \textbf{Logit-margin exponential concentration:} If an unmasked key $i_\star$ has logit margin $s_j \le s_{i_\star} - \gamma$ over all other unmasked keys $j\ne i_\star$, then $p(s,m)_j \le e^{-\gamma} p(s,m)_{i_\star}$, the tail mass satisfies $1 - p(s,m)_{i_\star} \le (n-1)e^{-\gamma}$, and $\|\mathrm{rowOutput}(s,m,v) - v_{i_\star}\| \le (n-1)e^{-\gamma} D_V$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Since $\sum_i p(s_1,m)_i = \sum_i p(s_2,m)_i = 1$, subtracting $\sum_i (p_1(i)-p_2(i))\bar{v} = 0$ rewrites the output difference in terms of centered values $v_i - \bar{v}$, yielding the $\Delta_V\|p_1-p_2\|_1$ bound by the triangle inequality. For a dominant key $i_\star$, rewrite $\mathrm{rowOutput}(s,m,v) - v_{i_\star} = \sum_{j\ne i_\star} p_j(v_j - v_{i_\star})$ and use $\sum_{j\ne i_\star} p_j = 1 - p_{i_\star} \le \varepsilon$. Under a logit margin $\gamma$, `Attention.weight_formula` gives $\exp(s_j) \le e^{-\gamma}\exp(s_{i_\star})$ on unmasked keys $j\ne i_\star$, and summing over the $n-1$ non-dominant keys bounds the tail mass by $(n-1)e^{-\gamma}$.
+\end{proof}
+
+\begin{lemma}[First-principles MLP local sharpness and unconditional coercive trajectory]\label{lem:mlp_derived_sharpness}
+\lean{OpenTheory.MLPLocalSharpness.nonlinearBatchStep_eq_sub_batchGrad, OpenTheory.MLPLocalSharpness.mlpLocalSharpness_eq_of_pos, OpenTheory.MLPLocalSharpness.stepOutputChange_norm_le, OpenTheory.MLPLocalSharpness.stepRemainder_norm_le, OpenTheory.MLPLocalSharpness.mlp_objective_quadratic_upper_bound, OpenTheory.MLPLocalSharpness.mlp_local_sharpness_step_descent, OpenTheory.MLPLocalSharpness.mlp_adaptive_step_optimal_drop, OpenTheory.MLPLocalSharpness.mlp_safe_step_objective_descent, OpenTheory.MLPLocalSharpness.mlp_safe_step_coercive_trajectory, OpenTheory.MLPLocalSharpness.mlp_adaptive_step_cumulative_grad_sq_le, OpenTheory.MLPLocalSharpness.mlp_adaptive_step_min_grad_norm}
+\leanok
+\uses{lem:local_sharpness_descent, lem:mlp_batch_risk}
+For a two-layer network with $|W_{2,i}|\le A$, $|\sigma'|\le L$, $M$-Lipschitz $\sigma'$, and row energies $\|X_r\|_2^2\le E$, the nonlinear regularized empirical risk $\mathcal{L}(u) = \frac{1}{2n}\|F(u)-y\|_2^2 + \frac{\lambda}{2}\|u\|_2^2$ satisfies at any parameter $u$ with $\|F(u)-y\|_2\le R$ and any displacement $\Delta\in\mathbb{R}^{md}$ the exact second-order Taylor upper bound
+\[
+\mathcal{L}(u+\Delta) \le \mathcal{L}(u) + \langle \nabla\mathcal{L}(u), \Delta\rangle + \frac{S_{\mathrm{MLP}}(R)}{2}\|\Delta\|_2^2,
+\qquad
+S_{\mathrm{MLP}}(R) = \lambda + m^2 A^2 L^2 E + \frac{2R}{\sqrt{n}} M m A E.
+\]
+Consequently, when $\|F(0)-y\|_2\le S$ and the step size satisfies $0\le \eta \le 2/S_{\mathrm{MLP}}(S)$ (in particular at the adaptive step $\eta^\star = 1/S_{\mathrm{MLP}}(S)$), the actual nonlinear gradient descent trajectory $u_{t+1} = u_t - \eta\nabla\mathcal{L}(u_t)$ satisfies for all $t\in\mathbb{N}$ (without requiring $q_{\mathrm{nl}}<1$):
+\[
+\mathcal{L}(u_{t+1}) \le \mathcal{L}(u_t) \le \mathcal{L}(0),\qquad
+\|F(u_t)-y\|_2 \le S,\qquad
+\|u_t\|_2 \le \frac{S}{\sqrt{n\lambda}},\qquad
+\min_{0\le t < T} \|\nabla\mathcal{L}(u_t)\|_2^2 \le \frac{S_{\mathrm{MLP}}(S)\,S^2}{T n}.
+\]
+\end{lemma}
+\begin{proof}
+\leanok
+Decompose $F(u+\Delta) - y = r_u + (J_u\Delta + \mathrm{rem})$ around the shifted network $\mathrm{atDisplacement}(\mathrm{net}, u)$. Bound $\|J_u\Delta + \mathrm{rem}\|_2 \le \sqrt{n} m A L\sqrt{E}\|\Delta\|_2$ via `MLPBatchBounds.batchOutput_change_le` and $\|\mathrm{rem}\|_2 \le \sqrt{n} M m A E\|\Delta\|_2^2$ via `MLPBatchBounds.output_remainder_le`. Expand $\|r_u + (J_u\Delta + \mathrm{rem})\|_2^2$ and $\|u+\Delta\|_2^2$ using `norm_add_sq_real`, identify the linear term $\langle \nabla\mathcal{L}(u), \Delta\rangle$ via adjointness of $J_u$, and bound $\langle r_u, \mathrm{rem}\rangle \le R\|\mathrm{rem}\|_2$ by Cauchy--Schwarz. Induct on $t$ using Lemma~\ref{lem:local_sharpness_descent}: at each step $\mathcal{L}(u_t)\le \mathcal{L}(0)$ implies $\|r_{u_t}\|_2\le S$, which keeps the local sharpness bounded by $S_{\mathrm{MLP}}(S)$ for step $t+1$. Telescope the one-step drops to bound the minimum squared gradient norm over $T$ steps.
+\end{proof}
+
+\begin{lemma}[Diagonal preconditioned and SignGD/Adam-style optimization speedup]\label{lem:preconditioned_descent}
+\lean{OpenTheory.PreconditionedDescent.anisotropic_sharpness_descent, OpenTheory.PreconditionedDescent.optimal_diagonal_progress_eq, OpenTheory.PreconditionedDescent.optimal_diagonal_descent_drop, OpenTheory.PreconditionedDescent.coordProgress_sub_eq_sum_sq, OpenTheory.PreconditionedDescent.optimal_diagonal_maximizes_progress, OpenTheory.PreconditionedDescent.diagonal_vs_scalar_gap_eq, OpenTheory.PreconditionedDescent.diagonal_dominates_scalar_sgd, OpenTheory.PreconditionedDescent.diagonal_strictly_beats_scalar_sgd, OpenTheory.PreconditionedDescent.diagonal_dominates_any_scalar_step, OpenTheory.PreconditionedDescent.signGD_descent, OpenTheory.PreconditionedDescent.signGD_optimal_lr_drop, OpenTheory.PreconditionedDescent.signGD_strictly_beats_scalar_sgd, OpenTheory.PreconditionedDescent.preconditioned_pl_geometric_convergence}
+\leanok
+\uses{lem:local_sharpness_descent}
+Under the coordinate-wise anisotropic sharpness bound $L(u - \eta\odot g) \le L(u) - \sum_{i=1}^p \eta_i g_i^2 + \frac{1}{2}\sum_{i=1}^p S_i \eta_i^2 g_i^2$ with $0 < S_i \le S_{\max}$:
+\begin{enumerate}
+\item \textbf{Optimal diagonal preconditioning vs.\ scalar SGD:} The diagonal preconditioner $\eta_i^\star = 1/S_i$ uniquely maximizes coordinate progress $\mathrm{coordProgress}(\eta, S, g) = \sum_i \eta_i(1 - \eta_i S_i/2)g_i^2$, achieving $\sum_i g_i^2/(2S_i)$ and beating scalar SGD ($\eta_{\mathrm{scalar}} = 1/S_{\max}$, progress $\|g\|_2^2/(2S_{\max})$) by the exact gap
+\[
+\sum_{i=1}^p \frac{g_i^2}{2S_i} - \frac{\|g\|_2^2}{2S_{\max}} = \sum_{i=1}^p \frac{S_{\max} - S_i}{2 S_i S_{\max}}\,g_i^2 \ge 0,
+\]
+which is strictly positive whenever any active gradient coordinate $g_{i_0}\ne 0$ has $S_{i_0} < S_{\max}$.
+\item \textbf{SignGD / memoryless Adam $\ell_1$ descent:} Stepping by $u_i - \eta\,\mathrm{sign}(g_i)$ at optimal learning rate $\eta_{\mathrm{sign}} = \|g\|_1 / \|S\|_1$ guarantees $L(u_{\mathrm{next}}) \le L(u) - \|g\|_1^2 / (2\|S\|_1)$, strictly beating scalar SGD whenever $\|g\|_1^2 / \|S\|_1 > \|g\|_2^2 / S_{\max}$ (dense gradients under anisotropic curvature).
+\item \textbf{Preconditioned PL convergence:} Under $\sum_i g_{t,i}^2 / S_i \ge 2\mu_P(L(u_t)-F)$ with $0 < \mu_P \le 1$, diagonal preconditioned steps satisfy $L(u_T) - F \le (1-\mu_P)^T(L(u_0)-F)$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Complete the square coordinate by coordinate to establish $\sum_i g_i^2/(2S_i) - \mathrm{coordProgress}(\eta,S,g) = \sum_i \frac{S_i}{2}(\eta_i - 1/S_i)^2 g_i^2 \ge 0$. Combine fractions over $2 S_i S_{\max}$ for the scalar SGD comparison and apply `Finset.sum_pos'` when an active coordinate has $S_{i_0} < S_{\max}$. For SignGD, use $\mathrm{sign}(x)x = |x|$ and $\mathrm{sign}(x)^2 \le 1$ to obtain the quadratic bound in $\eta$ and substitute $\eta_{\mathrm{sign}} = \|g\|_1/\|S\|_1$.
 \end{proof}
 
 \bibliographystyle{alpha}

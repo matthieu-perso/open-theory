@@ -36,30 +36,35 @@ jobs:
       - name: Check blueprint Lean names
         run: python3 scripts/check_lean_decls.py
 
-      - name: Export blueprint.json
-        run: python3 scripts/export_blueprint.py blueprint/blueprint.json
-
       - name: Fail if committed graph is stale
+        run: python3 scripts/export_blueprint.py --check
+
+      - name: Regression tests
         run: |
-          python3 scripts/export_blueprint.py /tmp/blueprint.json
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-
-          def load(path):
-              data = json.loads(Path(path).read_text())
-              data.pop("generatedAt", None)
-              return data
-
-          committed = load("blueprint/blueprint.json")
-          generated = load("/tmp/blueprint.json")
-          if committed != generated:
-              raise SystemExit(
-                  "blueprint/blueprint.json is stale. Run:\n"
-                  "  python3 scripts/export_blueprint.py blueprint/blueprint.json"
-              )
-          print("[OK] blueprint.json matches content.tex")
-          PY
+          python3 -m unittest discover -s tests -p 'test_*.py'
+          lake build audit_axioms
+          lake env lean tests/AuditRegression.lean
+          lake env lean tests/FoundationSmoke.lean
+          lake env lean tests/RidgeSmoke.lean
+          lake env lean tests/ArchitectureSmoke.lean
+          lake env lean tests/OptimizerSmoke.lean
+          lake env lean tests/AttentionSmoke.lean
+          lake env lean tests/TransformerSmoke.lean
+          lake env lean tests/PopulationBoundsSmoke.lean
+          lake env lean tests/StatisticalBridgeSmoke.lean
+          lake env lean tests/FiniteClassSmoke.lean
+          lake env lean tests/CoveringSmoke.lean
+          lake env lean tests/TrainedRidgeSmoke.lean
+          lake env lean tests/RidgeRiskSmoke.lean
+          lake env lean tests/KernelRidgeSmoke.lean
+          lake env lean tests/FeatureStepSmoke.lean
+          lake env lean tests/TangentStepSmoke.lean
+          lake env lean tests/MLPTrajectorySmoke.lean
+          lake env lean tests/MLPComparisonSmoke.lean
+          lake env lean tests/MLPEndpointSmoke.lean
+          lake env lean tests/MLPFixedDesignSmoke.lean
+          lake env lean tests/MLPBatchBoundsSmoke.lean
+          lake env lean tests/MLPRiskSmoke.lean
 
       - name: Upload blueprint graph
         uses: actions/upload-artifact@v4

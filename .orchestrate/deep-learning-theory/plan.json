@@ -1,0 +1,67 @@
+{
+  "$schema": "https://cursor.com/schemas/orchestrate/plan.schema.json",
+  "goal": "Phase 4 Deep Learning Theory Sprint: (A) Eliminate all 4 remaining sorry targets in the repository with genuine, substantive mathematical theorems (Subspace Finite-Sample Interpolation/Approximation in Expressivity.lean, Empirical Rademacher Complexity & Symmetrization Inequality in Rademacher.lean, Sub-Gaussian Net Operator Norm Concentration & Frobenius-to-Spectral Bounds in OperatorNorm.lean, and Deep ResNet + μP Spectral Alignment Horizon Theorem in FeatureAlignment.lean); (B) Prove 3 frontier deep learning theory modules: (1) Joint Two-Layer Global Convergence via Minimum Jacobian Singular Value & Condition-Number Speedup (JointPLConvergence.lean), (2) Stochastic Mini-Batch SGD under Derived MLP Local Sharpness & Batch-Size Scaling Law (StochasticSharpnessSGD.lean), and (3) In-Context Learning & Attention Logit-Margin Retrieval Dynamics (InContextRetrieval.lean).",
+  "summary": "4-track parallel formalization achieving 0 sorry across the entire OpenTheory repository plus 3 frontier deep learning theory modules",
+  "rootSlug": "deep-learning-theory",
+  "baseBranch": "main",
+  "repoUrl": "https://github.com/matthieu-perso/open-theory.git",
+  "syncStateToGit": false,
+  "tasks": [
+    {
+      "name": "worker-clear-all-open-targets",
+      "type": "worker",
+      "scopedGoal": "Update OpenTheory/Architectures/Expressivity.lean, OpenTheory/Generalization/Rademacher.lean, OpenTheory/Generalization/OperatorNorm.lean, OpenTheory/Dynamics/FeatureAlignment.lean, and create tests/ClearedTargetsSmoke.lean. Eliminate every remaining sorry in the repository and accompany each legacy target with substantive, non-trivial mathematical theorems (no trivial fillers).",
+      "pathsAllowed": [
+        "OpenTheory/Architectures/Expressivity.lean",
+        "OpenTheory/Generalization/Rademacher.lean",
+        "OpenTheory/Generalization/OperatorNorm.lean",
+        "OpenTheory/Dynamics/FeatureAlignment.lean",
+        "tests/ClearedTargetsSmoke.lean"
+      ],
+      "acceptance": [
+        "All 4 files have zero sorry and zero warnings",
+        "Substantive companion theorems proved in each of the 4 files",
+        "tests/ClearedTargetsSmoke.lean compiles cleanly"
+      ]
+    },
+    {
+      "name": "worker-joint-pl-global-convergence",
+      "type": "worker",
+      "scopedGoal": "Create OpenTheory/Optimization/JointPLConvergence.lean and tests/JointPLConvergenceSmoke.lean. Prove that when the feature/Jacobian matrix satisfies a minimum singular value (NTK gram coercivity) condition ‖J(u)^* r‖ ≥ σ_min ‖r‖, the unregularized empirical MSE satisfies the Polyak-Lojasiewicz (PL) inequality ‖∇L(u)‖^2 ≥ (2 σ_min^2 / n) L(u), and under derived MLP local sharpness S_MLP(R), nonlinear gradient descent converges geometrically to ZERO training error L(u_T) ≤ (1 - σ_min^2 / (n S_MLP(S)))^T L(0), plus prove how μP feature learning improves σ_min and accelerates global convergence.",
+      "pathsAllowed": [
+        "OpenTheory/Optimization/JointPLConvergence.lean",
+        "tests/JointPLConvergenceSmoke.lean"
+      ],
+      "acceptance": [
+        "OpenTheory/Optimization/JointPLConvergence.lean compiles with zero sorry and zero warnings",
+        "tests/JointPLConvergenceSmoke.lean compiles cleanly"
+      ]
+    },
+    {
+      "name": "worker-stochastic-minibatch-sgd",
+      "type": "worker",
+      "scopedGoal": "Create OpenTheory/Optimization/StochasticSharpnessSGD.lean and tests/StochasticSharpnessSGDSmoke.lean. Formalize mini-batch SGD under local sharpness S_loc with mini-batch variance σ_batch^2 / B: prove the exact one-step expected/adversarial-noise descent inequality, the multi-step geometric convergence to the variance noise floor η S_loc σ_batch^2 / (2 B μ), the critical batch size B_crit where linear scaling of learning rate η ∝ B transitions to saturation, and the concrete instantiation for two-layer MLPs via mlpLocalSharpness.",
+      "pathsAllowed": [
+        "OpenTheory/Optimization/StochasticSharpnessSGD.lean",
+        "tests/StochasticSharpnessSGDSmoke.lean"
+      ],
+      "acceptance": [
+        "OpenTheory/Optimization/StochasticSharpnessSGD.lean compiles with zero sorry and zero warnings",
+        "tests/StochasticSharpnessSGDSmoke.lean compiles cleanly"
+      ]
+    },
+    {
+      "name": "worker-in-context-attention-dynamics",
+      "type": "worker",
+      "scopedGoal": "Create OpenTheory/Architectures/InContextRetrieval.lean and tests/InContextRetrievalSmoke.lean. Formalize in-context associative retrieval dynamics in a softmax attention head: prove that gradient steps on the query-key bilinear score in the direction of a target context token i_* with positive key separation Δ_K > 0 increase the logit margin linearly as γ_T ≥ γ_0 + T η Δ_K, which by AttentionLogitStability.logit_margin_output_stability causes the retrieval error ‖rowOutput(s_T, m, v) - v_{i_*}‖ to decay exponentially as (n - 1) exp(-γ_0 - T η Δ_K) D_V → 0, and derive the explicit step complexity T ≥ (log((n-1)D_V / ε) - γ_0) / (η Δ_K) for ε-accurate in-context retrieval.",
+      "pathsAllowed": [
+        "OpenTheory/Architectures/InContextRetrieval.lean",
+        "tests/InContextRetrievalSmoke.lean"
+      ],
+      "acceptance": [
+        "OpenTheory/Architectures/InContextRetrieval.lean compiles with zero sorry and zero warnings",
+        "tests/InContextRetrievalSmoke.lean compiles cleanly"
+      ]
+    }
+  ]
+}

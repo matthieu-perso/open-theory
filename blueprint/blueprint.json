@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-01T12:57:01.226231+00:00",
-  "toolchain": "leanprover/lean4:v4.11.0",
+  "generatedAt": "2026-10-14T22:54:21.776032+00:00",
+  "toolchain": "leanprover/lean4:v4.34.0",
   "convention": "massot-leanblueprint",
-  "nodesCount": 31,
+  "nodesCount": 58,
   "nodes": [
     {
       "id": "def:sample",
@@ -278,16 +278,19 @@
       "title": "Alignment is at most one",
       "leanName": "OpenTheory.alignment_le_one",
       "leanNames": [
-        "OpenTheory.alignment_le_one"
+        "OpenTheory.alignment_le_one",
+        "OpenTheory.orthoProjector_row_sq_sum",
+        "OpenTheory.frobeniusSq_sub_mul_orthoProjector",
+        "OpenTheory.frobeniusSq_mul_orthoProjector_le"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "def:alignment"
       ],
       "bountyUsd": null,
-      "informalSketch": "Open target. It uses $\\lVert HP\\rVert_F \\le \\lVert H\\rVert_F$ for an orthogonal projector."
+      "informalSketch": "By symmetry $P^\\top=P$ and idempotence $P^2=P$, each row $i$ satisfies $\\sum_j ((HP)_{ij})^2 = \\sum_j (HP)_{ij} H_{ij}$. Expanding $\\lVert H - HP\\rVert_F^2$ row by row yields the exact Frobenius Pythagorean identity $\\lVert H - HP\\rVert_F^2 = \\lVert H\\rVert_F^2 - \\lVert HP\\rVert_F^2$. Since $\\lVert H - HP\\rVert_F^2 \\ge 0$, $\\lVert HP\\rVert_F^2 \\le \\lVert H\\rVert_F^2$, so dividing by $\\lVert H\\rVert_F^2 > 0$ gives $a(H,P)\\le 1$."
     },
     {
       "id": "lem:alignment_certificate",
@@ -298,13 +301,13 @@
         "OpenTheory.alignment_feature_distance"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "lem:alignment_le_one"
       ],
       "bountyUsd": null,
-      "informalSketch": "Open target."
+      "informalSketch": "From the Frobenius Pythagorean identity $\\lVert H - HP\\rVert_F^2 = \\lVert H\\rVert_F^2 - \\lVert HP\\rVert_F^2 = (1 - a(H,P))\\lVert H\\rVert_F^2$, the lower bound $a(H,P)\\ge 1-\\varepsilon$ immediately yields $\\lVert H - HP\\rVert_F^2 \\le \\varepsilon \\lVert H\\rVert_F^2$."
     },
     {
       "id": "def:empirical_risk",
@@ -350,14 +353,14 @@
         "OpenTheory.risk_exponential_approach"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "def:descent",
         "def:mup_scaling"
       ],
       "bountyUsd": null,
-      "informalSketch": "Open target. The remaining step is a Gr\u00f6nwall estimate from the rate hypothesis."
+      "informalSketch": "Define the rescaled excess risk $g(s) = e^{cs}(L(s)-F)$. By the product and chain rules, $g'(s) = e^{cs}(c(L(s)-F) + L'(s)) \\le 0$ for all $s\\in\\mathbb{R}$. Monotonicity of functions with nonpositive derivative (`image_le_of_deriv_right_le_deriv_boundary`) yields $g(t)\\le g(0) = L(0)-F$ for $t\\ge 0$, and multiplying by $e^{-ct}>0$ completes the proof."
     },
     {
       "id": "lem:lipschitz_gelu",
@@ -384,34 +387,38 @@
       "leanNames": [
         "OpenTheory.dotProduct",
         "OpenTheory.l2Norm",
+        "OpenTheory.abs_dotProduct_le",
+        "OpenTheory.abs_dotProduct_sub_le",
+        "OpenTheory.layer_lipschitz_of_lip",
         "OpenTheory.layer_lipschitz"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "lem:lipschitz_gelu"
       ],
       "bountyUsd": null,
-      "informalSketch": "Open target. Compose the activation Lipschitz bound with Cauchy--Schwarz on $\\langle w, x-y\\rangle$."
+      "informalSketch": "Apply the finite-sum Cauchy--Schwarz inequality (`Finset.sum_mul_sq_le_sq_mul_sq`) to $\\langle w, x\\rangle - \\langle w, y\\rangle = \\langle w, x-y\\rangle$ to obtain $|\\langle w,x\\rangle - \\langle w,y\\rangle| \\le \\|w\\|_2\\|x-y\\|_2$, and compose with the activation Lipschitz bound $|\\sigma(a)-\\sigma(b)|\\le L|a-b|$."
     },
     {
       "id": "lem:forward_lipschitz",
       "kind": "lemma",
       "title": "Lipschitz bound for the network",
-      "leanName": "OpenTheory.forward_lipschitz",
+      "leanName": "OpenTheory.forward_lipschitz_explicit",
       "leanNames": [
+        "OpenTheory.forward_lipschitz_explicit",
         "OpenTheory.forward_lipschitz"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "lem:layer_lipschitz",
         "def:two_layer_net"
       ],
       "bountyUsd": null,
-      "informalSketch": "Open target. Sum the one-layer bound over the hidden units and weight by $W_2$."
+      "informalSketch": "Apply the triangle inequality to the sum over hidden units $i\\in\\mathrm{Fin}\\,m$, bound each unit by $|W_{2,i}|\\,L\\,\\|W_{1,i}\\|_2\\,\\|x-y\\|_2$ using \\cref{lem:layer_lipschitz}, and factor out $\\|x-y\\|_2$."
     },
     {
       "id": "lem:bounded_mean",
@@ -469,20 +476,31 @@
       "title": "Spectral bias in $\\mup$ scaling",
       "leanName": "OpenTheory.spectral_bias_mup_alignment",
       "leanNames": [
-        "OpenTheory.spectral_bias_mup_alignment"
+        "OpenTheory.spectral_bias_mup_alignment",
+        "OpenTheory.spectral_bias_mup_gap_alignment_cont",
+        "OpenTheory.spectral_bias_mup_gap_alignment_disc",
+        "OpenTheory.MultiStepSpectralBias.hasDerivAt_modeAmpCont",
+        "OpenTheory.MultiStepSpectralBias.modeAmpDisc_step",
+        "OpenTheory.MultiStepSpectralBias.signal_to_bulk_ratio_cont",
+        "OpenTheory.MultiStepSpectralBias.signal_to_bulk_ratio_disc",
+        "OpenTheory.MultiStepSpectralBias.alignment_lower_bound_of_signal_bulk",
+        "OpenTheory.MultiStepSpectralBias.spectral_bias_alignment_cont_ge",
+        "OpenTheory.MultiStepSpectralBias.spectral_bias_alignment_disc_ge",
+        "OpenTheory.MultiStepSpectralBias.spiked_model_alignment_cont_ge",
+        "OpenTheory.MultiStepSpectralBias.multistep_kernel_growth_improves_ridge_mse"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "def:mup_scaling",
-        "lem:gaussian_operator_norm",
-        "lem:lipschitz_gelu",
         "def:alignment",
-        "def:spectral_gap"
+        "lem:alignment_certificate",
+        "def:spectral_gap",
+        "lem:feature_learning_advantage"
       ],
-      "bountyUsd": 2500,
-      "informalSketch": "Open target. Bounty \\$2500. Formalize without \\texttt{sorry}."
+      "bountyUsd": null,
+      "informalSketch": "Combine $e^{2\\gamma_{\\mathrm{bulk}}t} = e^{2(\\gamma_{\\mathrm{bulk}}-\\gamma_{\\mathrm{lead}})t} e^{2\\gamma_{\\mathrm{lead}}t} \\le e^{-2\\Delta\\gamma t} e^{2\\gamma_{\\mathrm{lead}}t}$ with the signal and bulk bounds in continuous time, and compare $1+\\eta\\gamma_{\\mathrm{lead}} \\ge 1+\\eta\\gamma_{\\mathrm{bulk}} + \\eta\\Delta\\gamma$ in discrete time. Apply the Frobenius Pythagorean identity $\\lVert H\\rVert_F^2 = \\lVert HP\\rVert_F^2 + \\lVert H-HP\\rVert_F^2$ to lower-bound $a(H,P)$ by $1 - B/S$, and invoke Lemma~\\ref{lem:feature_learning_advantage} for the multi-step ridge MSE improvement."
     },
     {
       "id": "lem:representation_contraction",
@@ -490,17 +508,27 @@
       "title": "Representation contraction in residual blocks",
       "leanName": "OpenTheory.resnet_representation_contraction",
       "leanNames": [
-        "OpenTheory.resnet_representation_contraction"
+        "OpenTheory.resnet_representation_contraction",
+        "OpenTheory.resnet_step_contraction_le",
+        "OpenTheory.resnet_representation_contraction_lipschitz",
+        "OpenTheory.DeepResidualScaling.branchOutput_l2Norm_le",
+        "OpenTheory.DeepResidualScaling.residualStep_l2Norm_le",
+        "OpenTheory.DeepResidualScaling.residualStep_sqrt_depth_scaling",
+        "OpenTheory.DeepResidualScaling.deepResidual_l2Norm_le",
+        "OpenTheory.DeepResidualScaling.one_add_div_pow_le_exp",
+        "OpenTheory.DeepResidualScaling.deepResidualChain_depth_independent_exp_bound",
+        "OpenTheory.DeepResidualScaling.deepResidual_norm_window"
       ],
       "statementFormalized": true,
-      "proofFormalized": false,
-      "isVerified": false,
+      "proofFormalized": true,
+      "isVerified": true,
       "dependencies": [
         "lem:lipschitz_gelu",
-        "def:residual"
+        "def:residual",
+        "lem:layer_lipschitz"
       ],
-      "bountyUsd": 1500,
-      "informalSketch": "Open target. Bounty \\$1500."
+      "bountyUsd": null,
+      "informalSketch": "Bound each coordinate of $\\sigma(Wx)-\\sigma(Wy)$ via Cauchy--Schwarz and $L_\\sigma$-Lipschitzness, square and sum over rows to obtain $\\|\\sigma(Wx)-\\sigma(Wy)\\|_2 \\le L_\\sigma\\|W\\|_F\\|x-y\\|_2$, and apply the Euclidean triangle inequality to $x + \\alpha\\sigma(Wx)$. Induct over $L$ layers and apply $(1+c/L)^L \\le (e^{c/L})^L = e^c$."
     },
     {
       "id": "conj:grand_feature_learning",
@@ -560,6 +588,651 @@
       ],
       "bountyUsd": null,
       "informalSketch": "Add the two inequalities."
+    },
+    {
+      "id": "def:reuse_data",
+      "kind": "definition",
+      "title": "Data and probability interfaces",
+      "leanName": "OpenTheory.Dataset",
+      "leanNames": [
+        "OpenTheory.Dataset",
+        "OpenTheory.Parameters",
+        "OpenTheory.Population",
+        "OpenTheory.IIDSample"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "lem:reuse_ridge",
+      "kind": "lemma",
+      "title": "Finite-data ridge training",
+      "leanName": "OpenTheory.Dataset.ridgeLoss_eq",
+      "leanNames": [
+        "OpenTheory.Dataset.ridgeLoss_eq",
+        "OpenTheory.Dataset.ridge_training",
+        "OpenTheory.Ridge.admissible_step"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:reuse_data"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Identify the actual gradient using Mathlib calculus. Positive regularization makes\nthe finite-dimensional Hessian injective and hence surjective, giving a stationary\npoint. Quadratic expansion proves minimization. Apply TorchLean's strongly monotone\nLipschitz-operator gradient-descent theorem."
+    },
+    {
+      "id": "lem:reuse_mlp",
+      "kind": "lemma",
+      "title": "Reused neural semantics and global bounds",
+      "leanName": "OpenTheory.Torch.legacy_correspondence",
+      "leanNames": [
+        "OpenTheory.Torch.legacy_correspondence",
+        "OpenTheory.Torch.MLP.lipschitz",
+        "OpenTheory.Torch.MLP.residual_lipschitz"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [],
+      "bountyUsd": null,
+      "informalSketch": "Reuse TorchLean's Euclidean tensor metric, matrix Frobenius bound and ReLU\nLipschitz theorem; compose with Mathlib's Lipschitz lemmas. Expand coordinates\nfor the legacy correspondence. No differentiability of ReLU at zero is assumed."
+    },
+    {
+      "id": "lem:reuse_attention",
+      "kind": "lemma",
+      "title": "Exact masked attention bounds",
+      "leanName": "OpenTheory.Attention.weight_nonneg",
+      "leanNames": [
+        "OpenTheory.Attention.weight_nonneg",
+        "OpenTheory.Attention.weights_sum_one",
+        "OpenTheory.Attention.rowOutput_blocked",
+        "OpenTheory.Attention.rowOutput_mem_convexHull",
+        "OpenTheory.Attention.rowOutput_perturbation",
+        "OpenTheory.Attention.masked_output_abs_le",
+        "OpenTheory.Attention.causal_future_zero",
+        "OpenTheory.Attention.causal_row_sum_one"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [],
+      "bountyUsd": null,
+      "informalSketch": "Reuse TorchLean's exact hard-mask coordinate formula and positive denominator;\napply Mathlib's convex-combination and norm inequalities. Identify the actual\nmatrix-product coordinates. This does not bound perturbations of queries or keys."
+    },
+    {
+      "id": "def:reuse_transformer",
+      "kind": "definition",
+      "title": "Masked transformer inference",
+      "leanName": "OpenTheory.Transformer.Config",
+      "leanNames": [
+        "OpenTheory.Transformer.Config",
+        "OpenTheory.Transformer.Config.head_coverage",
+        "OpenTheory.Transformer.Config.head_dim_pos",
+        "OpenTheory.Transformer.forward",
+        "OpenTheory.Transformer.causalForward",
+        "OpenTheory.Transformer.forward_eq_upstream"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": false,
+      "isVerified": true,
+      "dependencies": [],
+      "bountyUsd": null,
+      "informalSketch": null
+    },
+    {
+      "id": "lem:reuse_risk_envelopes",
+      "kind": "lemma",
+      "title": "Population-risk envelopes",
+      "leanName": "OpenTheory.Population.risk_le_envelope",
+      "leanNames": [
+        "OpenTheory.Population.risk_le_envelope",
+        "OpenTheory.Population.risk_le_secondMoments",
+        "OpenTheory.Population.attentionRisk_le"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:reuse_data",
+        "lem:reuse_attention"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Bound the squared error pointwise using the triangle inequality and Lipschitz\nor convex-combination bounds. Dominate it by an integrable envelope and apply\nmonotonicity and linearity of the Bochner integral."
+    },
+    {
+      "id": "lem:reuse_erm_bridge",
+      "kind": "lemma",
+      "title": "Conditional empirical-risk oracle bridge",
+      "leanName": "OpenTheory.Dataset.empiricalRisk_eq_foml",
+      "leanNames": [
+        "OpenTheory.Dataset.empiricalRisk_eq_foml",
+        "OpenTheory.Population.risk_eq_foml",
+        "OpenTheory.Population.bounded_loss_integrable",
+        "OpenTheory.Population.supervised_excessRisk_le"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:reuse_data"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Identify the risk normalizations and apply FoML's deterministic\napproximate-ERM oracle inequality. Integrability follows by bounded domination."
+    },
+    {
+      "id": "lem:reuse_finite_class",
+      "kind": "lemma",
+      "title": "Finite-class uniform deviation",
+      "leanName": "OpenTheory.Population.finiteClass_deviation_le",
+      "leanNames": [
+        "OpenTheory.Population.finiteClass_deviation_le"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:reuse_data",
+        "lem:reuse_erm_bridge"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Identify OpenTheory's supervised risks with StatLean's definitions, then reuse\nits sub-Gaussian Hoeffding bound and finite-union argument."
+    },
+    {
+      "id": "lem:reuse_ridge_objective",
+      "kind": "lemma",
+      "title": "Ridge objective convergence",
+      "leanName": "OpenTheory.Ridge.objective_gap_le",
+      "leanNames": [
+        "OpenTheory.Ridge.objective_gap_le",
+        "OpenTheory.Ridge.training_objective_gap"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:reuse_ridge"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Expand the quadratic at the stationary minimizer, bound $\\|A v\\|$ by\n$\\|A\\|\\|v\\|$, and compose with the checked TorchLean distance rate."
+    },
+    {
+      "id": "lem:finite_learning",
+      "kind": "lemma",
+      "title": "Learning by finite model selection",
+      "leanName": "OpenTheory.FiniteLearning.select",
+      "leanNames": [
+        "OpenTheory.FiniteLearning.select",
+        "OpenTheory.FiniteLearning.select_isERM",
+        "OpenTheory.FiniteLearning.approx_select_tail",
+        "OpenTheory.FiniteLearning.select_tail"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:reuse_finite_class"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Use Mathlib's finite minimum theorem, then contain the excess-risk event in\nStatLean's finite-class uniform-deviation event."
+    },
+    {
+      "id": "lem:loss_cover",
+      "kind": "lemma",
+      "title": "Continuous-class cover transfer",
+      "leanName": "OpenTheory.Covering.risk_close",
+      "leanNames": [
+        "OpenTheory.Covering.risk_close",
+        "OpenTheory.Covering.empirical_close",
+        "OpenTheory.Covering.uniform_deviation_tail",
+        "OpenTheory.Covering.compact_loss_cover",
+        "OpenTheory.Covering.approx_learner_tail"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:reuse_finite_class",
+        "lem:finite_learning"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Each covered loss differs from its representative by at most $\\rho$ in both\nempirical and population risk. Contain the bad event in StatLean's finite-class\nevent. Reuse Mathlib's compact finite-ball cover for existence."
+    },
+    {
+      "id": "lem:ridge_radius",
+      "kind": "lemma",
+      "title": "A fixed ball for ridge training",
+      "leanName": "OpenTheory.Ridge.minimizer_norm_le",
+      "leanNames": [
+        "OpenTheory.Ridge.minimizer_norm_le",
+        "OpenTheory.Ridge.training_radius",
+        "OpenTheory.Dataset.labels_energy_le",
+        "OpenTheory.Dataset.ridge_training_radius"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:reuse_ridge",
+        "lem:reuse_ridge_objective"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Compare the minimizer's objective with the objective at zero. The geometric\ndistance bound never exceeds the initial distance, and the triangle inequality\ngives the iterate radius. Bound mean squared labels by $T^2$."
+    },
+    {
+      "id": "lem:trained_ridge",
+      "kind": "lemma",
+      "title": "Trained ridge excess risk",
+      "leanName": "OpenTheory.TrainedRidge.trained_ridge_tail",
+      "leanNames": [
+        "OpenTheory.TrainedRidge.trained_ridge_tail",
+        "OpenTheory.Dataset.uniformStep",
+        "OpenTheory.Dataset.uniformFactor",
+        "OpenTheory.Dataset.uniformStep_admissible",
+        "OpenTheory.Dataset.data_q_le_uniformFactor",
+        "OpenTheory.BallCover.euclideanBall_net",
+        "OpenTheory.Ridge.minimizer_grad_eq_zero"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:ridge_radius",
+        "lem:loss_cover",
+        "lem:reuse_ridge_objective"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "The uniform step is admissible for every design whose rows are bounded by $B$,\nand the resulting contraction is at most $q$. A minimizer is the unique\nstationary point, so the distance bound and the quadratic expansion control the\nregularized gap. A floor grid, radially projected onto the ball, is a finite\nnet; the finite-class Hoeffding bound transfers across that net. Product\nsamples that leave the bounded set have measure zero."
+    },
+    {
+      "id": "lem:ridge_risk",
+      "kind": "lemma",
+      "title": "Fixed-design ridge degrees of freedom",
+      "leanName": "OpenTheory.RidgeRisk.fixed_design_mse",
+      "leanNames": [
+        "OpenTheory.RidgeRisk.fixed_design_mse",
+        "OpenTheory.RidgeRisk.fixed_design_mse_of_rank",
+        "OpenTheory.RidgeRisk.degreesOfFreedom",
+        "OpenTheory.RidgeRisk.degreesOfFreedom_le_rank",
+        "OpenTheory.RidgeRisk.gd_approaches_ridgeSolution",
+        "OpenTheory.RidgeRisk.LabelNoise",
+        "OpenTheory.RidgeRisk.design_rank_le_input",
+        "OpenTheory.RidgeRisk.design_rank_le_output"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:reuse_ridge_objective"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "A minimizer is the unique stationary point, so the gradient-descent limit equals\nthe ridge solution. The prediction error splits into a regularization bias and\nthe hat operator applied to the noise. The bias quadratic form is at most\n$\\lambda/(4c)$ times $\\|\\theta_\\star\\|^2$; with $c=1/m$, dividing by $m$ leaves\n$(\\lambda/4)\\|\\theta_\\star\\|^2$. The hat operator is self-adjoint with\neigenvalues in $[0,1]$, so its trace is at most its number of nonzero\neigenvalues, which is at most the rank of $A$. White noise has mean zero, so\nthe cross term integrates to zero, and the expected noise energy is $\\sigma^2$\ntimes the sum of squared eigenvalues, hence at most $\\sigma^2$ times the\ndegrees of freedom."
+    },
+    {
+      "id": "lem:kernel_ridge",
+      "kind": "lemma",
+      "title": "Kernel form of ridge",
+      "leanName": "OpenTheory.KernelRidge.prediction_eq_kernelRidge",
+      "leanNames": [
+        "OpenTheory.KernelRidge.prediction_eq_kernelRidge",
+        "OpenTheory.KernelRidge.hat_eq_kernelSmoother",
+        "OpenTheory.KernelRidge.prediction_eq_of_kernelOp",
+        "OpenTheory.KernelRidge.kernelSmoother_eq_of_kernelOp",
+        "OpenTheory.KernelRidge.kernel_rank_eq",
+        "OpenTheory.KernelRidge.fixed_design_kernel_mse",
+        "OpenTheory.KernelRidge.kernelOp"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:ridge_risk"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "The operators satisfy $(K+\\lambda I)A=A(cA^*A+\\lambda I)$. Inverting and\ncomposing with $A^*$ identifies the primal predictor with the kernel smoother.\nEqual kernels determine the same smoother. The range of $AA^*$ equals the range\nof $A$, and a nonzero scalar does not change that range. Rewrite the\nfixed-design integral through the prediction identity."
+    },
+    {
+      "id": "lem:feature_step",
+      "kind": "lemma",
+      "title": "One-step feature displacement",
+      "leanName": "OpenTheory.FeatureStep.preactivation_step",
+      "leanNames": [
+        "OpenTheory.FeatureStep.preactivation_step",
+        "OpenTheory.FeatureStep.abs_preactivation_step",
+        "OpenTheory.FeatureStep.loss_hasDerivAt_entry",
+        "OpenTheory.FeatureStep.ntk_preactivation_step_le",
+        "OpenTheory.FeatureStep.mup_preactivation_step_le",
+        "OpenTheory.FeatureStep.feature_learning_preactivation_step_le",
+        "OpenTheory.FeatureStep.feature_learning_preactivation_step_ge",
+        "OpenTheory.FeatureStep.featureLearningRate"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "def:two_layer_net"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "The partial derivative of the half-squared loss in a first-layer entry is the residual times the readout coordinate, the activation derivative and the corresponding input coordinate. Summing the resulting entrywise updates against the input produces the preactivation identity. The three rates are the absolute value of that identity under the corresponding bounds on the readout."
+    },
+    {
+      "id": "lem:tangent_step",
+      "kind": "lemma",
+      "title": "Tangent step and ridge perturbation",
+      "leanName": "OpenTheory.TangentStep.tangentUpdate_eq",
+      "leanNames": [
+        "OpenTheory.TangentStep.tangentUpdate_eq",
+        "OpenTheory.TangentStep.forward_after_sub_tangent",
+        "OpenTheory.TangentStep.abs_quadratic_remainder",
+        "OpenTheory.TangentStep.ntk_tangent_gap",
+        "OpenTheory.TangentStep.mup_tangent_gap",
+        "OpenTheory.TangentStep.feature_learning_tangent_gap",
+        "OpenTheory.TangentStep.tangentOutput",
+        "OpenTheory.PredictionGap.sq_norm_le_double",
+        "OpenTheory.PredictionGap.expected_mse_of_near_ridge"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:feature_step",
+        "lem:ridge_risk"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Substitute the exact preactivation step into the first-order output formula. The difference from the updated network is a sum of activation remainders. Apply the mean value theorem on the segment from the old preactivation to the new one, and use the Lipschitz bound on $\\sigma'$. Sum the resulting coordinate bounds under each learning-rate hypothesis. For the ridge comparison, expand $\\|p-t\\|^2$ by the triangle inequality and replace the cross term using $2ab\\le a^2+b^2$. Integrate and insert the fixed-design bound."
+    },
+    {
+      "id": "lem:mlp_single_trajectory",
+      "kind": "lemma",
+      "title": "Single-input nonlinear trajectory and centered ridge endpoint",
+      "leanName": "OpenTheory.MLPTrajectory.preShift_step",
+      "leanNames": [
+        "OpenTheory.MLPTrajectory.preShift_step",
+        "OpenTheory.MLPTrajectory.forward_remainder_le",
+        "OpenTheory.MLPTrajectory.iterate_preShift_le",
+        "OpenTheory.MLPTrajectory.iterate_remainder_le",
+        "OpenTheory.MLPComparison.explicit_nonlinear_linearized_gap",
+        "OpenTheory.MLPEndpoint.nonlinear_endpoint_gap",
+        "OpenTheory.MLPResidual.residual_le",
+        "OpenTheory.MLPRisk.trained_endpoint_gap",
+        "OpenTheory.MLPRisk.expected_mse"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:tangent_step"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Bound the Frobenius norm of each first-layer update by Cauchy--Schwarz and induction on $t$. Derive the preactivation shift and output residual envelopes from the parameter norm. Combine the one-step output remainder and slope drift with the scalar linear contraction recurrence to bound the $T$-step trajectory gap, add the geometric optimization residual $q^T|f_0(x)-y|$, and integrate against the discrete noise distribution."
+    },
+    {
+      "id": "lem:mlp_batch_risk",
+      "kind": "lemma",
+      "title": "Multi-observation nonlinear MLP trajectory and fixed-design statistical risk",
+      "leanName": "OpenTheory.MLPFixedDesign.predict_flatten",
+      "leanNames": [
+        "OpenTheory.MLPFixedDesign.predict_flatten",
+        "OpenTheory.MLPFixedDesign.gd_to_ridge",
+        "OpenTheory.MLPFixedDesign.ridge_expected_mse",
+        "OpenTheory.MLPBatchBounds.output_remainder_le",
+        "OpenTheory.MLPBatchBounds.design_drift_le",
+        "OpenTheory.MLPBatchBounds.adjoint_residual_gap_le",
+        "OpenTheory.MLPBatchTrajectory.batch_norm_le",
+        "OpenTheory.MLPBatchTrajectory.batch_shift_le",
+        "OpenTheory.MLPBatchTrajectory.batch_residual_le",
+        "OpenTheory.MLPBatchTrajectory.nonlinear_linear_param_gap",
+        "OpenTheory.MLPBatchTrajectory.nonlinear_linear_output_gap",
+        "OpenTheory.MLPBatchTrajectory.batch_trained_ridge_gap",
+        "OpenTheory.MLPBatchRisk.batch_trained_pointwise_error_le",
+        "OpenTheory.MLPBatchRisk.batch_trained_expected_mse",
+        "OpenTheory.MLPBatchRisk.batch_trained_expected_mse_of_rank"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:mlp_single_trajectory",
+        "lem:ridge_risk"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Flatten the $m\\times d$ displacement matrix via $\\mathrm{finProdFinEquiv}$ so the multi-row linearized forward pass equals $F_0+J_0 u$. Bound the operator norm of the shifted Jacobian design at every step by $\\sqrt{n}\\sqrt{m}A L\\sqrt{E}$ and induct on $t$ to obtain the closed norm, preactivation-shift, and residual envelopes from $\\|F_0-y\\|_2\\le S$. Decompose each parameter step difference $u_{t+1}-v_{t+1}$ into the nonexpansive linear ridge step applied to $u_t-v_t$ plus the adjoint-residual Taylor and Jacobian-drift defect $(\\eta/n)(\\|J_0\\|_{\\mathrm{op}}B+G R)$. Sum the defects over $T$ steps, convert parameter distance to output distance via $B+\\|J_0\\|_{\\mathrm{op}}\\|u_T-v_T\\|_2$, and combine with geometric ridge GD convergence $\\|v_T-u_\\star^{\\mathrm{ridge}}\\|_2\\le q^{T/2}S/\\sqrt{n\\lambda}$. Finally, apply the pointwise quadratic perturbation bound $\\|p-t\\|_2^2\\le 2\\|q-t\\|_2^2+2\\delta^2$ and integrate against the fixed-design ridge degrees-of-freedom theorem."
+    },
+    {
+      "id": "lem:mlp_contractive",
+      "kind": "lemma",
+      "title": "Horizon-free contractive MLP trajectory and statistical risk",
+      "leanName": "OpenTheory.MLPContractive.nonlinearBatchStep_norm_le",
+      "leanNames": [
+        "OpenTheory.MLPContractive.nonlinearBatchStep_norm_le",
+        "OpenTheory.MLPContractive.contractive_norm_le",
+        "OpenTheory.MLPContractive.contractive_shift_le",
+        "OpenTheory.MLPContractive.contractive_residual_le",
+        "OpenTheory.MLPContractive.accumulated_contracting_vector_defect",
+        "OpenTheory.MLPContractive.linearBatchStep_contractive",
+        "OpenTheory.MLPContractive.contractive_nonlinear_linear_param_gap",
+        "OpenTheory.MLPContractive.contractive_nonlinear_linear_output_gap",
+        "OpenTheory.MLPContractive.contractive_batch_trained_ridge_gap",
+        "OpenTheory.MLPContractive.contractive_batch_pointwise_error_le",
+        "OpenTheory.MLPContractive.contractive_batch_expected_mse",
+        "OpenTheory.MLPContractive.contractive_batch_expected_mse_of_rank"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:mlp_batch_risk"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Combine the operator-norm bound on the shifted Jacobian with the output-change bound to establish the one-step affine norm recurrence $\\|u_{t+1}\\|_2 \\le q_{\\mathrm{nl}}\\|u_t\\|_2 + c_{\\mathrm{nl}}S$. Induct on $t$ using $q_{\\mathrm{nl}}<1$ to obtain the geometric fixed-point bound $U_\\infty$, and deduce the time-uniform shift and residual envelopes $D_\\infty$ and $R_\\infty$. Use strict contraction of the strongly convex ridge GD step (`Optim.GD.step_norm_sq_le` and `Optim.GD.q_lt_one_of_mul_sq_lt`) to sum the one-step defects as a convergent geometric series bounded by $\\delta_{\\mathrm{step}}/(1-q_{\\mathrm{gd}})$. Combine with geometric convergence to the ridge solution and integrate via `PredictionGap.sq_norm_le_double` and `MLPFixedDesign.ridge_expected_mse`."
+    },
+    {
+      "id": "lem:feature_learning_advantage",
+      "kind": "lemma",
+      "title": "Feature-learning advantage over frozen initial kernels",
+      "leanName": "OpenTheory.FeatureLearningAdvantage.feature_learning_preactivation_shift_exact",
+      "leanNames": [
+        "OpenTheory.FeatureLearningAdvantage.feature_learning_preactivation_shift_exact",
+        "OpenTheory.FeatureLearningAdvantage.standard_lr_preactivation_shift_suppressed",
+        "OpenTheory.FeatureLearningAdvantage.feature_learning_vs_standard_shift_ratio",
+        "OpenTheory.FeatureLearningAdvantage.feature_learning_preactivation_sq_strict_growth",
+        "OpenTheory.FeatureLearningAdvantage.kernel_strict_growth_of_slope_growth",
+        "OpenTheory.FeatureLearningAdvantage.ridgeWeights_objective_eq_minRidgeObj",
+        "OpenTheory.FeatureLearningAdvantage.endpoint_expected_mse_eq_ridgeExpectedMSE",
+        "OpenTheory.FeatureLearningAdvantage.minRidgeObj_strict_anti",
+        "OpenTheory.FeatureLearningAdvantage.biasSq_sub_eq",
+        "OpenTheory.FeatureLearningAdvantage.biasSq_strict_anti",
+        "OpenTheory.FeatureLearningAdvantage.biasSq_reduction_lower_bound",
+        "OpenTheory.FeatureLearningAdvantage.ridge_mse_strict_improvement_of_kernel_growth",
+        "OpenTheory.FeatureLearningAdvantage.ridge_mse_strict_improvement_of_weighted_snr",
+        "OpenTheory.FeatureLearningAdvantage.frobeniusSq_residual_eq_one_sub_alignment",
+        "OpenTheory.FeatureLearningAdvantage.residual_projection_strict_decrease_of_alignment_growth"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:feature_step",
+        "lem:mlp_single_trajectory",
+        "lem:alignment_certificate"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Specialize `FeatureStep.preactivation_step` to $f_0(x)=0$, $W_{2,i}=s_i/m$, and $\\eta_1=m$ to cancel $m$ and obtain the exact shift $y\\alpha s_i\\|x\\|_2^2$. Expand $(p_i + \\Delta\\mathrm{pre}_i)^2 - p_i^2$ and sum over neurons to establish strict kernel growth. Evaluate the centered ridge objective and finite-noise expected MSE at `MLPEndpoint.ridgeWeights`, put the difference of rational functions over the common denominator $(K_0+\\lambda)^2(K_1+\\lambda)^2$, and apply positivity under the signal-to-noise threshold. Combine with the Frobenius Pythagorean identity from Lemma~\\ref{lem:alignment_le_one} for the subspace residual reduction."
+    },
+    {
+      "id": "lem:attention_ablation",
+      "kind": "lemma",
+      "title": "Multi-head attention ablation fidelity, residual propagation, and risk transfer",
+      "leanName": "OpenTheory.AttentionAblation.headContribution_norm_le",
+      "leanNames": [
+        "OpenTheory.AttentionAblation.headContribution_norm_le",
+        "OpenTheory.AttentionAblation.ablation_diff_eq",
+        "OpenTheory.AttentionAblation.subset_ablation_norm_le",
+        "OpenTheory.AttentionAblation.single_head_ablation_norm_le",
+        "OpenTheory.AttentionAblation.multiHead_value_perturbation",
+        "OpenTheory.AttentionAblation.residual_block_ablation_bound",
+        "OpenTheory.AttentionAblation.multilayer_residual_perturbation",
+        "OpenTheory.AttentionAblation.ablation_pointwise_sq_error_le",
+        "OpenTheory.AttentionAblation.ablation_population_mse_le",
+        "OpenTheory.AttentionAblation.single_head_ablation_population_mse_le"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:attention_convex",
+        "lem:population_envelope",
+        "lem:tangent_step"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Split the full sum over $\\mathrm{Fin}\\,H$ into $\\mathrm{keep}$ and $\\mathrm{keep}^c$ via `Finset.sum_add_sum_compl`. Bound each ablated head's row output by $B_{V,h}$ using `Attention.rowOutput_norm_le` and apply the continuous linear operator norm bound $\\|W_{O,h}(u)\\| \\le \\|W_{O,h}\\|_{\\mathrm{op}}\\|u\\|$. Propagate through $G$ by Lipschitz continuity and through $L$ residual stages by induction on $L$. For the population risk bound, apply `PredictionGap.sq_norm_le_double` pointwise a.e. and integrate against $P.\\mathrm{law}$."
+    },
+    {
+      "id": "lem:local_sharpness_descent",
+      "kind": "lemma",
+      "title": "Local-sharpness adaptive descent, objective coercivity, and discrete PL convergence",
+      "leanName": "OpenTheory.LocalSharpnessDescent.local_sharpness_descent",
+      "leanNames": [
+        "OpenTheory.LocalSharpnessDescent.local_sharpness_descent",
+        "OpenTheory.LocalSharpnessDescent.adaptive_step_progress_eq",
+        "OpenTheory.LocalSharpnessDescent.stepProgress_sub_eq_sq",
+        "OpenTheory.LocalSharpnessDescent.adaptive_step_maximizes_progress",
+        "OpenTheory.LocalSharpnessDescent.adaptive_step_optimal_drop",
+        "OpenTheory.LocalSharpnessDescent.adaptive_vs_global_sharpness_speedup",
+        "OpenTheory.LocalSharpnessDescent.adaptive_step_strictly_beats_conservative",
+        "OpenTheory.LocalSharpnessDescent.regularized_loss_coercive_residual_le",
+        "OpenTheory.LocalSharpnessDescent.regularized_loss_coercive_norm_le",
+        "OpenTheory.LocalSharpnessDescent.regularized_loss_coercive_shift_le",
+        "OpenTheory.LocalSharpnessDescent.descent_trajectory_horizon_free_bounds",
+        "OpenTheory.LocalSharpnessDescent.pl_adaptive_one_step_contraction",
+        "OpenTheory.LocalSharpnessDescent.pl_trajectory_geometric_convergence"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:mlp_batch_risk",
+        "lem:risk_exponential"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Complete the square in $\\eta$ to prove optimality of $\\eta^\\star = 1/S_{\\mathrm{loc}}$. For coercivity, drop each nonnegative term in $\\frac{1}{2n}\\|F(u_t)-y\\|_2^2 + \\frac{\\lambda}{2}\\|u_t\\|_2^2 \\le \\frac{S^2}{2n}$ to bound $\\|F(u_t)-y\\|_2$ and $\\|u_t\\|_2$ directly, and apply Cauchy--Schwarz for the preactivation shift. For PL convergence, substitute $\\|g_t\\|_2^2 \\ge 2\\mu(L(u_t)-F)$ into the optimal drop $L(u_{t+1}) \\le L(u_t) - \\|g_t\\|_2^2/(2 S_{\\mathrm{loc}}(t))$ and induct on $T$."
+    },
+    {
+      "id": "lem:trajectory_generalization",
+      "kind": "lemma",
+      "title": "Trajectory-localized out-of-sample generalization bound",
+      "leanName": "OpenTheory.TrajectoryGeneralization.forward_param_diff_le",
+      "leanNames": [
+        "OpenTheory.TrajectoryGeneralization.forward_param_diff_le",
+        "OpenTheory.TrajectoryGeneralization.paramLoss_lipschitz",
+        "OpenTheory.TrajectoryGeneralization.clippedSqLoss_lipschitz",
+        "OpenTheory.TrajectoryGeneralization.clippedSqLoss_param_lipschitz",
+        "OpenTheory.TrajectoryGeneralization.trajectoryBall_loss_cover",
+        "OpenTheory.TrajectoryGeneralization.trajectory_uniform_deviation_tail",
+        "OpenTheory.TrajectoryGeneralization.contractive_trajectory_in_ball",
+        "OpenTheory.TrajectoryGeneralization.contractive_trajectory_generalization_tail",
+        "OpenTheory.TrajectoryGeneralization.approx_erm_trajectory_excess_risk_tail"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:ball_cover_oracle",
+        "lem:mlp_contractive",
+        "lem:forward_lipschitz"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Write $f_u(x) - f_v(x)$ as the forward change from base network $\\mathrm{atDisplacement}(\\mathrm{net}, v)$ under displacement $u-v$, bound preactivation shifts by $\\|u-v\\|_2\\sqrt{E}$, and apply `MLPResidual.forward_change_le` to obtain $|f_u(x)-f_v(x)| \\le m A L\\sqrt{E}\\|u-v\\|_2$. Combine with `BallCover.euclideanBall_net` to construct the finite loss cover of $B_{md}(R)$ and apply `Covering.uniform_deviation_tail` and `Covering.approx_learner_tail`."
+    },
+    {
+      "id": "lem:attention_logit_stability",
+      "kind": "lemma",
+      "title": "Softmax score sensitivity, joint Q/K/V stability, and logit-margin concentration",
+      "leanName": "OpenTheory.AttentionLogitStability.rowOutput_sub_eq_centered_sum",
+      "leanNames": [
+        "OpenTheory.AttentionLogitStability.rowOutput_sub_eq_centered_sum",
+        "OpenTheory.AttentionLogitStability.rowOutput_score_perturbation_l1",
+        "OpenTheory.AttentionLogitStability.rowOutput_score_perturbation_centered",
+        "OpenTheory.AttentionLogitStability.rowOutput_joint_qkv_perturbation",
+        "OpenTheory.AttentionLogitStability.multiHead_joint_qkv_perturbation",
+        "OpenTheory.AttentionLogitStability.tail_mass_eq_of_focused",
+        "OpenTheory.AttentionLogitStability.focused_rowOutput_approx_dominant",
+        "OpenTheory.AttentionLogitStability.focused_weight_l1_bound",
+        "OpenTheory.AttentionLogitStability.focused_score_perturbation_stability",
+        "OpenTheory.AttentionLogitStability.logit_margin_implies_focused",
+        "OpenTheory.AttentionLogitStability.logit_margin_output_stability"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:attention_convex",
+        "lem:attention_ablation"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Since $\\sum_i p(s_1,m)_i = \\sum_i p(s_2,m)_i = 1$, subtracting $\\sum_i (p_1(i)-p_2(i))\\bar{v} = 0$ rewrites the output difference in terms of centered values $v_i - \\bar{v}$, yielding the $\\Delta_V\\|p_1-p_2\\|_1$ bound by the triangle inequality. For a dominant key $i_\\star$, rewrite $\\mathrm{rowOutput}(s,m,v) - v_{i_\\star} = \\sum_{j\\ne i_\\star} p_j(v_j - v_{i_\\star})$ and use $\\sum_{j\\ne i_\\star} p_j = 1 - p_{i_\\star} \\le \\varepsilon$. Under a logit margin $\\gamma$, `Attention.weight_formula` gives $\\exp(s_j) \\le e^{-\\gamma}\\exp(s_{i_\\star})$ on unmasked keys $j\\ne i_\\star$, and summing over the $n-1$ non-dominant keys bounds the tail mass by $(n-1)e^{-\\gamma}$."
+    },
+    {
+      "id": "lem:mlp_derived_sharpness",
+      "kind": "lemma",
+      "title": "First-principles MLP local sharpness and unconditional coercive trajectory",
+      "leanName": "OpenTheory.MLPLocalSharpness.nonlinearBatchStep_eq_sub_batchGrad",
+      "leanNames": [
+        "OpenTheory.MLPLocalSharpness.nonlinearBatchStep_eq_sub_batchGrad",
+        "OpenTheory.MLPLocalSharpness.mlpLocalSharpness_eq_of_pos",
+        "OpenTheory.MLPLocalSharpness.stepOutputChange_norm_le",
+        "OpenTheory.MLPLocalSharpness.stepRemainder_norm_le",
+        "OpenTheory.MLPLocalSharpness.mlp_objective_quadratic_upper_bound",
+        "OpenTheory.MLPLocalSharpness.mlp_local_sharpness_step_descent",
+        "OpenTheory.MLPLocalSharpness.mlp_adaptive_step_optimal_drop",
+        "OpenTheory.MLPLocalSharpness.mlp_safe_step_objective_descent",
+        "OpenTheory.MLPLocalSharpness.mlp_safe_step_coercive_trajectory",
+        "OpenTheory.MLPLocalSharpness.mlp_adaptive_step_cumulative_grad_sq_le",
+        "OpenTheory.MLPLocalSharpness.mlp_adaptive_step_min_grad_norm"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:local_sharpness_descent",
+        "lem:mlp_batch_risk"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Decompose $F(u+\\Delta) - y = r_u + (J_u\\Delta + \\mathrm{rem})$ around the shifted network $\\mathrm{atDisplacement}(\\mathrm{net}, u)$. Bound $\\|J_u\\Delta + \\mathrm{rem}\\|_2 \\le \\sqrt{n} m A L\\sqrt{E}\\|\\Delta\\|_2$ via `MLPBatchBounds.batchOutput_change_le` and $\\|\\mathrm{rem}\\|_2 \\le \\sqrt{n} M m A E\\|\\Delta\\|_2^2$ via `MLPBatchBounds.output_remainder_le`. Expand $\\|r_u + (J_u\\Delta + \\mathrm{rem})\\|_2^2$ and $\\|u+\\Delta\\|_2^2$ using `norm_add_sq_real`, identify the linear term $\\langle \\nabla\\mathcal{L}(u), \\Delta\\rangle$ via adjointness of $J_u$, and bound $\\langle r_u, \\mathrm{rem}\\rangle \\le R\\|\\mathrm{rem}\\|_2$ by Cauchy--Schwarz. Induct on $t$ using Lemma~\\ref{lem:local_sharpness_descent}: at each step $\\mathcal{L}(u_t)\\le \\mathcal{L}(0)$ implies $\\|r_{u_t}\\|_2\\le S$, which keeps the local sharpness bounded by $S_{\\mathrm{MLP}}(S)$ for step $t+1$. Telescope the one-step drops to bound the minimum squared gradient norm over $T$ steps."
+    },
+    {
+      "id": "lem:preconditioned_descent",
+      "kind": "lemma",
+      "title": "Diagonal preconditioned and SignGD/Adam-style optimization speedup",
+      "leanName": "OpenTheory.PreconditionedDescent.anisotropic_sharpness_descent",
+      "leanNames": [
+        "OpenTheory.PreconditionedDescent.anisotropic_sharpness_descent",
+        "OpenTheory.PreconditionedDescent.optimal_diagonal_progress_eq",
+        "OpenTheory.PreconditionedDescent.optimal_diagonal_descent_drop",
+        "OpenTheory.PreconditionedDescent.coordProgress_sub_eq_sum_sq",
+        "OpenTheory.PreconditionedDescent.optimal_diagonal_maximizes_progress",
+        "OpenTheory.PreconditionedDescent.diagonal_vs_scalar_gap_eq",
+        "OpenTheory.PreconditionedDescent.diagonal_dominates_scalar_sgd",
+        "OpenTheory.PreconditionedDescent.diagonal_strictly_beats_scalar_sgd",
+        "OpenTheory.PreconditionedDescent.diagonal_dominates_any_scalar_step",
+        "OpenTheory.PreconditionedDescent.signGD_descent",
+        "OpenTheory.PreconditionedDescent.signGD_optimal_lr_drop",
+        "OpenTheory.PreconditionedDescent.signGD_strictly_beats_scalar_sgd",
+        "OpenTheory.PreconditionedDescent.preconditioned_pl_geometric_convergence"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:local_sharpness_descent"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Complete the square coordinate by coordinate to establish $\\sum_i g_i^2/(2S_i) - \\mathrm{coordProgress}(\\eta,S,g) = \\sum_i \\frac{S_i}{2}(\\eta_i - 1/S_i)^2 g_i^2 \\ge 0$. Combine fractions over $2 S_i S_{\\max}$ for the scalar SGD comparison and apply `Finset.sum_pos'` when an active coordinate has $S_{i_0} < S_{\\max}$. For SignGD, use $\\mathrm{sign}(x)x = |x|$ and $\\mathrm{sign}(x)^2 \\le 1$ to obtain the quadratic bound in $\\eta$ and substitute $\\eta_{\\mathrm{sign}} = \\|g\\|_1/\\|S\\|_1$."
     }
   ]
 }

@@ -5,9 +5,10 @@ namespace OpenTheory
 
 /-- Neural Tangent Kernel parameterization.
     `NTKScaling.standard` sets both initialization standard deviations to `1/√fan_in`
-    and both learning rates to 1. At infinite width the hidden features stay at
-    their random initialization. This is the comparison scaling for the
-    feature-learning conjecture. -/
+    and both learning rates to 1. One gradient step then moves a hidden
+    preactivation by `O(1/√m)` when the readout coordinate stays at most its
+    initialization scale. That vanishes as the width grows. This is the
+    comparison scaling for the feature-learning conjecture. -/
 structure NTKScaling (d m : ℕ) where
   init_std_W1 : ℝ
   init_std_W2 : ℝ

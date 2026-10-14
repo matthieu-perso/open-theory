@@ -1,4 +1,4 @@
-import Mathlib.Algebra.BigOperators.Group.Finset
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Data.Matrix.Basic
 import OpenTheory.Architectures.Basic
 import OpenTheory.Data.Sample

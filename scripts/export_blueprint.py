@@ -44,7 +44,7 @@ def strip_macros(body: str) -> str:
     return cleaned.strip()
 
 
-def parse_blueprint(output_path: Path | None = None) -> dict:
+def blueprint_payload() -> dict:
     if not CONTENT_TEX.exists():
         print(f"Error: {CONTENT_TEX} does not exist", file=sys.stderr)
         sys.exit(1)
@@ -105,19 +105,42 @@ def parse_blueprint(output_path: Path | None = None) -> dict:
 
     payload = {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
-        "toolchain": "leanprover/lean4:v4.11.0",
+        "toolchain": (ROOT_DIR / "lean-toolchain").read_text(encoding="utf-8").strip(),
         "convention": "massot-leanblueprint",
         "nodesCount": len(items),
         "nodes": items,
     }
 
-    out_file = Path(output_path) if output_path else DEFAULT_OUTPUT
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    out_file.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    print(f"[Blueprint Export] Wrote {len(items)} nodes to {out_file}")
     return payload
 
 
+def parse_blueprint(output_path: Path | None = None) -> dict:
+    payload = blueprint_payload()
+    out_file = Path(output_path) if output_path else DEFAULT_OUTPUT
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    out_file.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    print(f"[Blueprint Export] Wrote {payload['nodesCount']} nodes to {out_file}")
+    return payload
+
+
+def check_blueprint(path: Path = DEFAULT_OUTPUT) -> bool:
+    """Compare without overwriting the file being checked."""
+    try:
+        existing = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    expected = blueprint_payload()
+    existing.pop("generatedAt", None)
+    expected.pop("generatedAt", None)
+    return existing == expected
+
+
 if __name__ == "__main__":
-    out_arg = sys.argv[1] if len(sys.argv) > 1 else None
-    parse_blueprint(out_arg)
+    if len(sys.argv) > 1 and sys.argv[1] == "--check":
+        path = Path(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_OUTPUT
+        ok = check_blueprint(path)
+        print("[OK] Blueprint is current" if ok else "[FAIL] Blueprint is stale; regenerate it")
+        sys.exit(0 if ok else 1)
+    else:
+        out_arg = sys.argv[1] if len(sys.argv) > 1 else None
+        parse_blueprint(out_arg)

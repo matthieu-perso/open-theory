@@ -1,4 +1,5 @@
-import Mathlib.Algebra.BigOperators.Group.Finset
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Data.Fintype.Fin
 import Mathlib.Data.Real.Basic
 
 namespace OpenTheory

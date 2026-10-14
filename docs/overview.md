@@ -23,6 +23,10 @@ mcp/                         stdio MCP for local agents
 home_page/                   Jekyll landing page for GitHub Pages
 ```
 
+See [`lean-libraries.md`](lean-libraries.md) for the reusable Mathlib and
+external Lean libraries relevant to each part of this architecture, including
+import and Lake dependency examples.
+
 ---
 
 ## Blueprint convention

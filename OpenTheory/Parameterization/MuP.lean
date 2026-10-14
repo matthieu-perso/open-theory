@@ -6,8 +6,12 @@ namespace OpenTheory
 /-- Maximal Update Parametrization (µP).
     Width enters here, and only here: these fields are the initialization
     standard deviations and the per-layer learning rates. `MuPScaling.standard`
-    installs `init_std_W1 = 1/√d`, `init_std_W2 = 1/m`, `lr_W1 = 1`, `lr_W2 = 1/m`,
-    the choice for which every layer's coordinates keep a Θ(1) update as `m → ∞`. -/
+    installs `init_std_W1 = 1/√d`, `init_std_W2 = 1/m`, `lr_W1 = 1`, `lr_W2 = 1/m`.
+    For the forward map `∑ᵢ W₂ᵢ σ(⟨W₁ᵢ, x⟩)`, a readout coordinate of size at most
+    `1/m` and first-layer rate `1` move a hidden preactivation by `O(1/m)`.
+    That vanishes as the width grows, so it is a kernel-regime step. A
+    width-independent preactivation move, for this same forward map, uses
+    first-layer rate `m`. -/
 structure MuPScaling (d m : ℕ) where
   init_std_W1 : ℝ
   init_std_W2 : ℝ
