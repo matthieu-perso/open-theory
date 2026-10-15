@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-15T00:42:13.915009+00:00",
+  "generatedAt": "2026-10-15T00:49:19.538889+00:00",
   "toolchain": "leanprover/lean4:v4.34.0",
   "convention": "massot-leanblueprint",
-  "nodesCount": 65,
+  "nodesCount": 69,
   "nodes": [
     {
       "id": "def:sample",
@@ -1465,6 +1465,133 @@
       ],
       "bountyUsd": null,
       "informalSketch": "Establish strict monotonicity of the ridge shrinkage factor $K\\mapsto K/(K+\\lambda)$ on $[0,\\infty)$ for $\\lambda>0$ by cross-multiplying. Combine with `FeatureLearningAdvantage.ridge_mse_strict_improvement_of_kernel_growth` on the signal subspace and `mup_spectral_alignment_of_ge_horizon` on the bulk residual $\\|H_t - H_t P\\|_F^2$ to bound both $\\mathrm{df}(\\lambda)$ and the sample complexity threshold `requiredSampleScale`."
+    },
+    {
+      "id": "lem:residual_preconditioned_momentum",
+      "kind": "lemma",
+      "title": "Variational optimizer optimality, Residual-Preconditioned Momentum (RPM), and exact regime classification",
+      "leanName": "OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_pos",
+      "leanNames": [
+        "OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_pos",
+        "OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_sub_eq",
+        "OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_mono_in_residual",
+        "OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_strict_mono_in_residual",
+        "OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_eq_mlpLocalSharpness",
+        "OpenTheory.ResidualPreconditionedMomentum.mlp_residual_drop_strictly_flattens_landscape",
+        "OpenTheory.ResidualPreconditionedMomentum.optimizerNetProgress_eq_coord_sum",
+        "OpenTheory.ResidualPreconditionedMomentum.optimizerNetProgress_rpmOptimalStep_eq",
+        "OpenTheory.ResidualPreconditionedMomentum.rpm_variational_sub_eq_sum_sq",
+        "OpenTheory.ResidualPreconditionedMomentum.rpm_variational_global_optimality",
+        "OpenTheory.ResidualPreconditionedMomentum.rpm_variational_strict_optimality",
+        "OpenTheory.ResidualPreconditionedMomentum.rpmOptimalStep_zero_noise_eq_optimalDiagStep",
+        "OpenTheory.ResidualPreconditionedMomentum.rpmOptimalStep_isotropic_zero_noise_eq_scalar",
+        "OpenTheory.ResidualPreconditionedMomentum.rpm_strict_speedup_from_residual_drop",
+        "OpenTheory.ResidualPreconditionedMomentum.rpmResidualStep_strict_speedup",
+        "OpenTheory.ResidualPreconditionedMomentum.rpm_momentum_strictly_increases_optimal_progress",
+        "OpenTheory.ResidualPreconditionedMomentum.rpm_dynamic_pl_contraction_strict_improvement",
+        "OpenTheory.ResidualPreconditionedMomentum.rpm_residual_drop_pl_contraction_strict_improvement"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:momentum_adam_trajectory",
+        "lem:preconditioned_descent",
+        "lem:mlp_derived_sharpness"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Decompose `optimizerNetProgress` into a coordinate sum of quadratics in $\\eta_i$ and complete the square against $S_i M_i / 2$. Specialize to $\\sigma=0$, constant $S_0$, residual drop $R_t < R_0$, and momentum $0 < \\beta < 1$."
+    },
+    {
+      "id": "lem:spectral_sparse_circuit",
+      "kind": "lemma",
+      "title": "Spectral-Equivariant Sparse Circuits (SESC), 4-tier architectural dominance, and sample-size crossover",
+      "leanName": "OpenTheory.SpectralSparseCircuit.sescUnitMap_shift_equivariant",
+      "leanNames": [
+        "OpenTheory.SpectralSparseCircuit.sescUnitMap_shift_equivariant",
+        "OpenTheory.SpectralSparseCircuit.sescFullForward_shift_invariant",
+        "OpenTheory.SpectralSparseCircuit.sescCircuitForward_shift_invariant",
+        "OpenTheory.SpectralSparseCircuit.sesc_orthogonal_bulk_invariance",
+        "OpenTheory.SpectralSparseCircuit.sesc_circuit_pruning_error_le",
+        "OpenTheory.SpectralSparseCircuit.four_tier_dimension_strict_hierarchy",
+        "OpenTheory.SpectralSparseCircuit.four_tier_covering_strict_hierarchy",
+        "OpenTheory.SpectralSparseCircuit.four_tier_sample_complexity_and_flop_hierarchy",
+        "OpenTheory.SpectralSparseCircuit.minimal_invariant_architecture_optimal",
+        "OpenTheory.SpectralSparseCircuit.sesc_strictly_optimal_under_sparse_spectral_shift_geometry",
+        "OpenTheory.SpectralSparseCircuit.under_parameterized_architecture_suboptimal_of_large_sample",
+        "OpenTheory.SpectralSparseCircuit.archTotalExcessRisk_crossover_iff"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:convolutional_generalization",
+        "lem:spiked_sample_complexity",
+        "lem:attention_ablation"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Combine `Equiv.addRight` spatial reindexing with linearity of `patchProject` for the dual invariances. Apply `covering_bound_strict_mono` across $sr < mr < mk < md$, and solve the linear crossover inequality $p_{\\mathrm{true}} c_{\\mathrm{gen}}/n < \\varepsilon_{\\mathrm{struct}} + p_{\\mathrm{small}} c_{\\mathrm{gen}}/n$."
+    },
+    {
+      "id": "lem:gradient_spectral_emergence",
+      "kind": "lemma",
+      "title": "First-principles spectral feature emergence from raw weight gradients",
+      "leanName": "OpenTheory.GradientSpectralEmergence.vecDot_gramAct_symm",
+      "leanNames": [
+        "OpenTheory.GradientSpectralEmergence.vecDot_gramAct_symm",
+        "OpenTheory.GradientSpectralEmergence.vecDot_gramAct_eigenpair",
+        "OpenTheory.GradientSpectralEmergence.rawWeightGradStep_eigenmode_step",
+        "OpenTheory.GradientSpectralEmergence.rawWeightTrajectory_eigenmode_eq",
+        "OpenTheory.GradientSpectralEmergence.modalSubspaceEnergy_trajectory_eq",
+        "OpenTheory.GradientSpectralEmergence.signal_subspace_energy_lower_bound_from_gradients",
+        "OpenTheory.GradientSpectralEmergence.bulk_subspace_energy_upper_bound_from_gradients",
+        "OpenTheory.GradientSpectralEmergence.first_principles_gradient_signal_to_bulk_ratio",
+        "OpenTheory.GradientSpectralEmergence.first_principles_gradient_alignment_convergence"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:multistep_spectral_bias",
+        "lem:spiked_sample_complexity"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Use self-adjointness of `gramAct` on symmetric $G$ to prove $\\langle G w, v\\rangle = \\gamma\\langle w, v\\rangle$, induct on $T$, sum over the signal and bulk eigenfamilies, and feed the resulting modal energy bounds into `spectral_bias_alignment_disc_ge` and `mup_aligned_effectiveDim_le_rank_add_eps`."
+    },
+    {
+      "id": "lem:compute_optimal_synthesis",
+      "kind": "lemma",
+      "title": "Variational Chinchilla compute allocation, critical batch optimality, and co-design synthesis",
+      "leanName": "OpenTheory.ComputeOptimalSynthesis.optimalCapacity_mul_optimalData_eq_compute",
+      "leanNames": [
+        "OpenTheory.ComputeOptimalSynthesis.optimalCapacity_mul_optimalData_eq_compute",
+        "OpenTheory.ComputeOptimalSynthesis.scalingRisk_at_optimal_eq_pareto",
+        "OpenTheory.ComputeOptimalSynthesis.chinchilla_completion_of_squares",
+        "OpenTheory.ComputeOptimalSynthesis.chinchilla_variational_global_optimality",
+        "OpenTheory.ComputeOptimalSynthesis.paretoComputeRisk_strict_mono_in_arch_and_opt",
+        "OpenTheory.ComputeOptimalSynthesis.optimal_capacity_to_data_ratio_shift",
+        "OpenTheory.ComputeOptimalSynthesis.optimalAllocation_directional_shifts",
+        "OpenTheory.ComputeOptimalSynthesis.stepProgress_eq_optimal_sgd",
+        "OpenTheory.ComputeOptimalSynthesis.stepProgress_strict_mono_in_batch",
+        "OpenTheory.ComputeOptimalSynthesis.flopEfficiency_strict_anti_in_batch",
+        "OpenTheory.ComputeOptimalSynthesis.critical_batch_variational_optimality",
+        "OpenTheory.ComputeOptimalSynthesis.critical_batch_global_maximizer",
+        "OpenTheory.ComputeOptimalSynthesis.momentum_reduces_critical_batch_size",
+        "OpenTheory.ComputeOptimalSynthesis.codesign_compute_saving_factor",
+        "OpenTheory.ComputeOptimalSynthesis.master_codesign_compute_dominance"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:end_to_end_sum",
+        "lem:stochastic_sharpness_sgd",
+        "lem:momentum_adam_trajectory",
+        "lem:spectral_sparse_circuit",
+        "lem:residual_preconditioned_momentum"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Expand $(\\sqrt{AD} - \\sqrt{B_{\\mathrm{opt}}N})^2 / C$ using $ND=C$ for the Chinchilla identity, expand $(B - B_{\\mathrm{crit}})^2 / (4(B+B_{\\mathrm{crit}})^2)$ for the critical batch identity, and substitute $C_{\\mathrm{co}} = (A_{\\mathrm{co}}/A_{\\mathrm{base}})(B_{\\mathrm{co}}/B_{\\mathrm{base}})C_{\\mathrm{base}}$ into $R^\\star(C)$."
     }
   ]
 }

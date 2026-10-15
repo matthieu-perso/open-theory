@@ -10,6 +10,7 @@ import OpenTheory.Architectures.AttentionLogitStability
 import OpenTheory.Architectures.InContextRetrieval
 import OpenTheory.Architectures.Transformer
 import OpenTheory.Architectures.ConvolutionalGeneralization
+import OpenTheory.Architectures.SpectralSparseCircuit
 import OpenTheory.Architectures.Residual
 import OpenTheory.Architectures.Expressivity
 import OpenTheory.Parameterization.MuP
@@ -27,6 +28,7 @@ import OpenTheory.Optimization.LocalSharpnessDescent
 import OpenTheory.Optimization.PreconditionedDescent
 import OpenTheory.Optimization.StochasticSharpnessSGD
 import OpenTheory.Optimization.MomentumAdamTrajectory
+import OpenTheory.Optimization.ResidualPreconditionedMomentum
 import OpenTheory.Generalization.Bounds
 import OpenTheory.Generalization.PopulationBounds
 import OpenTheory.Generalization.AttentionRisk
@@ -46,6 +48,7 @@ import OpenTheory.Dynamics.DeepResidualScaling
 import OpenTheory.Dynamics.MultiStepSpectralBias
 import OpenTheory.Dynamics.SpectralBias
 import OpenTheory.Dynamics.FeatureAlignment
+import OpenTheory.Dynamics.GradientSpectralEmergence
 import OpenTheory.Dynamics.FeatureStep
 import OpenTheory.Dynamics.TangentStep
 import OpenTheory.Dynamics.MLPTrajectory
@@ -62,4 +65,5 @@ import OpenTheory.Generalization.MLPBatchRisk
 import OpenTheory.Generalization.TrajectoryGeneralization
 import OpenTheory.Generalization.TransformerGeneralization
 import OpenTheory.Generalization.SpikedSampleComplexity
+import OpenTheory.Generalization.ComputeOptimalSynthesis
 import OpenTheory.EndToEnd

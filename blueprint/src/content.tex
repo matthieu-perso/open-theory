@@ -1035,5 +1035,67 @@ Consider a spiked-covariance learning problem with an $r$-dimensional signal sub
 Establish strict monotonicity of the ridge shrinkage factor $K\mapsto K/(K+\lambda)$ on $[0,\infty)$ for $\lambda>0$ by cross-multiplying. Combine with `FeatureLearningAdvantage.ridge_mse_strict_improvement_of_kernel_growth` on the signal subspace and `mup_spectral_alignment_of_ge_horizon` on the bulk residual $\|H_t - H_t P\|_F^2$ to bound both $\mathrm{df}(\lambda)$ and the sample complexity threshold `requiredSampleScale`.
 \end{proof}
 
+\begin{lemma}[Variational optimizer optimality, Residual-Preconditioned Momentum (RPM), and exact regime classification]\label{lem:residual_preconditioned_momentum}
+\lean{OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_pos, OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_sub_eq, OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_mono_in_residual, OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_strict_mono_in_residual, OpenTheory.ResidualPreconditionedMomentum.coordResidualSharpness_eq_mlpLocalSharpness, OpenTheory.ResidualPreconditionedMomentum.mlp_residual_drop_strictly_flattens_landscape, OpenTheory.ResidualPreconditionedMomentum.optimizerNetProgress_eq_coord_sum, OpenTheory.ResidualPreconditionedMomentum.optimizerNetProgress_rpmOptimalStep_eq, OpenTheory.ResidualPreconditionedMomentum.rpm_variational_sub_eq_sum_sq, OpenTheory.ResidualPreconditionedMomentum.rpm_variational_global_optimality, OpenTheory.ResidualPreconditionedMomentum.rpm_variational_strict_optimality, OpenTheory.ResidualPreconditionedMomentum.rpmOptimalStep_zero_noise_eq_optimalDiagStep, OpenTheory.ResidualPreconditionedMomentum.rpmOptimalStep_isotropic_zero_noise_eq_scalar, OpenTheory.ResidualPreconditionedMomentum.rpm_strict_speedup_from_residual_drop, OpenTheory.ResidualPreconditionedMomentum.rpmResidualStep_strict_speedup, OpenTheory.ResidualPreconditionedMomentum.rpm_momentum_strictly_increases_optimal_progress, OpenTheory.ResidualPreconditionedMomentum.rpm_dynamic_pl_contraction_strict_improvement, OpenTheory.ResidualPreconditionedMomentum.rpm_residual_drop_pl_contraction_strict_improvement}
+\leanok
+\uses{lem:momentum_adam_trajectory, lem:preconditioned_descent, lem:mlp_derived_sharpness}
+For coordinate-wise residual-coupled local sharpness $S_i(R) = \lambda + J_i^2 + \frac{2R}{\sqrt{n}}C_i$ and EMA-damped second moment $M_i = g_i^2 + \frac{1-\beta}{1+\beta}\frac{\sigma_i^2}{B}$:
+\begin{enumerate}
+\item \textbf{Variational global optimality of Residual-Preconditioned Momentum (RPM):} The coordinate learning-rate rule $\eta_i^\star = \frac{g_i^2}{S_i(R)\,M_i}$ uniquely maximizes expected net progress $\mathrm{optimizerNetProgress}(\eta, S, g, \beta, \sigma, B)$ over all $\eta\in\mathbb{R}^p$, achieving $\sum_{i=1}^p \frac{g_i^4}{2 S_i(R) M_i}$ with exact completion-of-squares suboptimality gap $\sum_{i=1}^p \frac{S_i(R) M_i}{2}(\eta_i - \eta_i^\star)^2$.
+\item \textbf{Exact four-regime optimizer classification:} (I) At $\sigma = 0$, $\eta_i^\star$ reduces to diagonal preconditioning $1/S_i$; (II) at isotropic $S_i = S_0$ and $\sigma = 0$, $\eta_i^\star$ reduces to scalar GD $1/S_0$; (III) as training reduces the prediction residual $R_t < R_0$, the landscape strictly flattens ($S_i(R_t) < S_i(R_0)$), so residual-adapted $\eta^\star(R_t)$ strictly beats static preconditioning $\eta^\star(R_0)$ and accelerates the PL contraction factor $1 - \mu/S_i(R_t) < 1 - \mu/S_i(R_0)$; (IV) under mini-batch noise $\sigma_{i_0}\ne 0$, EMA momentum $\beta\in(0,1)$ strictly increases the variational progress ceiling over $\beta=0$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Decompose `optimizerNetProgress` into a coordinate sum of quadratics in $\eta_i$ and complete the square against $S_i M_i / 2$. Specialize to $\sigma=0$, constant $S_0$, residual drop $R_t < R_0$, and momentum $0 < \beta < 1$.
+\end{proof}
+
+\begin{lemma}[Spectral-Equivariant Sparse Circuits (SESC), 4-tier architectural dominance, and sample-size crossover]\label{lem:spectral_sparse_circuit}
+\lean{OpenTheory.SpectralSparseCircuit.sescUnitMap_shift_equivariant, OpenTheory.SpectralSparseCircuit.sescFullForward_shift_invariant, OpenTheory.SpectralSparseCircuit.sescCircuitForward_shift_invariant, OpenTheory.SpectralSparseCircuit.sesc_orthogonal_bulk_invariance, OpenTheory.SpectralSparseCircuit.sesc_circuit_pruning_error_le, OpenTheory.SpectralSparseCircuit.four_tier_dimension_strict_hierarchy, OpenTheory.SpectralSparseCircuit.four_tier_covering_strict_hierarchy, OpenTheory.SpectralSparseCircuit.four_tier_sample_complexity_and_flop_hierarchy, OpenTheory.SpectralSparseCircuit.minimal_invariant_architecture_optimal, OpenTheory.SpectralSparseCircuit.sesc_strictly_optimal_under_sparse_spectral_shift_geometry, OpenTheory.SpectralSparseCircuit.under_parameterized_architecture_suboptimal_of_large_sample, OpenTheory.SpectralSparseCircuit.archTotalExcessRisk_crossover_iff}
+\leanok
+\uses{lem:convolutional_generalization, lem:spiked_sample_complexity, lem:attention_ablation}
+For a Spectral-Equivariant Sparse Circuit ($\mathrm{SESC}$) projecting $k$-local patches onto a rank-$r$ spectral basis $B_{\mathrm{spec}}\in\mathbb{R}^{r\times k}$ and retaining an active circuit $A\subset\mathrm{Fin}\,m$ of size $s = |A|$:
+\begin{enumerate}
+\item \textbf{Dual structural invariance and circuit distillation:} $\mathrm{SESC}$ is simultaneously shift-invariant under cyclic translations and identically invariant under any additive perturbation $\eta_{\mathrm{bulk}}$ in the orthogonal spectral bulk ($B_{\mathrm{spec}}\,\mathrm{patch}_p(\eta_{\mathrm{bulk}}) = 0$), while pruning inactive units $A^c$ changes the pooled output by at most $\varepsilon_{\mathrm{circuit}}$.
+\item \textbf{Strict 4-tier architectural hierarchy ($\mathrm{SESC} < \mathrm{SubspaceNet} < \mathrm{CNN} < \mathrm{MLP}$):} Whenever $0 < s < m$ and $0 < r < k < d$, the effective dimensions $sr < mr < mk < md$, metric-entropy covering bounds $N(sr) < N(mr) < N(mk) < N(md)$, and log-covering sample complexities satisfy a strict 4-tier hierarchy with overall compression ratio $\frac{sr}{md} < 1$.
+\item \textbf{Bidirectional conditional architecture optimality:} Under well-specification ($\varepsilon_{\mathrm{struct}} = 0$), minimal invariant dimension strictly minimizes $\mathcal{E}(p,n) = \varepsilon_{\mathrm{struct}} + p c_{\mathrm{gen}}/n$; conversely, an under-parameterized architecture $p_{\mathrm{small}} < p_{\mathrm{true}}$ with structural bias $\varepsilon_{\mathrm{struct}} > 0$ is strictly outperformed by $p_{\mathrm{true}}$ if and only if $n > (p_{\mathrm{true}} - p_{\mathrm{small}})c_{\mathrm{gen}}/\varepsilon_{\mathrm{struct}}$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Combine `Equiv.addRight` spatial reindexing with linearity of `patchProject` for the dual invariances. Apply `covering_bound_strict_mono` across $sr < mr < mk < md$, and solve the linear crossover inequality $p_{\mathrm{true}} c_{\mathrm{gen}}/n < \varepsilon_{\mathrm{struct}} + p_{\mathrm{small}} c_{\mathrm{gen}}/n$.
+\end{proof}
+
+\begin{lemma}[First-principles spectral feature emergence from raw weight gradients]\label{lem:gradient_spectral_emergence}
+\lean{OpenTheory.GradientSpectralEmergence.vecDot_gramAct_symm, OpenTheory.GradientSpectralEmergence.vecDot_gramAct_eigenpair, OpenTheory.GradientSpectralEmergence.rawWeightGradStep_eigenmode_step, OpenTheory.GradientSpectralEmergence.rawWeightTrajectory_eigenmode_eq, OpenTheory.GradientSpectralEmergence.modalSubspaceEnergy_trajectory_eq, OpenTheory.GradientSpectralEmergence.signal_subspace_energy_lower_bound_from_gradients, OpenTheory.GradientSpectralEmergence.bulk_subspace_energy_upper_bound_from_gradients, OpenTheory.GradientSpectralEmergence.first_principles_gradient_signal_to_bulk_ratio, OpenTheory.GradientSpectralEmergence.first_principles_gradient_alignment_convergence}
+\leanok
+\uses{lem:multistep_spectral_bias, lem:spiked_sample_complexity}
+Along the raw first-layer weight gradient trajectory $w_{t+1} = w_t + \eta c_\sigma G w_t$ driven by a symmetric empirical Gram matrix $G$:
+\begin{enumerate}
+\item \textbf{Exact eigenmode power-iteration law:} For any eigenpair $G v = \gamma v$, $\langle w_T, v\rangle = (1 + \eta c_\sigma\gamma)^T \langle w_0, v\rangle$ and the modal subspace energy across eigenmodes $(v_l, \gamma_l)$ equals $\sum_l (1 + \eta c_\sigma\gamma_l)^{2T}\langle w_0, v_l\rangle^2$.
+\item \textbf{First-principles alignment and effective dimension collapse:} When signal eigenmodes satisfy $\gamma_{\mathrm{sig},l} \ge \lambda_{\mathrm{lead}}$ and bulk eigenmodes satisfy $0 \le \gamma_{\mathrm{bulk},l} \le \lambda_{\mathrm{bulk}}$ under a `SpectralGap`, the bulk-to-signal energy ratio decays geometrically as $\frac{B_0}{S_0}\bigl(\frac{1+\eta c_\sigma\lambda_{\mathrm{bulk}}}{1+\eta c_\sigma\lambda_{\mathrm{lead}}}\bigr)^{2T}$, discharging the energy-growth hypotheses of \cref{lem:multistep_spectral_bias,lem:spiked_sample_complexity} directly from the weight updates.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Use self-adjointness of `gramAct` on symmetric $G$ to prove $\langle G w, v\rangle = \gamma\langle w, v\rangle$, induct on $T$, sum over the signal and bulk eigenfamilies, and feed the resulting modal energy bounds into `spectral_bias_alignment_disc_ge` and `mup_aligned_effectiveDim_le_rank_add_eps`.
+\end{proof}
+
+\begin{lemma}[Variational Chinchilla compute allocation, critical batch optimality, and co-design synthesis]\label{lem:compute_optimal_synthesis}
+\lean{OpenTheory.ComputeOptimalSynthesis.optimalCapacity_mul_optimalData_eq_compute, OpenTheory.ComputeOptimalSynthesis.scalingRisk_at_optimal_eq_pareto, OpenTheory.ComputeOptimalSynthesis.chinchilla_completion_of_squares, OpenTheory.ComputeOptimalSynthesis.chinchilla_variational_global_optimality, OpenTheory.ComputeOptimalSynthesis.paretoComputeRisk_strict_mono_in_arch_and_opt, OpenTheory.ComputeOptimalSynthesis.optimal_capacity_to_data_ratio_shift, OpenTheory.ComputeOptimalSynthesis.optimalAllocation_directional_shifts, OpenTheory.ComputeOptimalSynthesis.stepProgress_eq_optimal_sgd, OpenTheory.ComputeOptimalSynthesis.stepProgress_strict_mono_in_batch, OpenTheory.ComputeOptimalSynthesis.flopEfficiency_strict_anti_in_batch, OpenTheory.ComputeOptimalSynthesis.critical_batch_variational_optimality, OpenTheory.ComputeOptimalSynthesis.critical_batch_global_maximizer, OpenTheory.ComputeOptimalSynthesis.momentum_reduces_critical_batch_size, OpenTheory.ComputeOptimalSynthesis.codesign_compute_saving_factor, OpenTheory.ComputeOptimalSynthesis.master_codesign_compute_dominance}
+\leanok
+\uses{lem:end_to_end_sum, lem:stochastic_sharpness_sgd, lem:momentum_adam_trajectory, lem:spectral_sparse_circuit, lem:residual_preconditioned_momentum}
+Under the parametric scaling law $R(N,D) = R_\infty + \frac{A}{N} + \frac{B_{\mathrm{opt}}}{D}$ with compute constraint $N D = C > 0$:
+\begin{enumerate}
+\item \textbf{Variational Chinchilla optimality:} For every feasible $(N,D)$ with $ND=C$, completing the square yields $R(N,D) - R^\star(C) = \frac{(\sqrt{AD} - \sqrt{B_{\mathrm{opt}}N})^2}{C} \ge 0$, proving that $N^\star(C) = \sqrt{AC/B_{\mathrm{opt}}}$ and $D^\star(C) = \sqrt{B_{\mathrm{opt}}C/A}$ uniquely achieve the Pareto frontier $R^\star(C) = R_\infty + \frac{2\sqrt{A B_{\mathrm{opt}}}}{\sqrt{C}}$ with ratio $N^\star/D^\star = A/B_{\mathrm{opt}}$.
+\item \textbf{Critical batch size variational optimality:} Per-step progress increases with batch size $B$ while per-FLOP efficiency decreases; their balanced product is uniquely maximized at $B = B_{\mathrm{crit}} = \sigma^2/G$ via $\mathcal{J}(B_{\mathrm{crit}}) - \mathcal{J}(B) = \frac{G}{2S_{\mathrm{loc}}}\frac{(B - B_{\mathrm{crit}})^2}{4(B + B_{\mathrm{crit}})^2}$, and EMA momentum $\beta\in(0,1)$ strictly shrinks $B_{\mathrm{crit}}$ by $\frac{1-\beta}{1+\beta}$.
+\item \textbf{Master co-design dominance:} Combining the 4-tier architecture hierarchy $p_{\mathrm{SESC}} < p_{\mathrm{Subspace}} < p_{\mathrm{CNN}} < p_{\mathrm{MLP}}$ with the 3-tier optimizer hierarchy $B_{\mathrm{RPM}} < B_{\mathrm{Adam}} < B_{\mathrm{SGD}}$ yields a strict 4-step Pareto compute risk chain and reduces the compute required to match $(\mathrm{MLP}, \mathrm{SGD})$ by the exact factor $\frac{p_{\mathrm{SESC}}}{p_{\mathrm{MLP}}}\frac{B_{\mathrm{RPM}}}{B_{\mathrm{SGD}}} < 1$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Expand $(\sqrt{AD} - \sqrt{B_{\mathrm{opt}}N})^2 / C$ using $ND=C$ for the Chinchilla identity, expand $(B - B_{\mathrm{crit}})^2 / (4(B+B_{\mathrm{crit}})^2)$ for the critical batch identity, and substitute $C_{\mathrm{co}} = (A_{\mathrm{co}}/A_{\mathrm{base}})(B_{\mathrm{co}}/B_{\mathrm{base}})C_{\mathrm{base}}$ into $R^\star(C)$.
+\end{proof}
+
 \bibliographystyle{alpha}
 \bibliography{references}
