@@ -25,4 +25,17 @@
    - Proved spiked-covariance bias-variance decomposition and strict risk decrease under signal growth + bulk suppression (`spikedExpectedMSE_mono_in_bulk`, `spikedExpectedMSE_strict_decrease_of_signal_and_bulk`).
    - Proved ambient-dimension bottleneck $\Omega(d_{\mathrm{bulk}})$ for unaligned frozen NTK (`unaligned_effectiveDim_scales_with_d_bulk`) vs. collapse to intrinsic spike rank $r + O(\varepsilon d_{\mathrm{bulk}})$ under $\mu$P feature alignment (`mup_aligned_effectiveDim_le_rank_add_eps`).
    - Proved strict sample complexity separation (`mup_vs_ntk_sample_complexity_separation`) and the end-to-end spiked-covariance $\mu$P master guarantee (`mup_spiked_covariance_master_guarantee`).
-- Verified full suite: `lake build` (0 warnings in `OpenTheory/`), `audit_axioms.lean` (387 blueprint references resolved, 0 `sorryAx`), `check_lean_decls.py`, `export_blueprint.py` (65 nodes), and Python + Lean smoke tests.
+- Committed at `9c7c2b4`.
+
+## Milestone 3: Phase 6 Structural Optimality, Co-Design & Tri-Architectural Regime Dichotomy (Completed)
+5. **Spectral-Equivariant Sparse Circuits & CNN vs. Transformer vs. MLP Regime Dichotomy (`OpenTheory/Architectures/SpectralSparseCircuit.lean` + `tests/SpectralSparseCircuitSmoke.lean`)**:
+   - Proved dual structural invariance (cyclic shift invariance + orthogonal bulk invariance) and circuit distillation error (`sesc_circuit_pruning_error_le`).
+   - Proved strict 4-tier architectural dominance hierarchy ($\mathrm{SESC} < \mathrm{SubspaceNet} < \mathrm{CNN} < \mathrm{Dense\,MLP}$) and sample-size crossover (`archTotalExcessRisk_crossover_iff`).
+   - Proved explicit tri-architectural CNN vs. Transformer vs. MLP covering hierarchy (`cnn_mlp_transformer_covering_hierarchy`) and regime dominance dichotomy (`cnn_vs_transformer_vs_mlp_regime_dichotomy`).
+6. **First-Principles Spectral Feature Emergence (`OpenTheory/Dynamics/GradientSpectralEmergence.lean` + `tests/GradientSpectralEmergenceSmoke.lean`)**:
+   - Proved exact eigenmode power-iteration law $\langle w_T, v\rangle = (1 + \eta c_\sigma \gamma)^T \langle w_0, v\rangle$ from raw weight gradients on symmetric empirical Gram matrices, discharging subspace alignment and effective-dimension collapse hypotheses from first principles.
+7. **Variational Optimizer Optimality: Residual-Preconditioned Momentum (`OpenTheory/Optimization/ResidualPreconditionedMomentum.lean` + `tests/ResidualPreconditionedMomentumSmoke.lean`)**:
+   - Proved global variational optimality of RPM $\eta_i^\star = g_i^2 / (S_i(R) M_i)$ via exact completion of squares (`rpm_variational_sub_eq_sum_sq`, `rpm_variational_global_optimality`) and 4-regime optimizer classification.
+8. **Variational Chinchilla Compute Allocation & Co-Design Synthesis (`OpenTheory/Generalization/ComputeOptimalSynthesis.lean` + `tests/ComputeOptimalSynthesisSmoke.lean`)**:
+   - Proved variational Chinchilla scaling law (`chinchilla_completion_of_squares`), critical batch size global optimality (`critical_batch_global_maximizer`), and master co-design compute saving factor (`master_codesign_compute_dominance`).
+- Verified full suite: `lake build`, `audit_axioms.lean` (443 blueprint references resolved, 0 `sorryAx`), `check_lean_decls.py`, `export_blueprint.py` (69 nodes), and all Lean smoke tests + Python tests.

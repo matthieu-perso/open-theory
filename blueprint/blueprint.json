@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-15T00:49:19.538889+00:00",
+  "generatedAt": "2026-10-15T00:58:15.567500+00:00",
   "toolchain": "leanprover/lean4:v4.34.0",
   "convention": "massot-leanblueprint",
   "nodesCount": 69,
@@ -1519,7 +1519,9 @@
         "OpenTheory.SpectralSparseCircuit.minimal_invariant_architecture_optimal",
         "OpenTheory.SpectralSparseCircuit.sesc_strictly_optimal_under_sparse_spectral_shift_geometry",
         "OpenTheory.SpectralSparseCircuit.under_parameterized_architecture_suboptimal_of_large_sample",
-        "OpenTheory.SpectralSparseCircuit.archTotalExcessRisk_crossover_iff"
+        "OpenTheory.SpectralSparseCircuit.archTotalExcessRisk_crossover_iff",
+        "OpenTheory.SpectralSparseCircuit.cnn_mlp_transformer_covering_hierarchy",
+        "OpenTheory.SpectralSparseCircuit.cnn_vs_transformer_vs_mlp_regime_dichotomy"
       ],
       "statementFormalized": true,
       "proofFormalized": true,
@@ -1527,7 +1529,8 @@
       "dependencies": [
         "lem:convolutional_generalization",
         "lem:spiked_sample_complexity",
-        "lem:attention_ablation"
+        "lem:attention_ablation",
+        "lem:transformer_generalization"
       ],
       "bountyUsd": null,
       "informalSketch": "Combine `Equiv.addRight` spatial reindexing with linearity of `patchProject` for the dual invariances. Apply `covering_bound_strict_mono` across $sr < mr < mk < md$, and solve the linear crossover inequality $p_{\\mathrm{true}} c_{\\mathrm{gen}}/n < \\varepsilon_{\\mathrm{struct}} + p_{\\mathrm{small}} c_{\\mathrm{gen}}/n$."

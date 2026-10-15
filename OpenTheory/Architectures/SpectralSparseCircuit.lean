@@ -493,4 +493,63 @@ theorem archTotalExcessRisk_crossover_iff
         ((p_true : ℝ) - (p_small : ℝ)) * c_gen / (n : ℝ) := by ring
     linarith
 
+/-! ## 5. Tri-Architectural Comparative Generalization: CNN vs. Dense MLP vs. Transformer -/
+
+/-- Effective parameter dimension of an `L`-layer attention-projection Transformer with
+head/projection dimension `d_model` (per-layer Q/K/V/O projections of size `4 * d_model ^ 2`):
+`dimTransformer L d_model = L * (4 * d_model ^ 2)`. -/
+def dimTransformer (L d_model : ℕ) : ℕ := L * (4 * d_model ^ 2)
+
+/-- **CNN vs. Dense MLP vs. Transformer Parameter & Covering Comparison on Local Spatial Data
+(`cnn_mlp_transformer_covering_hierarchy`)**:
+When kernel width `0 < k < d`, channel count `0 < m`, and the Transformer parameter count satisfies
+`m * d < dimTransformer L d_model` (or more generally `dimCNN m k < dimMLP m d < p_trans`),
+the metric-entropy covering bounds over radius `rad > 0` and grid resolution `δ > 0` satisfy
+the strict three-way architectural ordering:
+`N(dimCNN m k) < N(dimMLP m d) < N(p_trans)`. -/
+theorem cnn_mlp_transformer_covering_hierarchy {m k d p_trans : ℕ} {rad δ : ℝ}
+    (hm : 0 < m) (_hk : 0 < k) (hkd : k < d) (htrans : dimMLP m d < p_trans)
+    (hrad : 0 < rad) (hδ : 0 < δ) :
+    (coverAxis rad δ (dimCNN m k) + 1) ^ (dimCNN m k) <
+      (coverAxis rad δ (dimMLP m d) + 1) ^ (dimMLP m d) ∧
+    (coverAxis rad δ (dimMLP m d) + 1) ^ (dimMLP m d) <
+      (coverAxis rad δ p_trans + 1) ^ p_trans := by
+  have h_cnn_mlp : dimCNN m k < dimMLP m d := Nat.mul_lt_mul_of_pos_left hkd hm
+  exact ⟨covering_bound_strict_mono hrad.le hδ h_cnn_mlp,
+         covering_bound_strict_mono hrad.le hδ htrans⟩
+
+/-- **CNN vs. Transformer vs. Dense MLP Regime Dominance Dichotomy
+(`cnn_vs_transformer_vs_mlp_regime_dichotomy`)**:
+Comparing a local weight-shared CNN (`p_CNN = dimCNN m k`), a Sequence-Length-Independent
+Transformer (`p_Trans`), and an Unstructured Dense MLP (`p_MLP = dimMLP m d`):
+1. **Local Translation-Invariant Regime (`ε_local = 0`)**: When the target is locally supported
+   within receptive field `k < d` and `dimCNN m k < p_Trans < dimMLP m d`, the CNN strictly beats
+   both the Transformer and the Dense MLP for every sample size `n > 0`:
+   `archTotalExcessRisk 0 (dimCNN m k) c_gen n < archTotalExcessRisk 0 p_Trans c_gen n < archTotalExcessRisk 0 (dimMLP m d) c_gen n`.
+2. **Long-Range Non-Local Regime (`ε_nonlocal > 0`)**: When the target requires long-range
+   associative context retrieval across positions separated by `> k` (so the local CNN suffers
+   structural receptive-field bias `ε_nonlocal > 0` while the global-attention Transformer has
+   zero structural bias `0`), the Transformer strictly beats the local CNN for all sample sizes
+   `n > (p_Trans - dimCNN m k) * c_gen / ε_nonlocal`, while simultaneously beating the Dense MLP
+   at every sample size `n > 0` whenever `p_Trans < dimMLP m d`. -/
+theorem cnn_vs_transformer_vs_mlp_regime_dichotomy
+    {m k d p_Trans n : ℕ} {ε_nonlocal c_gen : ℝ}
+    (h_cnn_trans : dimCNN m k < p_Trans)
+    (h_trans_mlp : p_Trans < dimMLP m d)
+    (hc : 0 < c_gen) (hε : 0 < ε_nonlocal) (hn_pos : 0 < n)
+    (hn_large : ((p_Trans : ℝ) - (dimCNN m k : ℝ)) * c_gen / ε_nonlocal < (n : ℝ)) :
+    (archTotalExcessRisk 0 (dimCNN m k) c_gen n <
+       archTotalExcessRisk 0 p_Trans c_gen n ∧
+     archTotalExcessRisk 0 p_Trans c_gen n <
+       archTotalExcessRisk 0 (dimMLP m d) c_gen n) ∧
+    (archTotalExcessRisk 0 p_Trans c_gen n <
+       archTotalExcessRisk ε_nonlocal (dimCNN m k) c_gen n ∧
+     archTotalExcessRisk 0 p_Trans c_gen n <
+       archTotalExcessRisk 0 (dimMLP m d) c_gen n) := by
+  refine ⟨⟨minimal_invariant_architecture_optimal h_cnn_trans hc hn_pos,
+           minimal_invariant_architecture_optimal h_trans_mlp hc hn_pos⟩,
+          ⟨under_parameterized_architecture_suboptimal_of_large_sample
+             h_cnn_trans hc hε hn_large,
+           minimal_invariant_architecture_optimal h_trans_mlp hc hn_pos⟩⟩
+
 end OpenTheory.SpectralSparseCircuit

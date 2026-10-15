@@ -45,6 +45,9 @@ open scoped BigOperators
 #check @sesc_strictly_optimal_under_sparse_spectral_shift_geometry
 #check @under_parameterized_architecture_suboptimal_of_large_sample
 #check @archTotalExcessRisk_crossover_iff
+#check @dimTransformer
+#check @cnn_mlp_transformer_covering_hierarchy
+#check @cnn_vs_transformer_vs_mlp_regime_dichotomy
 
 -- Smoke test 1: Exact translation invariance of sparse circuit output on Fin 16 with kernel k = 5, rank r = 2.
 example (net : SpectralSparseCircuit 2 6) (embed : Fin 5 → Fin 16)
