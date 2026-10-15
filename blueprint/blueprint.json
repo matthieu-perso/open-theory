@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-15T00:58:15.567500+00:00",
+  "generatedAt": "2026-10-15T01:19:52.401358+00:00",
   "toolchain": "leanprover/lean4:v4.34.0",
   "convention": "massot-leanblueprint",
-  "nodesCount": 69,
+  "nodesCount": 74,
   "nodes": [
     {
       "id": "def:sample",
@@ -1595,6 +1595,148 @@
       ],
       "bountyUsd": null,
       "informalSketch": "Expand $(\\sqrt{AD} - \\sqrt{B_{\\mathrm{opt}}N})^2 / C$ using $ND=C$ for the Chinchilla identity, expand $(B - B_{\\mathrm{crit}})^2 / (4(B+B_{\\mathrm{crit}})^2)$ for the critical batch identity, and substitute $C_{\\mathrm{co}} = (A_{\\mathrm{co}}/A_{\\mathrm{base}})(B_{\\mathrm{co}}/B_{\\mathrm{base}})C_{\\mathrm{base}}$ into $R^\\star(C)$."
+    },
+    {
+      "id": "lem:hierarchical_multi_index",
+      "kind": "lemma",
+      "title": "Non-linear multi-index information exponent, grokking saddle plateaus, and hierarchical vs.\\ shallow separation",
+      "leanName": "OpenTheory.HierarchicalMultiIndex.tensorAlignmentDrift_eq_zero_of_lt",
+      "leanNames": [
+        "OpenTheory.HierarchicalMultiIndex.tensorAlignmentDrift_eq_zero_of_lt",
+        "OpenTheory.HierarchicalMultiIndex.linear_gram_drift_zero_of_exponent_ge_two",
+        "OpenTheory.HierarchicalMultiIndex.multiIndexTrajectory_exponent_one_eq",
+        "OpenTheory.HierarchicalMultiIndex.nonlinear_drift_lt_linear_drift_on_plateau",
+        "OpenTheory.HierarchicalMultiIndex.grokking_escape_time_strict_mono_in_exponent",
+        "OpenTheory.HierarchicalMultiIndex.grokking_escape_time_ratio_eq",
+        "OpenTheory.HierarchicalMultiIndex.multiIndex_slow_plateau_upper_bound",
+        "OpenTheory.HierarchicalMultiIndex.multiIndex_post_threshold_exponential_growth",
+        "OpenTheory.HierarchicalMultiIndex.hierarchical_vs_shallow_sample_complexity_separation",
+        "OpenTheory.HierarchicalMultiIndex.hierarchical_stagewise_escape_time_lt_shallow",
+        "OpenTheory.HierarchicalMultiIndex.optimal_depth_and_horizon_for_multi_index"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:multistep_spectral_bias",
+        "lem:gradient_spectral_emergence"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Induct on $T$ for the slow plateau bound and post-threshold geometric growth, factor $\\alpha_0^{s_2-1} = \\alpha_0^{s_1-1}\\alpha_0^{s_2-s_1}$ for the escape-time ratio, and compare $L d^{s_{\\mathrm{local}}}$ against $d^{s_{\\mathrm{total}}}$."
+    },
+    {
+      "id": "lem:global_saddle_pl",
+      "kind": "lemma",
+      "title": "Endogenous Polyak-\u0141ojasiewicz conditioning, strict saddle escape under SGD noise, and two-phase non-convex convergence",
+      "leanName": "OpenTheory.GlobalSaddlePL.endogenous_pl_inequality_from_gram_margin",
+      "leanNames": [
+        "OpenTheory.GlobalSaddlePL.endogenous_pl_inequality_from_gram_margin",
+        "OpenTheory.GlobalSaddlePL.endogenous_pl_inequality_sample_normalized",
+        "OpenTheory.GlobalSaddlePL.dual_feature_and_residual_pl_acceleration",
+        "OpenTheory.GlobalSaddlePL.mlp_dual_feature_and_residual_pl_acceleration",
+        "OpenTheory.GlobalSaddlePL.saddle_deterministic_trapped",
+        "OpenTheory.GlobalSaddlePL.saddleUnstableVarTrajectory_closed_form",
+        "OpenTheory.GlobalSaddlePL.saddle_noise_exponential_escape",
+        "OpenTheory.GlobalSaddlePL.saddle_escape_loss_drop",
+        "OpenTheory.GlobalSaddlePL.two_phase_global_nonconvex_convergence",
+        "OpenTheory.GlobalSaddlePL.two_phase_global_nonconvex_from_recurrence",
+        "OpenTheory.GlobalSaddlePL.optimal_two_phase_noise_schedule"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:joint_pl_convergence",
+        "lem:stochastic_sharpness_sgd",
+        "lem:residual_preconditioned_momentum"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Substitute $R_{\\mathrm{sq}} = 2L$ into the Gram spectral margin for the endogenous PL bound, induct on $T$ for the geometric series of `saddleUnstableVarTrajectory`, and chain the saddle loss drop with $K$-step PL basin contraction."
+    },
+    {
+      "id": "lem:induction_head_dynamics",
+      "kind": "lemma",
+      "title": "Nonlinear softmax logit-margin dynamics, 1-hot induction head sparsification, and logarithmic vs.\\ linear context scaling",
+      "leanName": "OpenTheory.InductionHeadDynamics.softmaxDistractorMass_eq",
+      "leanNames": [
+        "OpenTheory.InductionHeadDynamics.softmaxDistractorMass_eq",
+        "OpenTheory.InductionHeadDynamics.softmaxDistractorMass_le_exp_neg_margin",
+        "OpenTheory.InductionHeadDynamics.softmaxTargetProb_strict_mono_in_margin",
+        "OpenTheory.InductionHeadDynamics.logitMarginLogLossStep_strict_increase",
+        "OpenTheory.InductionHeadDynamics.induction_head_exponential_sparsification",
+        "OpenTheory.InductionHeadDynamics.softmax_vs_linear_attention_distractor_suppression",
+        "OpenTheory.InductionHeadDynamics.softmax_logarithmic_margin_sufficiency",
+        "OpenTheory.InductionHeadDynamics.linear_attention_requires_linear_margin",
+        "OpenTheory.InductionHeadDynamics.long_context_margin_scaling",
+        "OpenTheory.InductionHeadDynamics.trained_induction_head_retrieval_error",
+        "OpenTheory.InductionHeadDynamics.trained_induction_head_rowOutput_retrieval_error"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:attention_logit_stability",
+        "lem:in_context_retrieval"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Use `Real.add_one_le_exp` to obtain $\\Delta < e^\\Delta$ for $\\Delta > 0$, cross-multiply the softmax and linear distractor ratios, and bound the value retrieval discrepancy via convex combination weights."
+    },
+    {
+      "id": "lem:autoregressive_ood",
+      "kind": "lemma",
+      "title": "Autoregressive rollout compounding, contractive Chain-of-Thought stability, and OOD compositional generalization",
+      "leanName": "OpenTheory.AutoregressiveOOD.autoregressiveRolloutError_unit_lip",
+      "leanNames": [
+        "OpenTheory.AutoregressiveOOD.autoregressiveRolloutError_unit_lip",
+        "OpenTheory.AutoregressiveOOD.autoregressiveRolloutError_closed_form",
+        "OpenTheory.AutoregressiveOOD.cot_contractive_rollout_horizon_free_bound",
+        "OpenTheory.AutoregressiveOOD.unstable_rollout_strict_mono_and_exceeds_contractive",
+        "OpenTheory.AutoregressiveOOD.cot_strictly_dominates_direct_prediction",
+        "OpenTheory.AutoregressiveOOD.cot_contractive_dominates_direct_for_all_horizons",
+        "OpenTheory.AutoregressiveOOD.sesc_zero_ood_shift_penalty",
+        "OpenTheory.AutoregressiveOOD.sesc_ood_strictly_dominates_dense_mlp",
+        "OpenTheory.AutoregressiveOOD.dense_mlp_ood_risk_floor_as_n_infty"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:transformer_generalization",
+        "lem:spectral_sparse_circuit"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Induct on $H$ for the geometric rollout identity, bound $1 - \\Lambda^H \\le 1$ when $0 \\le \\Lambda < 1$, and invoke `sesc_orthogonal_bulk_invariance` for the zero OOD shift penalty."
+    },
+    {
+      "id": "lem:predictive_model_prescription",
+      "kind": "lemma",
+      "title": "Master predictive task-to-model synthesis compiler",
+      "leanName": "OpenTheory.PredictiveModelPrescription.predictiveTaskRisk_nonneg",
+      "leanNames": [
+        "OpenTheory.PredictiveModelPrescription.predictiveTaskRisk_nonneg",
+        "OpenTheory.PredictiveModelPrescription.predictiveTaskRisk_mono",
+        "OpenTheory.PredictiveModelPrescription.predictiveTaskRisk_strict_mono_in_each_factor",
+        "OpenTheory.PredictiveModelPrescription.prescribed_architecture_dominance_hierarchy",
+        "OpenTheory.PredictiveModelPrescription.criticalSampleThreshold",
+        "OpenTheory.PredictiveModelPrescription.adaptive_architecture_selection_by_sample_size",
+        "OpenTheory.PredictiveModelPrescription.hierarchical_cot_softmax_strictly_dominates_shallow_linear",
+        "OpenTheory.PredictiveModelPrescription.endToEndComputeRisk_at_optimal_eq_prescribed",
+        "OpenTheory.PredictiveModelPrescription.master_predictive_model_prescription"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:compute_optimal_synthesis",
+        "lem:spectral_sparse_circuit",
+        "lem:residual_preconditioned_momentum",
+        "lem:hierarchical_multi_index",
+        "lem:global_saddle_pl",
+        "lem:induction_head_dynamics",
+        "lem:autoregressive_ood"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Combine the linear crossover equivalence for $n_{\\mathrm{crit}}$, the compositional CoT + Softmax risk decomposition, and the Chinchilla completion-of-squares identity scaled by the contractive rollout factor $1/(1-\\Lambda_{\\mathrm{CoT}})$."
     }
   ]
 }
