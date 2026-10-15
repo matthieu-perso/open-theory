@@ -384,7 +384,8 @@ theorem multiIndex_post_threshold_exponential_growth {η c_s α₀ α_thresh : �
       le_trans hcross hmono
     have hstep := multiIndexStep_ge_of_threshold hs hη hc hthresh_nonneg hthresh_k
     have hfactor_nonneg : 0 ≤ 1 + η * c_s * α_thresh ^ (s - 1) := by positivity
-    rw [Nat.add_succ, multiIndexTrajectory_succ, pow_succ']
+    have hadd : T₀ + (k + 1) = (T₀ + k) + 1 := by omega
+    rw [hadd, multiIndexTrajectory_succ, pow_succ']
     calc
       (1 + η * c_s * α_thresh ^ (s - 1)) *
           (1 + η * c_s * α_thresh ^ (s - 1)) ^ k *

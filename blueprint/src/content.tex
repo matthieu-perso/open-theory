@@ -1097,5 +1097,80 @@ Under the parametric scaling law $R(N,D) = R_\infty + \frac{A}{N} + \frac{B_{\ma
 Expand $(\sqrt{AD} - \sqrt{B_{\mathrm{opt}}N})^2 / C$ using $ND=C$ for the Chinchilla identity, expand $(B - B_{\mathrm{crit}})^2 / (4(B+B_{\mathrm{crit}})^2)$ for the critical batch identity, and substitute $C_{\mathrm{co}} = (A_{\mathrm{co}}/A_{\mathrm{base}})(B_{\mathrm{co}}/B_{\mathrm{base}})C_{\mathrm{base}}$ into $R^\star(C)$.
 \end{proof}
 
+\begin{lemma}[Non-linear multi-index information exponent, grokking saddle plateaus, and hierarchical vs.\ shallow separation]\label{lem:hierarchical_multi_index}
+\lean{OpenTheory.HierarchicalMultiIndex.tensorAlignmentDrift_eq_zero_of_lt, OpenTheory.HierarchicalMultiIndex.linear_gram_drift_zero_of_exponent_ge_two, OpenTheory.HierarchicalMultiIndex.multiIndexTrajectory_exponent_one_eq, OpenTheory.HierarchicalMultiIndex.nonlinear_drift_lt_linear_drift_on_plateau, OpenTheory.HierarchicalMultiIndex.grokking_escape_time_strict_mono_in_exponent, OpenTheory.HierarchicalMultiIndex.grokking_escape_time_ratio_eq, OpenTheory.HierarchicalMultiIndex.multiIndex_slow_plateau_upper_bound, OpenTheory.HierarchicalMultiIndex.multiIndex_post_threshold_exponential_growth, OpenTheory.HierarchicalMultiIndex.hierarchical_vs_shallow_sample_complexity_separation, OpenTheory.HierarchicalMultiIndex.hierarchical_stagewise_escape_time_lt_shallow, OpenTheory.HierarchicalMultiIndex.optimal_depth_and_horizon_for_multi_index}
+\leanok
+\uses{lem:multistep_spectral_bias, lem:gradient_spectral_emergence}
+For a non-linear multi-index target with information exponent $s \ge 1$ and alignment recursion $\alpha_{t+1} = \alpha_t + \eta c_s \alpha_t^s$:
+\begin{enumerate}
+\item \textbf{Vanishing low-order correlations and two-stage grokking dynamics:} Every correlation of order $m < s$ (including linear Gram drift $m=1$ when $s \ge 2$) vanishes identically; on the initial plateau $\alpha_t \le \alpha_{\mathrm{plateau}} < 1$, progress is bounded linearly by $\alpha_T - \alpha_0 \le T\eta c_s\alpha_{\mathrm{plateau}}^s$ with escape time scale $T_{\mathrm{esc}}(s) = (\eta c_s\alpha_0^{s-1})^{-1}$ growing strictly as $(1/\alpha_0)^{s_2 - s_1}$ for $s_2 > s_1$, followed by exponential blowup $\alpha_{T_0+K} \ge (1 + \eta c_s\alpha_{\mathrm{thresh}}^{s-1})^K\alpha_{T_0}$ once $\alpha_{T_0} \ge \alpha_{\mathrm{thresh}}$.
+\item \textbf{Hierarchical vs.\ shallow complexity and horizon separation:} Decomposing an $s_{\mathrm{total}}$-degree target into an $L$-layer hierarchy of local exponent $s_{\mathrm{local}}$ reduces sample complexity from $d^{s_{\mathrm{total}}}$ to $L d^{s_{\mathrm{local}}}$ and reduces total grokking escape time from $(\eta c_s\alpha_0^{s_{\mathrm{total}}-1})^{-1}$ to $L(\eta c_s\alpha_0^{s_{\mathrm{local}}-1})^{-1}$ whenever $L < \min(d^{s_{\mathrm{total}}-s_{\mathrm{local}}}, (1/\alpha_0)^{s_{\mathrm{total}}-s_{\mathrm{local}}})$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Induct on $T$ for the slow plateau bound and post-threshold geometric growth, factor $\alpha_0^{s_2-1} = \alpha_0^{s_1-1}\alpha_0^{s_2-s_1}$ for the escape-time ratio, and compare $L d^{s_{\mathrm{local}}}$ against $d^{s_{\mathrm{total}}}$.
+\end{proof}
+
+\begin{lemma}[Endogenous Polyak-Łojasiewicz conditioning, strict saddle escape under SGD noise, and two-phase non-convex convergence]\label{lem:global_saddle_pl}
+\lean{OpenTheory.GlobalSaddlePL.endogenous_pl_inequality_from_gram_margin, OpenTheory.GlobalSaddlePL.endogenous_pl_inequality_sample_normalized, OpenTheory.GlobalSaddlePL.dual_feature_and_residual_pl_acceleration, OpenTheory.GlobalSaddlePL.mlp_dual_feature_and_residual_pl_acceleration, OpenTheory.GlobalSaddlePL.saddle_deterministic_trapped, OpenTheory.GlobalSaddlePL.saddleUnstableVarTrajectory_closed_form, OpenTheory.GlobalSaddlePL.saddle_noise_exponential_escape, OpenTheory.GlobalSaddlePL.saddle_escape_loss_drop, OpenTheory.GlobalSaddlePL.two_phase_global_nonconvex_convergence, OpenTheory.GlobalSaddlePL.two_phase_global_nonconvex_from_recurrence, OpenTheory.GlobalSaddlePL.optimal_two_phase_noise_schedule}
+\leanok
+\uses{lem:joint_pl_convergence, lem:stochastic_sharpness_sgd, lem:residual_preconditioned_momentum}
+Along a non-convex training trajectory transitioning from a strict saddle point to a feature-conditioned basin:
+\begin{enumerate}
+\item \textbf{Endogenous PL inequality and dual acceleration:} Whenever the feature Jacobian Gram matrix satisfies $\|\nabla L(W)\|^2 \ge \lambda_{\min}(G)\|f(W)-y\|^2$ on $L = \frac{1}{2}\|f(W)-y\|^2$, the loss obeys the endogenous PL inequality $2\lambda_{\min}(G)L \le \|\nabla L(W)\|^2$, and simultaneous feature conditioning ($\lambda_{\min}(G_t) > \lambda_{\min}(G_0)$) plus residual flattening ($S(R_t) < S(R_0)$) strictly improves the contraction factor $1 - \lambda_{\min}(G_t)/S(R_t)$.
+\item \textbf{Exponential strict-saddle escape via SGD noise and optimal two-phase schedule:} At an exact strict saddle ($V_0 = 0$) with negative curvature $-\gamma_{\mathrm{neg}} < 0$, deterministic GD ($\sigma_-^2 = 0$) remains permanently trapped ($V_T = 0$), whereas stochastic variance $\sigma_-^2 > 0$ drives exact geometric growth $V_T = \eta^2\sigma_-^2\frac{(1+\eta\gamma_{\mathrm{neg}})^{2T}-1}{(1+\eta\gamma_{\mathrm{neg}})^2-1}$ and drops loss below $L_{\mathrm{saddle}} - \frac{1}{2}\gamma_{\mathrm{neg}}r_{\mathrm{esc}}^2$; consequently, small batch size $B_1 < B_2$ strictly accelerates Phase~I saddle escape while EMA momentum $\beta\in(0,1)$ and larger batch size $B_2 > B_1$ strictly shrink the Phase~II PL noise floor.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Substitute $R_{\mathrm{sq}} = 2L$ into the Gram spectral margin for the endogenous PL bound, induct on $T$ for the geometric series of `saddleUnstableVarTrajectory`, and chain the saddle loss drop with $K$-step PL basin contraction.
+\end{proof}
+
+\begin{lemma}[Nonlinear softmax logit-margin dynamics, 1-hot induction head sparsification, and logarithmic vs.\ linear context scaling]\label{lem:induction_head_dynamics}
+\lean{OpenTheory.InductionHeadDynamics.softmaxDistractorMass_eq, OpenTheory.InductionHeadDynamics.softmaxDistractorMass_le_exp_neg_margin, OpenTheory.InductionHeadDynamics.softmaxTargetProb_strict_mono_in_margin, OpenTheory.InductionHeadDynamics.logitMarginLogLossStep_strict_increase, OpenTheory.InductionHeadDynamics.induction_head_exponential_sparsification, OpenTheory.InductionHeadDynamics.softmax_vs_linear_attention_distractor_suppression, OpenTheory.InductionHeadDynamics.softmax_logarithmic_margin_sufficiency, OpenTheory.InductionHeadDynamics.linear_attention_requires_linear_margin, OpenTheory.InductionHeadDynamics.long_context_margin_scaling, OpenTheory.InductionHeadDynamics.trained_induction_head_retrieval_error, OpenTheory.InductionHeadDynamics.trained_induction_head_rowOutput_retrieval_error}
+\leanok
+\uses{lem:attention_logit_stability, lem:in_context_retrieval}
+For an attention head over $1 + m_{\mathrm{dist}}$ context tokens with query-key logit margin $\Delta = z_{\mathrm{target}} - z_{\mathrm{dist}}$:
+\begin{enumerate}
+\item \textbf{Nonlinear margin growth and 1-hot induction head sparsification:} Each log-loss or squared-loss gradient step strictly increases $\Delta$, and along $\Delta_T = \Delta_0 + T\delta_{\mathrm{step}}$ ($\delta_{\mathrm{step}} > 0$), distractor attention mass decays exponentially as $\mathrm{softmaxDistractorMass}(m_{\mathrm{dist}}, \Delta_T) \le m_{\mathrm{dist}} e^{-\Delta_0 - T\delta_{\mathrm{step}}}$, driving the retrieval error $\|v_{\mathrm{out}}(T) - v_{\mathrm{target}}\|$ to zero exponentially fast.
+\item \textbf{Exponential SNR separation over Linear Attention:} For all $\Delta > 0$ and $m_{\mathrm{dist}} \ge 1$, nonlinear Softmax attention achieves strictly lower distractor leakage than Linear Attention ($\frac{m_{\mathrm{dist}} e^{-\Delta}}{1 + m_{\mathrm{dist}} e^{-\Delta}} < \frac{m_{\mathrm{dist}}}{\Delta + m_{\mathrm{dist}}}$), requiring only a logarithmic margin $\Delta \ge \log(m_{\mathrm{dist}}/\varepsilon)$ for leakage $\le \varepsilon$ whereas Linear Attention requires a linear margin $\Delta \ge m_{\mathrm{dist}}(1-\varepsilon)/\varepsilon$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Use `Real.add_one_le_exp` to obtain $\Delta < e^\Delta$ for $\Delta > 0$, cross-multiply the softmax and linear distractor ratios, and bound the value retrieval discrepancy via convex combination weights.
+\end{proof}
+
+\begin{lemma}[Autoregressive rollout compounding, contractive Chain-of-Thought stability, and OOD compositional generalization]\label{lem:autoregressive_ood}
+\lean{OpenTheory.AutoregressiveOOD.autoregressiveRolloutError_unit_lip, OpenTheory.AutoregressiveOOD.autoregressiveRolloutError_closed_form, OpenTheory.AutoregressiveOOD.cot_contractive_rollout_horizon_free_bound, OpenTheory.AutoregressiveOOD.unstable_rollout_strict_mono_and_exceeds_contractive, OpenTheory.AutoregressiveOOD.cot_strictly_dominates_direct_prediction, OpenTheory.AutoregressiveOOD.cot_contractive_dominates_direct_for_all_horizons, OpenTheory.AutoregressiveOOD.sesc_zero_ood_shift_penalty, OpenTheory.AutoregressiveOOD.sesc_ood_strictly_dominates_dense_mlp, OpenTheory.AutoregressiveOOD.dense_mlp_ood_risk_floor_as_n_infty}
+\leanok
+\uses{lem:transformer_generalization, lem:spectral_sparse_circuit}
+Along an $H$-step autoregressive rollout $E_{h+1} = \Lambda E_h + \varepsilon_{\mathrm{token}}$ ($E_0 = 0$) and under out-of-distribution (OOD) shift energy $\Delta_{\mathrm{OOD}}^2 > 0$:
+\begin{enumerate}
+\item \textbf{Horizon-free contractive CoT vs.\ unstable rollout blowup:} When $\Lambda \ne 1$, $E_H = \varepsilon_{\mathrm{token}}\frac{\Lambda^H - 1}{\Lambda - 1}$; in the contractive Chain-of-Thought verification regime ($0 \le \Lambda < 1$), rollout error is uniformly bounded by $E_H \le \frac{\varepsilon_{\mathrm{token}}}{1-\Lambda}$ for all horizons $H \in \mathbb{N}$ and strictly beats direct 1-step prediction whenever $H d^{s_{\mathrm{step}}} < d^{s_{\mathrm{total}}}$, whereas unanchored rollout ($\Lambda > 1$) blows up super-linearly ($E_H > H\varepsilon_{\mathrm{token}}$ for $H \ge 2$).
+\item \textbf{Exact OOD shift immunity of $\mathrm{SESC}$ vs.\ irreducible MLP floor:} Because $\mathrm{SESC}$ is invariant to orthogonal bulk perturbations, its pointwise OOD shift discrepancy is identically zero and its OOD excess risk strictly beats any spurious-sensitive dense MLP ($w_{\mathrm{spurious}} > 0$), which suffers an irreducible OOD error floor $\ge w_{\mathrm{spurious}}\Delta_{\mathrm{OOD}}^2 > 0$ even as $n \to \infty$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Induct on $H$ for the geometric rollout identity, bound $1 - \Lambda^H \le 1$ when $0 \le \Lambda < 1$, and invoke `sesc_orthogonal_bulk_invariance` for the zero OOD shift penalty.
+\end{proof}
+
+\begin{lemma}[Master predictive task-to-model synthesis compiler]\label{lem:predictive_model_prescription}
+\lean{OpenTheory.PredictiveModelPrescription.predictiveTaskRisk_nonneg, OpenTheory.PredictiveModelPrescription.predictiveTaskRisk_mono, OpenTheory.PredictiveModelPrescription.predictiveTaskRisk_strict_mono_in_each_factor, OpenTheory.PredictiveModelPrescription.prescribed_architecture_dominance_hierarchy, OpenTheory.PredictiveModelPrescription.criticalSampleThreshold, OpenTheory.PredictiveModelPrescription.adaptive_architecture_selection_by_sample_size, OpenTheory.PredictiveModelPrescription.hierarchical_cot_softmax_strictly_dominates_shallow_linear, OpenTheory.PredictiveModelPrescription.endToEndComputeRisk_at_optimal_eq_prescribed, OpenTheory.PredictiveModelPrescription.master_predictive_model_prescription}
+\leanok
+\uses{lem:compute_optimal_synthesis, lem:spectral_sparse_circuit, lem:residual_preconditioned_momentum, lem:hierarchical_multi_index, lem:global_saddle_pl, lem:induction_head_dynamics, lem:autoregressive_ood}
+Given a task specification (`TaskSignature`) with ambient dimension $d$, local patch size $k$, spectral rank $r$, active circuit size $s < m$, compositional degree $s_{\mathrm{total}} = H s_{\mathrm{step}}$, OOD shift $\Delta_{\mathrm{OOD}}^2$, and compute budget $C > 0$:
+\begin{enumerate}
+\item \textbf{Exact sample-size capacity-expansion threshold:} When pruning from $\mathrm{SubspaceNet}$ ($mr$) to $\mathrm{SESC}$ ($sr$) incurs residual bias $\varepsilon_{\mathrm{prune}} > 0$, the exact crossover threshold is $n_{\mathrm{crit}} = \frac{(mr - sr)c_{\mathrm{gen}}}{\varepsilon_{\mathrm{prune}}}$: $\mathrm{SESC}$ strictly dominates for $n < n_{\mathrm{crit}}$ and $\mathrm{SubspaceNet}$ strictly dominates for $n > n_{\mathrm{crit}}$.
+\item \textbf{Master 4-axis task-to-model prescription:} Combining ($\mathrm{SESC}$ architecture, $\mathrm{RPM}$ optimizer, Chinchilla allocation $(N^\star(C), D^\star(C))$, contractive $\mathrm{CoT}$ + Softmax induction heads) strictly dominates any mismatched baseline across all four axes, achieving identical in-distribution Pareto risk at the exact fraction $\kappa_{\mathrm{save}} = \frac{sr}{md}\frac{B_{\mathrm{RPM}}}{B_{\mathrm{SGD}}} < 1$ of total training compute while eliminating the OOD error floor $w_{\mathrm{MLP}}\Delta_{\mathrm{OOD}}^2 > 0$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+\leanok
+Combine the linear crossover equivalence for $n_{\mathrm{crit}}$, the compositional CoT + Softmax risk decomposition, and the Chinchilla completion-of-squares identity scaled by the contractive rollout factor $1/(1-\Lambda_{\mathrm{CoT}})$.
+\end{proof}
+
 \bibliographystyle{alpha}
 \bibliography{references}
