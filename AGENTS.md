@@ -18,8 +18,17 @@ This is a **Lean 4 + Mathlib** repository with a Patrick Massot `leanblueprint`.
 ## Commands
 
 ```bash
+lake exe cache get
 lake build
 lake env lean --run scripts/audit_axioms.lean
 python3 scripts/check_lean_decls.py
 python3 scripts/export_blueprint.py blueprint/blueprint.json
 ```
+
+## Cloud Agent
+
+`lean`, `lake`, and `leanblueprint` are on the default `PATH` (`/usr/local/bin`). Elan's usual `~/.bashrc` edit is not visible to the non-interactive login shells that run install.
+
+Lake 4.11 has no job limit. The toolchain `lean` driver is a file-lock wrapper around `lean.real` so Mathlib imports do not run one multi-GB process per core. `lake exe cache get` must run before `lake build` on a fresh checkout; otherwise Lake compiles Mathlib from source.
+
+The MCP server is stdio-only. From `mcp/`: `npm ci && npm run build`, then `node dist/index.js`.

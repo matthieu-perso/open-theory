@@ -9,13 +9,22 @@ def axiomsOf (env : Environment) (declName : Name) : Array Name :=
   let (_, s) := ((CollectAxioms.collect declName).run env).run {}
   s.axioms
 
+/-- `_cstage*` constants are Lean compiler IR, not mathematical declarations. -/
+def isCompilerArtifact : Name → Bool
+  | .anonymous => false
+  | .num p _ => isCompilerArtifact p
+  | .str p s => s.startsWith "_cstage" || isCompilerArtifact p
+
 def main : IO UInt32 := do
-  let env ← importModules [{ module := `OpenTheory }] {}
+  -- Lean 4.11 `importModules` takes an `Array Import`, not a list.
+  let env ← importModules #[{ module := `OpenTheory }] {}
   let mut violations : List (Name × Name) := []
   let mut sorryDecls : List Name := []
 
   for (declName, _) in env.constants.toList do
     unless declName.toString.startsWith "OpenTheory" do
+      continue
+    if isCompilerArtifact declName then
       continue
     for ax in axiomsOf env declName do
       if ax == ``sorryAx then
