@@ -31,6 +31,8 @@ import OpenTheory.Optimization.StochasticSharpnessSGD
 import OpenTheory.Optimization.MomentumAdamTrajectory
 import OpenTheory.Optimization.ResidualPreconditionedMomentum
 import OpenTheory.Optimization.GlobalSaddlePL
+import OpenTheory.Optimization.CertiRPM
+import OpenTheory.Optimization.VerifiableSelfImprovement
 import OpenTheory.Generalization.Bounds
 import OpenTheory.Generalization.PopulationBounds
 import OpenTheory.Generalization.AttentionRisk
@@ -70,5 +72,13 @@ import OpenTheory.Generalization.TransformerGeneralization
 import OpenTheory.Generalization.SpikedSampleComplexity
 import OpenTheory.Generalization.ComputeOptimalSynthesis
 import OpenTheory.Generalization.AutoregressiveOOD
+import OpenTheory.Generalization.TestTimeScaling
 import OpenTheory.Generalization.PredictiveModelPrescription
+import OpenTheory.Generalization.ZeroShotCompiler
+import OpenTheory.Generalization.AuditableSmallModelDominance
+import OpenTheory.Generalization.UniversalTaskTaxonomy
+import OpenTheory.Architectures.RuntimeReasoningGuardrail
+import OpenTheory.Certification.ProofCarryingAI
+import OpenTheory.Certification.ExecutableSynthesisEngine
+import OpenTheory.Certification.ComputableTractableEngine
 import OpenTheory.EndToEnd
