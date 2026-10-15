@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-14T23:53:07.646683+00:00",
+  "generatedAt": "2026-10-15T00:42:13.915009+00:00",
   "toolchain": "leanprover/lean4:v4.34.0",
   "convention": "massot-leanblueprint",
-  "nodesCount": 61,
+  "nodesCount": 65,
   "nodes": [
     {
       "id": "def:sample",
@@ -1342,6 +1342,129 @@
       ],
       "bountyUsd": null,
       "informalSketch": "Induct on $T$ to show $s_{T,j} \\le s_{T,i_\\star} - (\\gamma_0 + T\\eta\\Delta_g)$ on unmasked keys $j\\ne i_\\star$. Apply \\cref{lem:attention_logit_stability} with margin $\\gamma_T = \\gamma_0 + T\\eta\\Delta_g$ to bound the tail weight and output retrieval error, solve $(n-1)D_V e^{-\\gamma_0 - T\\eta\\Delta_g} \\le \\varepsilon$ via $\\log$, and integrate the pointwise Young inequality $\\|\\hat{y} - y\\|^2 \\le 2\\|v_{i_\\star} - y\\|^2 + 2\\|\\hat{y} - v_{i_\\star}\\|^2$."
+    },
+    {
+      "id": "lem:transformer_generalization",
+      "kind": "lemma",
+      "title": "Multilayer Transformer generalization, in-context excess risk, and safety intervention control",
+      "leanName": "OpenTheory.TransformerGeneralization.transformerPerturbationEnvelope_smul",
+      "leanNames": [
+        "OpenTheory.TransformerGeneralization.transformerPerturbationEnvelope_smul",
+        "OpenTheory.TransformerGeneralization.transformer_stack_param_perturbation_le",
+        "OpenTheory.TransformerGeneralization.transformer_depth_scaled_lip_bound",
+        "OpenTheory.TransformerGeneralization.transformerParamLoss_lipschitz",
+        "OpenTheory.TransformerGeneralization.transformerBall_loss_cover",
+        "OpenTheory.TransformerGeneralization.transformer_uniform_deviation_tail",
+        "OpenTheory.TransformerGeneralization.transformer_approx_erm_excess_risk_tail",
+        "OpenTheory.TransformerGeneralization.icl_end_to_end_excess_risk_bound",
+        "OpenTheory.TransformerGeneralization.icl_total_risk_monotone_in_steps",
+        "OpenTheory.TransformerGeneralization.icl_end_to_end_target_accuracy",
+        "OpenTheory.TransformerGeneralization.safety_intervention_tradeoff_bound",
+        "OpenTheory.TransformerGeneralization.orthogonal_circuit_ablation_zero_unsafe_and_risk_bound"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:attention_ablation",
+        "lem:in_context_retrieval",
+        "lem:trajectory_generalization"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Factor $\\|u-v\\|_2$ out of `residualPerturbationEnvelope` by induction on $L$ (`transformerPerturbationEnvelope_smul`) and apply `multilayer_residual_perturbation`. Under $1/L$ depth scaling, bound the recurrence by $L_0(1+c_0/L)^L \\le L_0 e^{c_0}$. Combine with `BallCover.euclideanBall_net` and `Covering.uniform_deviation_tail` for the generalization tail. For safety interventions, combine `multilayer_residual_perturbation` and `PredictionGap.sq_norm_le_double` under `P.risk_le_envelope`, and use linearity of $P_{\\mathrm{unsafe}}$ over `keep`."
+    },
+    {
+      "id": "lem:convolutional_generalization",
+      "kind": "lemma",
+      "title": "Convolutional translation equivariance, receptive-field locality, and CNN vs.\\ MLP sample complexity separation",
+      "leanName": "OpenTheory.ConvolutionalGeneralization.cyclicPatch_shift",
+      "leanNames": [
+        "OpenTheory.ConvolutionalGeneralization.cyclicPatch_shift",
+        "OpenTheory.ConvolutionalGeneralization.convPreactivation_shift_equivariant",
+        "OpenTheory.ConvolutionalGeneralization.convFeatureMap_shift_equivariant",
+        "OpenTheory.ConvolutionalGeneralization.convForward_shift_invariant",
+        "OpenTheory.ConvolutionalGeneralization.patchEnergy_le_inputEnergy",
+        "OpenTheory.ConvolutionalGeneralization.conv_param_diff_le",
+        "OpenTheory.ConvolutionalGeneralization.convParamLoss_lipschitz",
+        "OpenTheory.ConvolutionalGeneralization.convBall_loss_cover",
+        "OpenTheory.ConvolutionalGeneralization.conv_uniform_deviation_tail",
+        "OpenTheory.ConvolutionalGeneralization.conv_approx_erm_excess_risk_tail",
+        "OpenTheory.ConvolutionalGeneralization.cnn_lip_le_mlp_lip",
+        "OpenTheory.ConvolutionalGeneralization.cnn_lip_lt_mlp_lip",
+        "OpenTheory.ConvolutionalGeneralization.cnn_covering_strictly_smaller_than_mlp",
+        "OpenTheory.ConvolutionalGeneralization.cnn_vs_mlp_sample_complexity_ratio"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:trajectory_generalization",
+        "lem:ball_cover_oracle"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Equivariance follows from associativity and commutativity of index addition in $\\mathrm{Fin}\\,d$, and pooling invariance follows by reindexing the spatial sum along `Equiv.addRight s`. Cauchy--Schwarz on each $k$-dimensional patch bounds the parameter perturbation by $c A L\\sqrt{E_{\\mathrm{patch}}}\\|u-v\\|_2$ uniformly across spatial positions. Monotonicity of `coverAxis` in the parameter dimension $ck < cd$ together with strict power growth yields the strict covering and $k/d$ sample complexity separation."
+    },
+    {
+      "id": "lem:momentum_adam_trajectory",
+      "kind": "lemma",
+      "title": "EMA momentum variance damping, AdamW weight-decay radius, and optimizer regime selection",
+      "leanName": "OpenTheory.MomentumAdamTrajectory.emaWeightSum_succ",
+      "leanNames": [
+        "OpenTheory.MomentumAdamTrajectory.emaWeightSum_succ",
+        "OpenTheory.MomentumAdamTrajectory.emaTrajectory_const_grad",
+        "OpenTheory.MomentumAdamTrajectory.biasCorrectedEMA_const_grad",
+        "OpenTheory.MomentumAdamTrajectory.emaTrajectory_norm_le",
+        "OpenTheory.MomentumAdamTrajectory.biasCorrectedEMA_norm_le",
+        "OpenTheory.MomentumAdamTrajectory.emaVariance_fixed_point",
+        "OpenTheory.MomentumAdamTrajectory.emaVarianceTrajectory_eq",
+        "OpenTheory.MomentumAdamTrajectory.emaVarianceTrajectory_le_stationary",
+        "OpenTheory.MomentumAdamTrajectory.ema_variance_strictly_smaller_than_sgd",
+        "OpenTheory.MomentumAdamTrajectory.momentum_pl_noise_floor_strict_improvement",
+        "OpenTheory.MomentumAdamTrajectory.momentum_pl_noise_ball_convergence",
+        "OpenTheory.MomentumAdamTrajectory.adamw_step_preserves_ball",
+        "OpenTheory.MomentumAdamTrajectory.adamw_trajectory_norm_envelope",
+        "OpenTheory.MomentumAdamTrajectory.adamw_mlp_generalization_tail",
+        "OpenTheory.MomentumAdamTrajectory.adam_momentum_dominates_preconditioned_no_momentum",
+        "OpenTheory.MomentumAdamTrajectory.adam_momentum_strictly_beats_scalar_sgd"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:preconditioned_descent",
+        "lem:stochastic_sharpness_sgd",
+        "lem:trajectory_generalization"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Induct on $T$ using $\\beta(1-\\beta^T) + (1-\\beta) = 1-\\beta^{T+1}$ for the first moment and $\\beta^2(1-\\beta^{2T}) + (1-\\beta^2) = 1-\\beta^{2(T+1)}$ with $(1-\\beta)^2 = (1-\\beta^2)\\frac{1-\\beta}{1+\\beta}$ for the variance recurrence. For AdamW, triangle inequality gives $\\|u_{t+1}\\|_2 \\le (1-\\eta\\lambda_w)\\frac{D_{\\max}}{\\lambda_w} + \\eta D_{\\max} = \\frac{D_{\\max}}{\\lambda_w}$. Combine with \\cref{lem:preconditioned_descent,lem:stochastic_sharpness_sgd,lem:trajectory_generalization}."
+    },
+    {
+      "id": "lem:spiked_sample_complexity",
+      "kind": "lemma",
+      "title": "Spiked-covariance effective dimension collapse and $\\mup$ vs.\\ NTK sample complexity separation",
+      "leanName": "OpenTheory.SpikedSampleComplexity.signalKernel_add_bulkKernel",
+      "leanNames": [
+        "OpenTheory.SpikedSampleComplexity.signalKernel_add_bulkKernel",
+        "OpenTheory.SpikedSampleComplexity.bulkKernel_eq_frobeniusSq_residual",
+        "OpenTheory.SpikedSampleComplexity.spikedExpectedMSE_mono_in_bulk",
+        "OpenTheory.SpikedSampleComplexity.spikedExpectedMSE_strict_decrease_of_signal_and_bulk",
+        "OpenTheory.SpikedSampleComplexity.spikedEffectiveDim_bounds",
+        "OpenTheory.SpikedSampleComplexity.unaligned_effectiveDim_scales_with_d_bulk",
+        "OpenTheory.SpikedSampleComplexity.mup_aligned_effectiveDim_le_rank_add_eps",
+        "OpenTheory.SpikedSampleComplexity.spikedVariance_le_of_sample_ge",
+        "OpenTheory.SpikedSampleComplexity.mup_vs_ntk_sample_complexity_separation",
+        "OpenTheory.SpikedSampleComplexity.mup_spiked_covariance_master_guarantee"
+      ],
+      "statementFormalized": true,
+      "proofFormalized": true,
+      "isVerified": true,
+      "dependencies": [
+        "lem:feature_learning_advantage",
+        "conj:grand_feature_learning",
+        "lem:ridge_fixed_design_mse"
+      ],
+      "bountyUsd": null,
+      "informalSketch": "Establish strict monotonicity of the ridge shrinkage factor $K\\mapsto K/(K+\\lambda)$ on $[0,\\infty)$ for $\\lambda>0$ by cross-multiplying. Combine with `FeatureLearningAdvantage.ridge_mse_strict_improvement_of_kernel_growth` on the signal subspace and `mup_spectral_alignment_of_ge_horizon` on the bulk residual $\\|H_t - H_t P\\|_F^2$ to bound both $\\mathrm{df}(\\lambda)$ and the sample complexity threshold `requiredSampleScale`."
     }
   ]
 }

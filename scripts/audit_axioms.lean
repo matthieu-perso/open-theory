@@ -11,9 +11,24 @@ def isAllowedForCompleted (n : Name) : Bool :=
 /-- Existing research targets only. New declarations are strict by default. -/
 def openTargets : List Name := []
 
-def axiomsOf (env : Environment) (declName : Name) : IO (Array Name) :=
-  (Lean.collectAxioms declName : CoreM (Array Name)).toIO'
-    { fileName := "audit", fileMap := default } { env := env }
+/-- Memoized DAG traversal over the environment so every Mathlib/OpenTheory constant
+is visited at most once (O(E) instead of O(N * E)). -/
+partial def getAxioms (env : Environment) (n : Name) :
+    StateM (Std.HashMap Name (Array Name)) (Array Name) := do
+  if let some axs := (← get).get? n then
+    return axs
+  modify fun m => m.insert n #[]
+  let mut acc : Array Name := #[]
+  if let some cinfo := env.find? n then
+    match cinfo with
+    | .axiomInfo _ => acc := #[n]
+    | _ =>
+      for dep in cinfo.getUsedConstantsAsSet do
+        for ax in ← getAxioms env dep do
+          unless acc.contains ax do
+            acc := acc.push ax
+  modify fun m => m.insert n acc
+  return acc
 
 /-- Resolve blueprint references against the actual imported Lean environment. -/
 def blueprintNames (source : String) : List Name :=
@@ -28,6 +43,8 @@ def main : IO UInt32 := do
       IO.println s!"[FATAL] Blueprint declaration not found in Lean: {name}"
       return 1
   IO.println s!"[VERIFIED] {names.length} blueprint references resolve in Lean (including imports)."
+
+  let mut memo : Std.HashMap Name (Array Name) := {}
   let mut violations : List (Name × Name) := []
   let mut sorryDecls : List Name := []
 
@@ -38,7 +55,9 @@ def main : IO UInt32 := do
     -- They cannot be used in kernel proofs; audit the safe declarations instead.
     if info.isUnsafe then
       continue
-    for ax in ← axiomsOf env declName do
+    let (axs, memo') := (getAxioms env declName).run memo
+    memo := memo'
+    for ax in axs do
       if ax == ``sorryAx then
         sorryDecls := declName :: sorryDecls
       if !isAllowedForCompleted ax && !(ax == ``sorryAx && openTargets.contains declName) then
